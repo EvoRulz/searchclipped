@@ -1,0 +1,43 @@
+{
+  "packageId": "com.yourname.searchclipped",
+  "host": "your-github-username.github.io",
+  "name": "SearchClipped",
+  "launcherName": "SearchClipped",
+  "display": "standalone",
+  "orientation": "portrait",
+  "themeColor": "#252d38",
+  "navigationColor": "#252d38",
+  "navigationColorDark": "#252d38",
+  "navigationDividerColor": "#435160",
+  "navigationDividerColorDark": "#435160",
+  "backgroundColor": "#252d38",
+  "enableNotifications": false,
+  "startUrl": "/searchclipped/index.html",
+  "iconUrl": "https://your-github-username.github.io/searchclipped/icons/icon-512.png",
+  "maskableIconUrl": "https://your-github-username.github.io/searchclipped/icons/icon-512.png",
+  "monochromeIconUrl": "https://your-github-username.github.io/searchclipped/icons/icon-512.png",
+  "appVersion": "1.0.0",
+  "appVersionCode": 1,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "android"
+  },
+  "signingKeyPath": "./android.keystore",
+  "signingKeyAlias": "android",
+  "splashScreenFadeOutDuration": 300,
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://your-github-username.github.io/searchclipped/",
+  "minSdkVersion": 19,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://your-github-username.github.io/searchclipped/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableWebViewConsoleLogging": false,
+  "serviceAccountJsonFile": ""
+}

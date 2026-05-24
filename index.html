@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#252d38">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>SearchClipped</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ===== HEADER ===== -->
+  <header id="header">
+    <div id="search-row">
+      <label class="cb-wrap" title="Select all">
+        <input type="checkbox" id="cb-select-all">
+        <span class="cb-mark"></span>
+      </label>
+      <label class="cb-wrap" title="Select filtered results only">
+        <input type="checkbox" id="cb-select-filtered">
+        <span class="cb-mark"></span>
+        <span class="cb-label">filt</span>
+      </label>
+      <input type="text" id="search-input"
+             placeholder="Search items and tags…"
+             autocomplete="off" spellcheck="false">
+      <button id="btn-star-filter" class="icon-btn" title="Show starred first">☆</button>
+      <button id="btn-undo" class="icon-btn" title="Undo" disabled>↩</button>
+      <button id="btn-redo" class="icon-btn" title="Redo" disabled>↪</button>
+    </div>
+
+    <div id="filter-row">
+      <label class="cb-wrap" title="Show deleted items">
+        <input type="checkbox" id="cb-show-deleted">
+        <span class="cb-mark"></span>
+        <span class="cb-label">deleted</span>
+      </label>
+      <label class="cb-wrap" title="Hide active items">
+        <input type="checkbox" id="cb-hide-undeleted">
+        <span class="cb-mark"></span>
+        <span class="cb-label">hide active</span>
+      </label>
+      <label class="cb-wrap" title="Search tags only">
+        <input type="checkbox" id="cb-tags-only">
+        <span class="cb-mark"></span>
+        <span class="cb-label">tags only</span>
+      </label>
+      <div id="sort-btns">
+        <button class="sort-btn active" data-sort="bump">Default</button>
+        <button class="sort-btn" data-sort="created">Created</button>
+        <button class="sort-btn" data-sort="modified">Modified</button>
+      </div>
+    </div>
+
+    <div id="action-row">
+      <button id="btn-bulk-copy"   class="action-btn">Copy Selected</button>
+      <button id="btn-bulk-delete" class="action-btn danger">Delete Selected</button>
+      <button id="btn-export"      class="action-btn">Export</button>
+      <label  class="action-btn import-label" title="Import JSON export">
+        Import
+        <input type="file" id="import-input" accept=".json" hidden>
+      </label>
+    </div>
+  </header>
+
+  <!-- ===== ITEM LIST ===== -->
+  <main id="item-list"></main>
+
+  <!-- ===== PERMISSION TOAST ===== -->
+  <div id="perm-toast" class="toast hidden">
+    <span id="perm-msg"></span>
+    <div class="toast-btns">
+      <button id="perm-allow">Allow</button>
+      <button id="perm-deny">Deny</button>
+      <button id="perm-never">Never</button>
+    </div>
+  </div>
+
+  <!-- ===== CONFIRM MODAL ===== -->
+  <div id="confirm-modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <p id="confirm-msg"></p>
+      <input type="text" id="confirm-input" placeholder='Type "yes" to confirm'
+             autocomplete="off" autocorrect="off" autocapitalize="off">
+      <div class="modal-btns">
+        <button id="confirm-cancel">Cancel</button>
+        <button id="confirm-ok" class="danger">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAG EDITOR MODAL ===== -->
+  <div id="tag-modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <h3>Edit Tags</h3>
+      <div id="tag-list-edit"></div>
+      <div id="tag-input-row">
+        <input type="text" id="tag-input" placeholder="New tag…"
+               autocomplete="off" autocorrect="off" autocapitalize="off">
+        <button id="tag-add-btn">Add</button>
+      </div>
+      <div class="modal-btns">
+        <button id="tag-done">Done</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- #app -->
+
+<script src="js/db.js"></script>
+<script src="js/state.js"></script>
+<script src="js/permissions.js"></script>
+<script src="js/clipboard.js"></script>
+<script src="js/search.js"></script>
+<script src="js/render.js"></script>
+<script src="js/modals.js"></script>
+<script src="js/items.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
