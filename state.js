@@ -21,10 +21,8 @@
  *   bumpOrder                // integer; lower = higher in bump-sort
  * }
  */
-
 var STORAGE_KEY = 'searchclipped_state';
 var MAX_UNDO    = 50;
-
 var DEFAULT_STATE = {
   items:       [],
   sortMode:    'bump',
@@ -33,7 +31,6 @@ var DEFAULT_STATE = {
   undoStack:   [],
   redoStack:   []
 };
-
 function loadState() {
   try {
     var raw = localStorage.getItem(STORAGE_KEY);
@@ -53,11 +50,9 @@ function loadState() {
     return cloneDefault();
   }
 }
-
 function cloneDefault() {
   return JSON.parse(JSON.stringify(DEFAULT_STATE));
 }
-
 function saveState(state) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -66,40 +61,33 @@ function saveState(state) {
     alert('Storage limit reached — please export and delete old items.');
   }
 }
-
 function generateId() {
   return 'i' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
 }
-
 function nowISO() {
   return new Date().toISOString();
 }
-
 /* Snapshot items array (metadata only, no blobs) */
 function snapshotItems(state) {
   return JSON.parse(JSON.stringify(state.items));
 }
-
 function pushUndo(state) {
   state.undoStack.push(snapshotItems(state));
   if (state.undoStack.length > MAX_UNDO) state.undoStack.shift();
   state.redoStack = [];
 }
-
 function undo(state) {
   if (!state.undoStack.length) return false;
   state.redoStack.push(snapshotItems(state));
   state.items = state.undoStack.pop();
   return true;
 }
-
 function redo(state) {
   if (!state.redoStack.length) return false;
   state.undoStack.push(snapshotItems(state));
   state.items = state.redoStack.pop();
   return true;
 }
-
 function createItem(text, html, imageId) {
   var now = nowISO();
   return {
@@ -115,20 +103,17 @@ function createItem(text, html, imageId) {
     bumpOrder:  0
   };
 }
-
 function getItem(state, id) {
   for (var i = 0; i < state.items.length; i++) {
     if (state.items[i].id === id) return state.items[i];
   }
   return null;
 }
-
 function upsertItem(state, item) {
   var idx = state.items.findIndex(function (it) { return it.id === item.id; });
   if (idx >= 0) state.items[idx] = item;
   else          state.items.push(item);
 }
-
 /* Normalise bumpOrder to 0…n for non-deleted items */
 function reindexBumpOrder(state) {
   var active = state.items
@@ -136,7 +121,6 @@ function reindexBumpOrder(state) {
     .sort(function (a, b) { return a.bumpOrder - b.bumpOrder; });
   active.forEach(function (item, idx) { item.bumpOrder = idx; });
 }
-
 function bumpItem(state, id, direction) {
   reindexBumpOrder(state);
   var active = state.items
@@ -150,7 +134,6 @@ function bumpItem(state, id, direction) {
   active[idx].bumpOrder    = active[targetIdx].bumpOrder;
   active[targetIdx].bumpOrder = tmp;
 }
-
 /* Returns Set of IDs for the top-N bump-sorted non-deleted items */
 function getTopBumped(state, n) {
   n = n || 10;
@@ -163,7 +146,6 @@ function getTopBumped(state, n) {
   }
   return result;
 }
-
 window.State = {
   loadState,
   saveState,
@@ -179,3 +161,4 @@ window.State = {
   bumpItem,
   getTopBumped
 };
+

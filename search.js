@@ -7,7 +7,6 @@
  *   rest     = remaining items in their normal sort order
  * Exported on window.Search
  */
-
 /*
  * getDisplayList(state, query, opts) → { filtered, rest }
  *
@@ -20,17 +19,14 @@
  */
 function getDisplayList(state, query, opts) {
   opts = opts || {};
-
   // 1. Build candidate pool
   var pool = state.items.filter(function (item) {
     if (item.deleted && !opts.showDeleted)  return false;
     if (!item.deleted && opts.hideUndeleted) return false;
     return true;
   });
-
   // 2. Sort pool by current mode
   pool = _sort(pool, state.sortMode);
-
   // 3. Star group: if starFilter, split starred to front
   var starred = [];
   var normal  = [];
@@ -42,16 +38,13 @@ function getDisplayList(state, query, opts) {
   } else {
     normal = pool;
   }
-
   // 4. Apply search
   var q = (query || '').trim().toLowerCase();
   if (!q) {
     return { filtered: [], rest: starred.concat(normal) };
   }
-
   var filteredStarred = [], restStarred   = [];
   var filteredNormal  = [], restNormal    = [];
-
   starred.forEach(function (item) {
     if (_matches(item, q, opts.tagsOnly)) filteredStarred.push(item);
     else                                  restStarred.push(item);
@@ -60,12 +53,10 @@ function getDisplayList(state, query, opts) {
     if (_matches(item, q, opts.tagsOnly)) filteredNormal.push(item);
     else                                  restNormal.push(item);
   });
-
   var filtered = filteredStarred.concat(filteredNormal);
   var rest     = restStarred.concat(restNormal);
   return { filtered: filtered, rest: rest };
 }
-
 function _matches(item, q, tagsOnly) {
   if (tagsOnly) {
     return item.tags.some(function (t) {
@@ -76,7 +67,6 @@ function _matches(item, q, tagsOnly) {
   if (item.tags.some(function (t) { return t.toLowerCase().includes(q); })) return true;
   return false;
 }
-
 function _sort(items, mode) {
   if (mode === 'created') {
     return items.slice().sort(function (a, b) {
@@ -93,5 +83,5 @@ function _sort(items, mode) {
     return a.bumpOrder - b.bumpOrder;
   });
 }
-
 window.Search = { getDisplayList };
+

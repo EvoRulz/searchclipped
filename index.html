@@ -13,7 +13,6 @@
 </head>
 <body>
 <div id="app">
-
   <!-- ===== HEADER ===== -->
   <header id="header">
     <div id="search-row">
@@ -33,7 +32,6 @@
       <button id="btn-undo" class="icon-btn" title="Undo" disabled>↩</button>
       <button id="btn-redo" class="icon-btn" title="Redo" disabled>↪</button>
     </div>
-
     <div id="filter-row">
       <label class="cb-wrap" title="Show deleted items">
         <input type="checkbox" id="cb-show-deleted">
@@ -56,7 +54,6 @@
         <button class="sort-btn" data-sort="modified">Modified</button>
       </div>
     </div>
-
     <div id="action-row">
       <button id="btn-bulk-copy"   class="action-btn">Copy Selected</button>
       <button id="btn-bulk-delete" class="action-btn danger">Delete Selected</button>
@@ -67,10 +64,8 @@
       </label>
     </div>
   </header>
-
   <!-- ===== ITEM LIST ===== -->
   <main id="item-list"></main>
-
   <!-- ===== PERMISSION TOAST ===== -->
   <div id="perm-toast" class="toast hidden">
     <span id="perm-msg"></span>
@@ -80,7 +75,6 @@
       <button id="perm-never">Never</button>
     </div>
   </div>
-
   <!-- ===== CONFIRM MODAL ===== -->
   <div id="confirm-modal" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal-box">
@@ -93,7 +87,6 @@
       </div>
     </div>
   </div>
-
   <!-- ===== TAG EDITOR MODAL ===== -->
   <div id="tag-modal" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal-box">
@@ -109,9 +102,7 @@
       </div>
     </div>
   </div>
-
 </div><!-- #app -->
-
 <script src="js/db.js"></script>
 <script src="js/state.js"></script>
 <script src="js/permissions.js"></script>

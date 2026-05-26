@@ -3,24 +3,19 @@
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
  */
-
 (function () {
-
   /* ===== STATE ===== */
   var state = State.loadState();
-
   /* ===== INIT ===== */
   Perms.init(state);
   Modals.init();
   Render.init(state);
   DB.openDB().catch(function (e) { console.error('IndexedDB open failed', e); });
-
   /* ===== FILTER UI STATE ===== */
   var query       = '';
   var showDeleted = false;
   var hideActive  = false;
   var tagsOnly    = false;
-
   /* ===== HEADER ELEMENTS ===== */
   var searchInput    = document.getElementById('search-input');
   var cbSelectAll    = document.getElementById('cb-select-all');
@@ -36,7 +31,6 @@
   var btnExport      = document.getElementById('btn-export');
   var importInput    = document.getElementById('import-input');
   var sortBtns       = document.querySelectorAll('.sort-btn');
-
   /* ===== REFRESH ===== */
   function refresh() {
     var result = Search.getDisplayList(state, query, {
@@ -57,21 +51,16 @@
     _updateSortBtns();
     _lastFiltered = result.filtered;
   }
-
   var _lastFiltered = [];
-
   /* ===== INIT ITEMS ===== */
   Items.init(state, refresh);
-
   /* Initial render */
   refresh();
-
   /* ===== SEARCH ===== */
   searchInput.addEventListener('input', function () {
     query = searchInput.value;
     refresh();
   });
-
   /* ===== CHECKBOXES ===== */
   cbSelectAll.addEventListener('change', function () {
     if (cbSelectAll.checked) {
@@ -87,7 +76,6 @@
     }
     cbSelectAll.checked = false; // reset visual
   });
-
   cbSelFiltered.addEventListener('change', function () {
     if (cbSelFiltered.checked) {
       Items.selectFiltered(_lastFiltered);
@@ -96,55 +84,50 @@
     }
     cbSelFiltered.checked = false;
   });
-
   cbShowDeleted.addEventListener('change', function () {
     showDeleted = cbShowDeleted.checked;
     refresh();
   });
-
   cbHideActive.addEventListener('change', function () {
     hideActive = cbHideActive.checked;
     refresh();
   });
-
   cbTagsOnly.addEventListener('change', function () {
     tagsOnly = cbTagsOnly.checked;
     refresh();
   });
-
   /* ===== STAR FILTER ===== */
   function _updateStarBtn() {
     if (state.starFilter) btnStarFilter.classList.add('active');
     else                  btnStarFilter.classList.remove('active');
   }
-
+document.addEventListener('sc:filter-tag', function (e) {
+    searchInput.value = e.detail.tag;
+    query             = e.detail.tag;
+    refresh();
+  });
   btnStarFilter.addEventListener('click', function () {
     state.starFilter = !state.starFilter;
     State.saveState(state);
     refresh();
   });
-
   /* ===== UNDO / REDO ===== */
   function _updateUndoRedo() {
     btnUndo.disabled = !state.undoStack.length;
     btnRedo.disabled = !state.redoStack.length;
   }
-
   btnUndo.addEventListener('click', function () {
     if (State.undo(state)) { State.saveState(state); refresh(); }
   });
-
   btnRedo.addEventListener('click', function () {
     if (State.redo(state)) { State.saveState(state); refresh(); }
   });
-
   /* ===== SORT BUTTONS ===== */
   function _updateSortBtns() {
     sortBtns.forEach(function (btn) {
       btn.classList.toggle('active', btn.dataset.sort === state.sortMode);
     });
   }
-
   sortBtns.forEach(function (btn) {
     btn.addEventListener('click', function () {
       state.sortMode = btn.dataset.sort;
@@ -152,7 +135,6 @@
       refresh();
     });
   });
-
   /* ===== BULK COPY ===== */
   btnBulkCopy.addEventListener('click', function () {
     var ids   = Items.getSelectedIds();
@@ -162,14 +144,12 @@
     if (!selected.length) { alert('No copyable items selected.'); return; }
     Clip.writeBulk(selected);
   });
-
   /* ===== BULK DELETE ===== */
   btnBulkDelete.addEventListener('click', function () {
     var ids = Items.getSelectedIds();
     if (!ids.size) { alert('No items selected.'); return; }
     Items.bulkDelete(ids);
   });
-
   /* ===== EXPORT ===== */
   btnExport.addEventListener('click', async function () {
     try {
@@ -197,7 +177,6 @@
       alert('Export failed: ' + e.message);
     }
   });
-
   /* ===== IMPORT ===== */
   importInput.addEventListener('change', async function () {
     var file = importInput.files[0];
@@ -206,7 +185,6 @@
       var text    = await file.text();
       var payload = JSON.parse(text);
       if (!payload || !payload.metadata) { alert('Invalid export file.'); return; }
-
       // Restore images to IndexedDB
       if (payload.images && payload.images.length) {
         var records = await Promise.all(payload.images.map(async function (rec) {
@@ -215,7 +193,6 @@
         }));
         await DB.importImages(records);
       }
-
       // Restore metadata — merge items, prefer imported for conflicts
       var imported = payload.metadata;
       var existingIds = new Set(state.items.map(function (i) { return i.id; }));
@@ -236,14 +213,12 @@
     }
     importInput.value = '';
   });
-
   /* ===== SERVICE WORKER ===== */
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(function (e) {
       console.warn('SW registration failed', e);
     });
   }
-
   /* ===== HELPERS ===== */
   function _blobToBase64(blob) {
     return new Promise(function (resolve, reject) {
@@ -253,19 +228,17 @@
       r.readAsDataURL(blob);
     });
   }
-
   function _base64ToBlob(b64, type) {
     var bin  = atob(b64);
     var arr  = new Uint8Array(bin.length);
     for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
     return Promise.resolve(new Blob([arr], { type: type }));
   }
-
   function _dateStr() {
     var d  = new Date();
     var p  = function (n) { return n < 10 ? '0' + n : '' + n; };
     return d.getFullYear() + p(d.getMonth()+1) + p(d.getDate()) +
            '_' + p(d.getHours()) + p(d.getMinutes());
   }
-
 })();
+

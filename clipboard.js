@@ -6,7 +6,6 @@
  * Image items use Web Share API instead of clipboard.
  * Exported on window.Clip
  */
-
 /*
  * writeItem(item) → Promise<void>
  * item: { text, html, imageId }
@@ -19,14 +18,12 @@ async function writeItem(item) {
   }
   return writeText(item.text, item.html);
 }
-
 async function writeText(plain, html) {
   var allowed = await Perms.request(
     'clipboard-write',
     'Allow SearchClipped to write to your clipboard?'
   );
   if (!allowed) return;
-
   // Try ClipboardItem with both types
   if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
     try {
@@ -42,7 +39,6 @@ async function writeText(plain, html) {
       console.warn('clipboard.write with html failed, falling back', e);
     }
   }
-
   // Plain-text fallback
   if (navigator.clipboard && navigator.clipboard.writeText) {
     try {
@@ -52,7 +48,6 @@ async function writeText(plain, html) {
       console.warn('clipboard.writeText failed', e);
     }
   }
-
   // execCommand fallback (older WebViews)
   try {
     var ta = document.createElement('textarea');
@@ -67,7 +62,6 @@ async function writeText(plain, html) {
     console.error('All clipboard methods failed', e);
   }
 }
-
 /*
  * writeBulk(items) → Promise<void>
  * Concatenates text of all items separated by newlines.
@@ -79,7 +73,6 @@ async function writeBulk(items) {
   var htmlAll   = '<div>' + htmlParts.join('</div><hr><div>') + '</div>';
   return writeText(plainAll, htmlAll);
 }
-
 async function shareImage(item) {
   if (!navigator.share) {
     alert('Web Share API not supported on this device/browser.');
@@ -90,7 +83,6 @@ async function shareImage(item) {
     'Allow SearchClipped to share content using the system share sheet?'
   );
   if (!allowed) return;
-
   try {
     var blob = await DB.loadImage(item.imageId);
     if (!blob) { alert('Image not found in storage.'); return; }
@@ -103,10 +95,9 @@ async function shareImage(item) {
     }
   }
 }
-
 function _extFromBlob(blob) {
   var m = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/gif': 'gif', 'image/webp': 'webp' };
   return m[blob.type] || 'bin';
 }
-
 window.Clip = { writeItem, writeText, writeBulk, shareImage };
+

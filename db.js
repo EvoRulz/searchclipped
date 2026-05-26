@@ -7,36 +7,29 @@
  * All image data lives here; localStorage holds metadata only.
  * Exported on window.DB
  */
-
 const DB_NAME    = 'searchclipped';
 const DB_VERSION = 1;
 const STORE      = 'images';
-
 let _db = null;
-
 function openDB() {
   return new Promise((resolve, reject) => {
     if (_db) { resolve(_db); return; }
     const req = indexedDB.open(DB_NAME, DB_VERSION);
-
     req.onupgradeneeded = function (e) {
       const db = e.target.result;
       if (!db.objectStoreNames.contains(STORE)) {
         db.createObjectStore(STORE, { keyPath: 'id' });
       }
     };
-
     req.onsuccess = function (e) {
       _db = e.target.result;
       resolve(_db);
     };
-
     req.onerror = function (e) {
       reject(e.target.error);
     };
   });
 }
-
 async function saveImage(id, blob) {
   const db = await openDB();
   return new Promise((resolve, reject) => {
@@ -47,7 +40,6 @@ async function saveImage(id, blob) {
     tx.onerror    = function (e) { reject(e.target.error); };
   });
 }
-
 async function loadImage(id) {
   const db = await openDB();
   return new Promise((resolve, reject) => {
@@ -59,7 +51,6 @@ async function loadImage(id) {
     req.onerror = function (e) { reject(e.target.error); };
   });
 }
-
 async function deleteImage(id) {
   const db = await openDB();
   return new Promise((resolve, reject) => {
@@ -69,7 +60,6 @@ async function deleteImage(id) {
     tx.onerror    = function (e) { reject(e.target.error); };
   });
 }
-
 async function getAllImageIds() {
   const db = await openDB();
   return new Promise((resolve, reject) => {
@@ -79,7 +69,6 @@ async function getAllImageIds() {
     req.onerror   = function (e) { reject(e.target.error); };
   });
 }
-
 /* Returns array of { id, blob } for export */
 async function exportAllImages() {
   const db = await openDB();
@@ -90,7 +79,6 @@ async function exportAllImages() {
     req.onerror   = function (e) { reject(e.target.error); };
   });
 }
-
 /* Imports array of { id, blob } — merges, does not clear existing */
 async function importImages(records) {
   if (!records || !records.length) return;
@@ -105,7 +93,6 @@ async function importImages(records) {
     tx.onerror    = function (e) { reject(e.target.error); };
   });
 }
-
 window.DB = {
   openDB,
   saveImage,
@@ -115,3 +102,4 @@ window.DB = {
   exportAllImages,
   importImages
 };
+

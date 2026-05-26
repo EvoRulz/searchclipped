@@ -4,26 +4,22 @@
  * Builds/patches the item list DOM from a display list.
  * Exported on window.Render
  */
-
 var _list      = null;
 var _state     = null;
 var _topBumped = null; // Set<id>
-
+var _blobUrls  = {};   // imageId → objectURL cache
 function init(state) {
   _state = state;
   _list  = document.getElementById('item-list');
 }
-
 /*
  * render(filtered, rest, selectedIds, tagSelMode, selectedTags)
  */
 function render(filtered, rest, selectedIds, tagSelMode, selectedTags) {
   _topBumped = State.getTopBumped(_state, 10);
   var frag   = document.createDocumentFragment();
-
   // New-item placeholder always first
   frag.appendChild(_makePlaceholder());
-
   // Filtered section
   if (filtered.length > 0) {
     filtered.forEach(function (item) {
@@ -35,36 +31,30 @@ function render(filtered, rest, selectedIds, tagSelMode, selectedTags) {
     div.textContent = '— rest —';
     frag.appendChild(div);
   }
-
   // Rest section
   rest.forEach(function (item) {
     var el = _makeItem(item, false, selectedIds, tagSelMode, selectedTags);
     frag.appendChild(el);
   });
-
   _list.innerHTML = '';
   _list.appendChild(frag);
 }
-
 /* ====== PLACEHOLDER ====== */
 function _makePlaceholder() {
   var el = document.createElement('div');
   el.className   = 'item new-placeholder';
   el.dataset.id  = '__new__';
-
   var content = document.createElement('div');
   content.className         = 'item-content placeholder';
   content.contentEditable   = 'true';
   content.dataset.placeholder = 'create new item…';
   content.setAttribute('aria-label', 'Create new item');
-
   content.addEventListener('focus', function () {
     if (content.classList.contains('placeholder')) {
       content.textContent = '';
       content.classList.remove('placeholder');
     }
   });
-
   content.addEventListener('blur', function () {
     var text = (content.textContent || '').trim();
     if (!text) {
@@ -78,26 +68,41 @@ function _makePlaceholder() {
       content.classList.add('placeholder');
     }
   });
-
   content.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       content.blur();
     }
   });
-
   el.appendChild(content);
+  var right = document.createElement('div');
+  right.className = 'item-right';
+  var imgInput = document.createElement('input');
+  imgInput.type          = 'file';
+  imgInput.accept        = 'image/*';
+  imgInput.style.display = 'none';
+  imgInput.addEventListener('change', function () {
+    var file = imgInput.files[0];
+    if (file) document.dispatchEvent(new CustomEvent('sc:create-image', { detail: { blob: file } }));
+    imgInput.value = '';
+  });
+  var imgBtn = document.createElement('button');
+  imgBtn.className   = 'img-pick-btn';
+  imgBtn.textContent = '+img';
+  imgBtn.addEventListener('click', function (e) { e.preventDefault(); imgInput.click(); });
+  right.appendChild(imgInput);
+  right.appendChild(imgBtn);
+  el.appendChild(right);
   return el;
 }
-
 /* ====== ITEM ELEMENT ====== */
 function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   var el = document.createElement('div');
   el.className  = 'item' + (isFiltered ? ' filtered' : '') +
                   (item.starred ? ' starred' : '') +
-                  (item.deleted ? ' deleted' : '');
+                  (item.deleted ? ' deleted' : '') +
+                  (item.imageId ? ' has-image' : '');
   el.dataset.id = item.id;
-
   // --- Checkbox ---
   var cbWrap = document.createElement('label');
   cbWrap.className = 'item-cb-wrap cb-wrap';
@@ -112,7 +117,6 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   cbWrap.appendChild(cb);
   cbWrap.appendChild(cbMark);
   el.appendChild(cbWrap);
-
   // --- Arrows ---
   var arrows = document.createElement('div');
   arrows.className = 'item-arrows';
@@ -135,14 +139,12 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   arrows.appendChild(upBtn);
   if (_state.sortMode === 'bump') arrows.appendChild(dnBtn);
   el.appendChild(arrows);
-
   // --- Content ---
   var content = document.createElement('div');
   content.className       = 'item-content';
   content.contentEditable = item.deleted ? 'false' : 'true';
   content.textContent     = item.text || '';
   content.setAttribute('data-id', item.id);
-
   content.addEventListener('blur', function () {
     var newText = (content.textContent || '').trim();
     if (newText !== (item.text || '').trim()) {
@@ -154,7 +156,6 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   content.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); content.blur(); }
   });
-
   // Single click to copy (only when not editing)
   var _clickTimer = null;
   content.addEventListener('click', function (e) {
@@ -166,7 +167,6 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
       setTimeout(function () { el.classList.remove('copy-flash'); }, 500);
     }, 200);
   });
-
   // Long-press to open tag editor (2 s)
   var _lpTimer = null;
   content.addEventListener('pointerdown', function () {
@@ -177,13 +177,10 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   content.addEventListener('pointerup',    function () { clearTimeout(_lpTimer); });
   content.addEventListener('pointermove',  function () { clearTimeout(_lpTimer); });
   content.addEventListener('pointercancel',function () { clearTimeout(_lpTimer); });
-
   el.appendChild(content);
-
   // --- Right column ---
   var right = document.createElement('div');
   right.className = 'item-right';
-
   var starBtn = document.createElement('button');
   starBtn.className   = 'star-btn' + (item.starred ? ' active' : '');
   starBtn.textContent = item.starred ? '★' : '☆';
@@ -192,7 +189,6 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     document.dispatchEvent(new CustomEvent('sc:toggle-star', { detail: { id: item.id } }));
   });
   right.appendChild(starBtn);
-
   if (item.imageId) {
     var shareBtn = document.createElement('button');
     shareBtn.className   = 'share-btn';
@@ -214,22 +210,30 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     });
     right.appendChild(copyBtn);
   }
-
   el.appendChild(right);
-
+  // --- Image ---
+  if (item.imageId) {
+    var imgEl = document.createElement('img');
+    imgEl.className = 'item-image';
+    imgEl.alt       = item.text || 'image';
+    DB.loadImage(item.imageId).then(function (blob) {
+      if (blob) {
+        if (!_blobUrls[item.imageId]) _blobUrls[item.imageId] = URL.createObjectURL(blob);
+        imgEl.src = _blobUrls[item.imageId];
+      }
+    });
+    el.appendChild(imgEl);
+  }
   // --- Footer ---
   var footer = document.createElement('div');
   footer.className = 'item-footer';
-
   var ts = document.createElement('span');
   ts.className   = 'item-ts';
   ts.textContent = _fmtDate(item.modifiedAt || item.createdAt);
   footer.appendChild(ts);
-
   // Tags row
   var tagsRow = _makeTagsRow(item, tagSelMode, selectedTags);
   footer.appendChild(tagsRow);
-
   // Restore button for deleted items
   if (item.deleted) {
     var restoreBtn = document.createElement('button');
@@ -240,20 +244,15 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     });
     footer.appendChild(restoreBtn);
   }
-
   el.appendChild(footer);
-
   // --- Swipe-to-delete ---
   _attachSwipe(el, item.id);
-
   return el;
 }
-
 /* ====== TAGS ROW ====== */
 function _makeTagsRow(item, tagSelMode, selectedTags) {
   var row = document.createElement('div');
   row.className = 'tags-row' + (tagSelMode ? ' tag-sel-mode' : '');
-
   if (item.tags && item.tags.length > 0) {
     item.tags.forEach(function (tag) {
       var pill = document.createElement('span');
@@ -265,11 +264,14 @@ function _makeTagsRow(item, tagSelMode, selectedTags) {
             detail: { itemId: item.id, tag: tag }
           }));
         });
+      } else {
+        pill.addEventListener('click', function () {
+          document.dispatchEvent(new CustomEvent('sc:filter-tag', { detail: { tag: tag } }));
+        });
       }
       row.appendChild(pill);
     });
   }
-
   if (!item.deleted) {
     var editBtn = document.createElement('button');
     editBtn.className   = 'tags-edit-btn';
@@ -289,22 +291,18 @@ function _makeTagsRow(item, tagSelMode, selectedTags) {
     editBtn.addEventListener('pointercancel',function () { clearTimeout(_lpTagTimer); });
     row.appendChild(editBtn);
   }
-
   return row;
 }
-
 /* ====== SWIPE TO DELETE ====== */
 function _attachSwipe(el, id) {
   var startX = 0, startY = 0, dx = 0;
   var THRESHOLD = 80;
-
   el.addEventListener('pointerdown', function (e) {
     if (e.target.closest('button, input, [contenteditable]')) return;
     startX = e.clientX;
     startY = e.clientY;
     dx     = 0;
   }, { passive: true });
-
   el.addEventListener('pointermove', function (e) {
     dx = e.clientX - startX;
     var dy = Math.abs(e.clientY - startY);
@@ -313,7 +311,6 @@ function _attachSwipe(el, id) {
       el.style.transform = 'translateX(' + Math.max(dx, -THRESHOLD * 1.5) + 'px)';
     }
   }, { passive: true });
-
   el.addEventListener('pointerup', function () {
     if (dx < -THRESHOLD) {
       el.style.transform = 'translateX(-100%)';
@@ -326,13 +323,11 @@ function _attachSwipe(el, id) {
     }
     dx = 0;
   });
-
   el.addEventListener('pointercancel', function () {
     el.style.transform = '';
     dx = 0;
   });
 }
-
 /* ====== HELPERS ====== */
 function _fmtDate(iso) {
   if (!iso) return '';
@@ -343,5 +338,5 @@ function _fmtDate(iso) {
            ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
   } catch (e) { return iso; }
 }
-
 window.Render = { init, render };
+

@@ -6,7 +6,6 @@
  * Shows a toast for each request; resolves promise with boolean.
  * Exported on window.Perms
  */
-
 var _state       = null;
 var _pendingResolve = null;
 var _toast       = null;
@@ -14,7 +13,6 @@ var _msg         = null;
 var _allowBtn    = null;
 var _denyBtn     = null;
 var _neverBtn    = null;
-
 function init(state) {
   _state    = state;
   _toast    = document.getElementById('perm-toast');
@@ -22,12 +20,10 @@ function init(state) {
   _allowBtn = document.getElementById('perm-allow');
   _denyBtn  = document.getElementById('perm-deny');
   _neverBtn = document.getElementById('perm-never');
-
   _allowBtn.addEventListener('click', function () { _resolve(true,  false); });
   _denyBtn.addEventListener('click',  function () { _resolve(false, false); });
   _neverBtn.addEventListener('click', function () { _resolve(false, true);  });
 }
-
 function _resolve(allowed, never) {
   _toast.classList.add('hidden');
   if (!_pendingResolve) return;
@@ -40,9 +36,7 @@ function _resolve(allowed, never) {
   _pendingPerm    = null;
   cb(allowed);
 }
-
 var _pendingPerm = null;
-
 /*
  * request(permName, message) → Promise<boolean>
  * If 'never'   → resolves false immediately.
@@ -53,7 +47,6 @@ function request(permName, message) {
   var decision = _state.permissions[permName];
   if (decision === 'never')   return Promise.resolve(false);
   if (decision === 'granted') return Promise.resolve(true);
-
   return new Promise(function (resolve) {
     _pendingResolve = resolve;
     _pendingPerm    = permName;
@@ -61,7 +54,6 @@ function request(permName, message) {
     _toast.classList.remove('hidden');
   });
 }
-
 /*
  * check(permName) → boolean
  * Non-blocking read of current permission state.
@@ -69,5 +61,5 @@ function request(permName, message) {
 function check(permName) {
   return _state.permissions[permName] === 'granted';
 }
-
 window.Perms = { init, request, check };
+

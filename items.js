@@ -4,14 +4,11 @@
  * Handles all item CRUD events dispatched from render.js.
  * Exported on window.Items
  */
-
 var _state     = null;
 var _refresh   = null; // callback to re-render
-
 function init(state, refreshFn) {
   _state   = state;
   _refresh = refreshFn;
-
   document.addEventListener('sc:create-item',    _onCreate);
   document.addEventListener('sc:edit-item',      _onEdit);
   document.addEventListener('sc:copy-item',      _onCopy);
@@ -23,9 +20,10 @@ function init(state, refreshFn) {
   document.addEventListener('sc:restore-item',   _onRestore);
   document.addEventListener('sc:open-tags',      _onOpenTags);
   document.addEventListener('sc:enter-tag-sel-mode', _onEnterTagSelMode);
+  document.addEventListener('sc:create-image',       function (e) { _createImageItem(e.detail.blob); });
+  document.addEventListener('paste',                 _onPaste);
   document.addEventListener('sc:toggle-tag-sel', _onToggleTagSel);
 }
-
 /* ====== CREATE ====== */
 function _onCreate(e) {
   var text = (e.detail.text || '').trim();
@@ -41,7 +39,6 @@ function _onCreate(e) {
   State.saveState(_state);
   _refresh();
 }
-
 /* ====== EDIT ====== */
 function _onEdit(e) {
   var item = State.getItem(_state, e.detail.id);
@@ -53,49 +50,40 @@ function _onEdit(e) {
   State.saveState(_state);
   _refresh();
 }
-
 /* ====== COPY ====== */
 function _onCopy(e) {
   var item = State.getItem(_state, e.detail.id);
   if (!item) return;
   Clip.writeItem(item);
 }
-
 /* ====== SHARE ====== */
 function _onShare(e) {
   var item = State.getItem(_state, e.detail.id);
   if (!item) return;
   Clip.shareImage(item);
 }
-
 /* ====== SELECT ====== */
 var _selectedIds = new Set();
-
 function getSelectedIds() { return _selectedIds; }
-
 function _onToggleSelect(e) {
   var id = e.detail.id;
   if (_selectedIds.has(id)) _selectedIds.delete(id);
   else                       _selectedIds.add(id);
   _refresh();
 }
-
 function selectAll(items) {
   items.forEach(function (i) { _selectedIds.add(i.id); });
   _refresh();
 }
-
 function selectFiltered(filtered) {
   _selectedIds.clear();
   filtered.forEach(function (i) { _selectedIds.add(i.id); });
   _refresh();
 }
-
 function clearSelection() {
   _selectedIds.clear();
   _refresh();
 }
-
 /* ====== STAR ====== */
 function _onToggleStar(e) {
   var item = State.getItem(_state, e.detail.id);
@@ -106,7 +94,6 @@ function _onToggleStar(e) {
   State.saveState(_state);
   _refresh();
 }
-
 /* ====== BUMP ====== */
 function _onBump(e) {
   var id  = e.detail.id;
@@ -132,19 +119,16 @@ function _onBump(e) {
   State.saveState(_state);
   _refresh();
 }
-
 /* ====== DELETE (swipe) ====== */
 function _onSwipeDelete(e) {
   _doDelete([e.detail.id], 'Delete this item? Type "yes" to confirm.');
 }
-
 /* ====== BULK DELETE ====== */
 function bulkDelete(ids) {
   if (!ids.size) return;
   _doDelete(Array.from(ids),
     'Delete ' + ids.size + ' item(s)?\nType "yes" to confirm.');
 }
-
 async function _doDelete(ids, message) {
   var ok = await Modals.confirm(message);
   if (!ok) return;
@@ -161,7 +145,6 @@ async function _doDelete(ids, message) {
   State.saveState(_state);
   _refresh();
 }
-
 /* ====== RESTORE ====== */
 async function _onRestore(e) {
   var ok = await Modals.confirm('Restore this item? Type "yes" to confirm.');
@@ -174,7 +157,6 @@ async function _onRestore(e) {
   State.saveState(_state);
   _refresh();
 }
-
 /* ====== TAGS ====== */
 function _onOpenTags(e) {
   Modals.openTagEditor(_state, e.detail.id, function (item) {
@@ -183,33 +165,50 @@ function _onOpenTags(e) {
     _refresh();
   });
 }
-
 /* ====== TAG SELECTION MODE ====== */
 var _tagSelMode   = false;
 var _selectedTags = new Set(); // "tag|itemId"
-
 function getTagSelMode()   { return _tagSelMode; }
 function getSelectedTags() { return _selectedTags; }
-
 function _onEnterTagSelMode() {
   _tagSelMode = true;
   _selectedTags.clear();
   _refresh();
 }
-
 function exitTagSelMode() {
   _tagSelMode = false;
   _selectedTags.clear();
   _refresh();
 }
-
 function _onToggleTagSel(e) {
   var key = e.detail.tag + '|' + e.detail.itemId;
   if (_selectedTags.has(key)) _selectedTags.delete(key);
   else                         _selectedTags.add(key);
   _refresh();
 }
-
+/* ====== IMAGE PASTE ====== */
+function _onPaste(e) {
+  var items = e.clipboardData ? e.clipboardData.items : [];
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].type.indexOf('image') !== -1) {
+      var blob = items[i].getAsFile();
+      if (blob) _createImageItem(blob);
+      e.preventDefault();
+      return;
+    }
+  }
+}
+async function _createImageItem(blob) {
+  var id = State.generateId();
+  await DB.saveImage(id, blob);
+  State.pushUndo(_state);
+  var item = State.createItem('Image', '', id);
+  _state.items.forEach(function (i) { if (!i.deleted) i.bumpOrder += 1; });
+  item.bumpOrder = 0;
+  _state.items.unshift(item);
+  State.saveState(_state);
+  _refresh();
+}
 async function bulkDeleteTags() {
   if (!_selectedTags.size) return;
   var ok = await Modals.confirm(
@@ -232,7 +231,6 @@ async function bulkDeleteTags() {
   State.saveState(_state);
   _refresh();
 }
-
 window.Items = {
   init,
   getSelectedIds,
@@ -245,3 +243,4 @@ window.Items = {
   exitTagSelMode,
   bulkDeleteTags
 };
+

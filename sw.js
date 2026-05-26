@@ -1,8 +1,6 @@
 /* sw.js — SearchClipped Service Worker */
 'use strict';
-
-var CACHE_NAME = 'searchclipped-v1';
-
+var CACHE_NAME = 'searchclipped-v5';
 var PRECACHE = [
   './',
   './index.html',
@@ -19,7 +17,6 @@ var PRECACHE = [
   './manifest.webmanifest',
   'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap'
 ];
-
 /* ===== INSTALL — cache shell ===== */
 self.addEventListener('install', function (e) {
   e.waitUntil(
@@ -30,7 +27,6 @@ self.addEventListener('install', function (e) {
     })
   );
 });
-
 /* ===== ACTIVATE — purge old caches ===== */
 self.addEventListener('activate', function (e) {
   e.waitUntil(
@@ -44,15 +40,12 @@ self.addEventListener('activate', function (e) {
     })
   );
 });
-
 /* ===== FETCH — cache-first for shell, network-first for fonts ===== */
 self.addEventListener('fetch', function (e) {
   var url = e.request.url;
-
   // Skip non-GET and chrome-extension requests
   if (e.request.method !== 'GET') return;
   if (url.startsWith('chrome-extension://')) return;
-
   // Network-first for Google Fonts (they update)
   if (url.includes('fonts.googleapis.com') || url.includes('fonts.gstatic.com')) {
     e.respondWith(
@@ -68,7 +61,6 @@ self.addEventListener('fetch', function (e) {
     );
     return;
   }
-
   // Cache-first for everything else (app shell)
   e.respondWith(
     caches.match(e.request).then(function (cached) {
