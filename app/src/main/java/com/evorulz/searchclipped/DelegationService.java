@@ -1,4 +1,4 @@
-package io.github.evorulz.twa;
+package com.evorulz.searchclipped;
 
 
 

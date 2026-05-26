@@ -40,7 +40,7 @@
     <!-- Value from default config. -->
     <string name="orientation" translatable="false">any</string>
     <!-- Value from default config. -->
-    <string name="providerAuthority" translatable="false">io.github.evorulz.twa.fileprovider</string>
+    <string name="providerAuthority" translatable="false">com.evorulz.searchclipped.fileprovider</string>
     <!-- Value from default config. -->
     <string name="webManifestUrl" translatable="false">https://evorulz.github.io/searchclipped/manifest.webmanifest</string>
 

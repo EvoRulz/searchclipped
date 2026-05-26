@@ -3,8 +3,8 @@
 # min_api: 21
 # common_typos_disable
 # {"id":"com.android.tools.r8.mapping","version":"2.2"}
-# pg_map_id: 213b213
-# pg_map_hash: SHA-256 213b213d565e37f8d8204a6f273182d75fb7f9a869bde3184d9023b126b82bfd
+# pg_map_id: 302cf3a
+# pg_map_hash: SHA-256 302cf3acdaada298090c952015e275f8f57e653dcec7d5ed16bf9ad075cd278b
 android.support.customtabs.ICustomTabsCallback -> a.a:
 # {"id":"sourceFile","fileName":"ICustomTabsCallback.java"}
     java.lang.String DESCRIPTOR -> a
@@ -22694,6 +22694,22 @@ androidx.versionedparcelable.VersionedParcelParcel -> androidx.versionedparcelab
     1:6:void writeBoolean(boolean):181:181 -> y
 androidx.versionedparcelable.VersionedParcelable -> H.a:
 # {"id":"sourceFile","fileName":"VersionedParcelable.java"}
+com.evorulz.searchclipped.Application -> com.evorulz.searchclipped.Application:
+# {"id":"sourceFile","fileName":"Application.java"}
+    1:4:void <init>():20:20 -> <init>
+    1:4:void onCreate():26:26 -> onCreate
+com.evorulz.searchclipped.DelegationService -> com.evorulz.searchclipped.DelegationService:
+# {"id":"sourceFile","fileName":"DelegationService.java"}
+    1:4:void <init>():5:5 -> <init>
+    1:4:void onCreate():9:9 -> onCreate
+com.evorulz.searchclipped.LauncherActivity -> com.evorulz.searchclipped.LauncherActivity:
+# {"id":"sourceFile","fileName":"LauncherActivity.java"}
+    1:4:void <init>():25:25 -> <init>
+    1:5:android.net.Uri getLaunchingUrl():48:48 -> i
+    1:3:void onCreate(android.os.Bundle):33:33 -> onCreate
+    4:10:void onCreate(android.os.Bundle):38:38 -> onCreate
+    11:14:void onCreate(android.os.Bundle):39:39 -> onCreate
+    15:18:void onCreate(android.os.Bundle):41:41 -> onCreate
 com.google.androidbrowserhelper.R$drawable -> I.a:
     int ic_site_settings -> a
 com.google.androidbrowserhelper.R$string -> I.b:
@@ -24606,22 +24622,6 @@ com.google.common.collect.UnmodifiableListIterator -> M.s:
     1:4:void <init>():34:34 -> <init>
     1:6:void add(java.lang.Object):46:46 -> add
     1:6:void set(java.lang.Object):59:59 -> set
-io.github.evorulz.twa.Application -> io.github.evorulz.twa.Application:
-# {"id":"sourceFile","fileName":"Application.java"}
-    1:4:void <init>():20:20 -> <init>
-    1:4:void onCreate():26:26 -> onCreate
-io.github.evorulz.twa.DelegationService -> io.github.evorulz.twa.DelegationService:
-# {"id":"sourceFile","fileName":"DelegationService.java"}
-    1:4:void <init>():5:5 -> <init>
-    1:4:void onCreate():9:9 -> onCreate
-io.github.evorulz.twa.LauncherActivity -> io.github.evorulz.twa.LauncherActivity:
-# {"id":"sourceFile","fileName":"LauncherActivity.java"}
-    1:4:void <init>():25:25 -> <init>
-    1:5:android.net.Uri getLaunchingUrl():48:48 -> i
-    1:3:void onCreate(android.os.Bundle):33:33 -> onCreate
-    4:10:void onCreate(android.os.Bundle):38:38 -> onCreate
-    11:14:void onCreate(android.os.Bundle):39:39 -> onCreate
-    15:18:void onCreate(android.os.Bundle):41:41 -> onCreate
 kotlin.Lazy -> N.a:
 # {"id":"sourceFile","fileName":"Lazy.kt"}
     java.lang.Object getValue() -> getValue

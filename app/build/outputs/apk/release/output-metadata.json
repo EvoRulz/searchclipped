@@ -4,15 +4,15 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "io.github.evorulz.twa",
+  "applicationId": "com.evorulz.searchclipped",
   "variantName": "release",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 10,
-      "versionName": "10",
+      "versionCode": 11,
+      "versionName": "11",
       "outputFile": "app-release-unsigned.apk"
     }
   ],

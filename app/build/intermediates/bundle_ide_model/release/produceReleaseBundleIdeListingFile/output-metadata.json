@@ -4,7 +4,7 @@
     "type": "BUNDLE",
     "kind": "RegularFile"
   },
-  "applicationId": "io.github.evorulz.twa",
+  "applicationId": "com.evorulz.searchclipped",
   "variantName": "release",
   "elements": [
     {

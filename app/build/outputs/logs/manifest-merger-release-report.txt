@@ -36,7 +36,7 @@ MERGED from [androidx.tracing:tracing:1.0.0] C:\Users\evo93\.gradle\caches\8.11.
 MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\evo93\.gradle\caches\8.11.1\transforms\09558f1b9b56a339611f1f3ff5685123\transformed\core-runtime-2.2.0\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.annotation:annotation-experimental:1.4.1] C:\Users\evo93\.gradle\caches\8.11.1\transforms\7880efad619dc72d569f5e6e2c17444b\transformed\annotation-experimental-1.4.1\AndroidManifest.xml:2:1-7:12
 	package
-		ADDED from C:\Users\evo93\Desktop\appSearchClipped\app\src\main\AndroidManifest.xml:23:5-36
+		ADDED from C:\Users\evo93\Desktop\appSearchClipped\app\src\main\AndroidManifest.xml:23:5-40
 		INJECTED from C:\Users\evo93\Desktop\appSearchClipped\app\src\main\AndroidManifest.xml
 	android:versionName
 		INJECTED from C:\Users\evo93\Desktop\appSearchClipped\app\src\main\AndroidManifest.xml
@@ -125,7 +125,7 @@ category#android.intent.category.DEFAULT
 ADDED from C:\Users\evo93\Desktop\appSearchClipped\app\src\main\AndroidManifest.xml:74:21-80
 	android:name
 		ADDED from C:\Users\evo93\Desktop\appSearchClipped\app\src\main\AndroidManifest.xml:74:31-77
-activity#io.github.evorulz.twa.LauncherActivity
+activity#com.evorulz.searchclipped.LauncherActivity
 ADDED from C:\Users\evo93\Desktop\appSearchClipped\app\src\main\AndroidManifest.xml:79:9-162:20
 	android:label
 		ADDED from C:\Users\evo93\Desktop\appSearchClipped\app\src\main\AndroidManifest.xml:81:13-49
@@ -275,7 +275,7 @@ ADDED from C:\Users\evo93\Desktop\appSearchClipped\app\src\main\AndroidManifest.
 		ADDED from C:\Users\evo93\Desktop\appSearchClipped\app\src\main\AndroidManifest.xml:176:17-50
 	android:name
 		ADDED from C:\Users\evo93\Desktop\appSearchClipped\app\src\main\AndroidManifest.xml:175:17-67
-service#io.github.evorulz.twa.DelegationService
+service#com.evorulz.searchclipped.DelegationService
 ADDED from C:\Users\evo93\Desktop\appSearchClipped\app\src\main\AndroidManifest.xml:179:9-194:19
 	android:enabled
 		ADDED from C:\Users\evo93\Desktop\appSearchClipped\app\src\main\AndroidManifest.xml:181:13-55
@@ -401,7 +401,7 @@ ADDED from [androidx.core:core:1.13.0] C:\Users\evo93\.gradle\caches\8.11.1\tran
 		ADDED from [androidx.core:core:1.13.0] C:\Users\evo93\.gradle\caches\8.11.1\transforms\a5429f7b20c607b890f08b5283ad4ec0\transformed\core-1.13.0\AndroidManifest.xml:24:9-44
 	android:name
 		ADDED from [androidx.core:core:1.13.0] C:\Users\evo93\.gradle\caches\8.11.1\transforms\a5429f7b20c607b890f08b5283ad4ec0\transformed\core-1.13.0\AndroidManifest.xml:23:9-81
-permission#io.github.evorulz.twa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+permission#com.evorulz.searchclipped.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
 ADDED from [androidx.core:core:1.13.0] C:\Users\evo93\.gradle\caches\8.11.1\transforms\a5429f7b20c607b890f08b5283ad4ec0\transformed\core-1.13.0\AndroidManifest.xml:22:5-24:47
 	android:protectionLevel
 		ADDED from [androidx.core:core:1.13.0] C:\Users\evo93\.gradle\caches\8.11.1\transforms\a5429f7b20c607b890f08b5283ad4ec0\transformed\core-1.13.0\AndroidManifest.xml:24:9-44
@@ -411,7 +411,7 @@ uses-permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
 ADDED from [androidx.core:core:1.13.0] C:\Users\evo93\.gradle\caches\8.11.1\transforms\a5429f7b20c607b890f08b5283ad4ec0\transformed\core-1.13.0\AndroidManifest.xml:26:5-97
 	android:name
 		ADDED from [androidx.core:core:1.13.0] C:\Users\evo93\.gradle\caches\8.11.1\transforms\a5429f7b20c607b890f08b5283ad4ec0\transformed\core-1.13.0\AndroidManifest.xml:26:22-94
-uses-permission#io.github.evorulz.twa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+uses-permission#com.evorulz.searchclipped.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
 ADDED from [androidx.core:core:1.13.0] C:\Users\evo93\.gradle\caches\8.11.1\transforms\a5429f7b20c607b890f08b5283ad4ec0\transformed\core-1.13.0\AndroidManifest.xml:26:5-97
 	android:name
 		ADDED from [androidx.core:core:1.13.0] C:\Users\evo93\.gradle\caches\8.11.1\transforms\a5429f7b20c607b890f08b5283ad4ec0\transformed\core-1.13.0\AndroidManifest.xml:26:22-94

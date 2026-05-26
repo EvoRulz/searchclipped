@@ -7668,6 +7668,15 @@ androidx.viewpager.widget.ViewPager$SavedState
 androidx.viewpager.widget.ViewPager$SimpleOnPageChangeListener
 androidx.viewpager.widget.ViewPager$ViewPositionComparator
 androidx.viewpager.widget.ViewPager
+com.evorulz.searchclipped.R$bool
+com.evorulz.searchclipped.R$color
+com.evorulz.searchclipped.R$drawable
+com.evorulz.searchclipped.R$integer
+com.evorulz.searchclipped.R$mipmap
+com.evorulz.searchclipped.R$raw
+com.evorulz.searchclipped.R$string
+com.evorulz.searchclipped.R$xml
+com.evorulz.searchclipped.R
 com.google.androidbrowserhelper.BuildConfig
 com.google.androidbrowserhelper.R$drawable:
     private void <init>()
@@ -10277,15 +10286,6 @@ com.google.j2objc.annotations.WeakOuter
 com.google.thirdparty.publicsuffix.PublicSuffixPatterns
 com.google.thirdparty.publicsuffix.PublicSuffixType
 com.google.thirdparty.publicsuffix.TrieParser
-io.github.evorulz.twa.R$bool
-io.github.evorulz.twa.R$color
-io.github.evorulz.twa.R$drawable
-io.github.evorulz.twa.R$integer
-io.github.evorulz.twa.R$mipmap
-io.github.evorulz.twa.R$raw
-io.github.evorulz.twa.R$string
-io.github.evorulz.twa.R$xml
-io.github.evorulz.twa.R
 kotlin.ArrayIntrinsicsKt
 kotlin.BuilderInference
 kotlin.CharCodeJVMKt

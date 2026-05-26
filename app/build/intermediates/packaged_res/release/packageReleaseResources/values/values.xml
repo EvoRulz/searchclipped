@@ -29,6 +29,6 @@
     <string name="launchUrl" translatable="false">https://evorulz.github.io/searchclipped/index.html</string>
     <string name="launcherName" translatable="false">SearchClippd</string>
     <string name="orientation" translatable="false">any</string>
-    <string name="providerAuthority" translatable="false">io.github.evorulz.twa.fileprovider</string>
+    <string name="providerAuthority" translatable="false">com.evorulz.searchclipped.fileprovider</string>
     <string name="webManifestUrl" translatable="false">https://evorulz.github.io/searchclipped/manifest.webmanifest</string>
 </resources>

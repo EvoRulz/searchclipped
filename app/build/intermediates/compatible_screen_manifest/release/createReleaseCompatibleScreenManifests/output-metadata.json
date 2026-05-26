@@ -4,7 +4,7 @@
     "type": "COMPATIBLE_SCREEN_MANIFEST",
     "kind": "Directory"
   },
-  "applicationId": "io.github.evorulz.twa",
+  "applicationId": "com.evorulz.searchclipped",
   "variantName": "release",
   "elements": []
 }

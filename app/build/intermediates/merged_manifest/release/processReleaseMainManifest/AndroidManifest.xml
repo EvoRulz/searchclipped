@@ -22,9 +22,9 @@
      the abbreviated format.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="io.github.evorulz.twa"
-    android:versionCode="10"
-    android:versionName="10" >
+    package="com.evorulz.searchclipped"
+    android:versionCode="11"
+    android:versionName="11" >
 
     <uses-sdk
         android:minSdkVersion="21"
@@ -43,13 +43,13 @@
     </queries>
 
     <permission
-        android:name="io.github.evorulz.twa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        android:name="com.evorulz.searchclipped.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
         android:protectionLevel="signature" />
 
-    <uses-permission android:name="io.github.evorulz.twa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+    <uses-permission android:name="com.evorulz.searchclipped.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
 
     <application
-        android:name="io.github.evorulz.twa.Application"
+        android:name="com.evorulz.searchclipped.Application"
         android:allowBackup="true"
         android:appComponentFactory="androidx.core.app.CoreComponentFactory"
         android:extractNativeLibs="true"
@@ -84,7 +84,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="io.github.evorulz.twa.LauncherActivity"
+            android:name="com.evorulz.searchclipped.LauncherActivity"
             android:alwaysRetainTaskState="true"
             android:exported="true"
             android:label="@string/launcherName" >
@@ -164,7 +164,7 @@
         </provider>
 
         <service
-            android:name="io.github.evorulz.twa.DelegationService"
+            android:name="com.evorulz.searchclipped.DelegationService"
             android:enabled="@bool/enableNotification"
             android:exported="@bool/enableNotification" >
             <meta-data
@@ -182,7 +182,7 @@
 
         <provider
             android:name="androidx.startup.InitializationProvider"
-            android:authorities="io.github.evorulz.twa.androidx-startup"
+            android:authorities="com.evorulz.searchclipped.androidx-startup"
             android:exported="false" >
             <meta-data
                 android:name="androidx.emoji2.text.EmojiCompatInitializer"

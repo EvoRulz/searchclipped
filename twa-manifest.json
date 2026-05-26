@@ -1,5 +1,5 @@
 {
-  "packageId": "io.github.evorulz.twa",
+  "packageId": "com.evorulz.searchclipped",
   "host": "evorulz.github.io",
   "name": "SearchClipped",
   "launcherName": "SearchClippd",
@@ -20,8 +20,8 @@
     "path": "C:\\Users\\evo93\\Desktop\\appSearchClipped\\android.keystore",
     "alias": "android"
   },
-  "appVersionName": "a",
-  "appVersionCode": 7,
+  "appVersionName": "babbabooi",
+  "appVersionCode": 8,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://evorulz.github.io/searchclipped/manifest.webmanifest",
@@ -43,5 +43,5 @@
   "fileHandlers": [],
   "launchHandlerClientMode": "",
   "displayOverride": [],
-  "appVersion": "a"
+  "appVersion": "babbabooi"
 }
