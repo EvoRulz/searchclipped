@@ -65,6 +65,23 @@ button { font-family: var(--font); }
   flex-shrink: 0;
   z-index: 10;
 }
+#title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+#sc-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--blue);
+  letter-spacing: 0.04em;
+}
+#sc-version {
+  font-size: 10px;
+  color: var(--text-ph);
+  letter-spacing: 0.06em;
+}
 #search-row {
   display: flex;
   align-items: center;

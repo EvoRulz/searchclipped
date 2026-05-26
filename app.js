@@ -1,4 +1,6 @@
 'use strict';
+// @version 17
+var SC_VERSION = '@version 17';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -11,6 +13,8 @@
   Modals.init();
   Render.init(state);
   DB.openDB().catch(function (e) { console.error('IndexedDB open failed', e); });
+  var _verEl = document.getElementById('sc-version');
+  if (_verEl) _verEl.textContent = SC_VERSION;
   /* ===== FILTER UI STATE ===== */
   var query       = '';
   var showDeleted = false;
@@ -28,7 +32,9 @@
   var btnRedo        = document.getElementById('btn-redo');
   var btnBulkCopy    = document.getElementById('btn-bulk-copy');
   var btnBulkDelete  = document.getElementById('btn-bulk-delete');
-  var btnExport      = document.getElementById('btn-export');
+  var btnExport      = document.getElementById('btn-export');DB.openDB().catch(function (e) { console.error('IndexedDB open failed', e); });
+  var _verEl = document.getElementById('sc-version');
+  if (_verEl) _verEl.textContent = SC_VERSION;
   var importInput    = document.getElementById('import-input');
   var sortBtns       = document.querySelectorAll('.sort-btn');
   /* ===== REFRESH ===== */
