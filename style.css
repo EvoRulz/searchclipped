@@ -413,6 +413,30 @@ button { font-family: var(--font); }
   transition: all var(--transition);
 }
 .tags-edit-btn:hover { border-color: var(--purple); color: var(--purple); }
+.tag-sel-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border: 1px solid var(--purple);
+  border-radius: var(--radius);
+  padding: 6px 10px;
+  margin-bottom: 5px;
+  font-size: 11px;
+  color: var(--purple);
+}
+.tag-sel-exit-btn {
+  background: none;
+  border: 1px solid var(--purple);
+  border-radius: var(--radius);
+  color: var(--purple);
+  font-family: var(--font);
+  font-size: 11px;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.tag-sel-exit-btn:hover { background: var(--purple); color: var(--bg-dark); }
 .restore-btn {
   background: none;
   border: 1px solid var(--green);

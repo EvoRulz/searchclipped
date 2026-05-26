@@ -20,6 +20,20 @@ function render(filtered, rest, selectedIds, tagSelMode, selectedTags) {
   var frag   = document.createDocumentFragment();
   // New-item placeholder always first
   frag.appendChild(_makePlaceholder());
+  // Tag selection mode banner
+  if (tagSelMode) {
+    var banner = document.createElement('div');
+    banner.className = 'tag-sel-banner';
+    var bannerTxt = document.createElement('span');
+    bannerTxt.textContent = 'Tag selection mode — tap tags to select';
+    var exitBtn = document.createElement('button');
+    exitBtn.className   = 'tag-sel-exit-btn';
+    exitBtn.textContent = 'Exit';
+    exitBtn.addEventListener('click', function () { Items.exitTagSelMode(); });
+    banner.appendChild(bannerTxt);
+    banner.appendChild(exitBtn);
+    frag.appendChild(banner);
+  }
   // Filtered section
   if (filtered.length > 0) {
     filtered.forEach(function (item) {

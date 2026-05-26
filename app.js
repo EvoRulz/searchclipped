@@ -148,12 +148,24 @@ document.addEventListener('sc:filter-tag', function (e) {
   btnBulkDelete.addEventListener('click', function () {
     var ids = Items.getSelectedIds();
     if (!ids.size) { alert('No items selected.'); return; }
-    Items.bulkDelete(ids);
+    if (Items.getTagSelMode()) {
+      Items.bulkDeleteTags();
+    } else {
+      Items.bulkDelete(ids);
+    }
   });
   /* ===== EXPORT ===== */
   btnExport.addEventListener('click', async function () {
     try {
-      var images    = await DB.exportAllImages();
+      var selectedIds = Items.getSelectedIds();
+      var itemsToExport = selectedIds.size
+        ? state.items.filter(function (i) { return selectedIds.has(i.id); })
+        : state.items;
+      var imageIds = itemsToExport
+        .filter(function (i) { return i.imageId; })
+        .map(function (i) { return i.imageId; });
+      var allImages = await DB.exportAllImages();
+      var images    = allImages.filter(function (r) { return imageIds.indexOf(r.id) !== -1; });
       // Convert blobs to base64 for JSON portability
       var imgData   = await Promise.all(images.map(async function (rec) {
         var b64 = await _blobToBase64(rec.blob);
@@ -161,7 +173,7 @@ document.addEventListener('sc:filter-tag', function (e) {
       }));
       var payload = {
         version:  1,
-        metadata: state,
+        metadata: Object.assign({}, state, { items: itemsToExport }),
         images:   imgData
       };
       var json = JSON.stringify(payload);
