@@ -1,19 +1,19 @@
 /* sw.js — SearchClipped Service Worker */
 'use strict';
-var CACHE_NAME = 'searchclipped-v18';
+var CACHE_NAME = 'searchclipped-v19';
 var PRECACHE = [
   './',
   './index.html',
-  './css/style.css',
-  './js/db.js',
-  './js/state.js',
-  './js/permissions.js',
-  './js/clipboard.js',
-  './js/search.js',
-  './js/render.js',
-  './js/modals.js',
-  './js/items.js',
-  './js/app.js',
+  './style.css',
+  './db.js',
+  './state.js',
+  './permissions.js',
+  './clipboard.js',
+  './search.js',
+  './render.js',
+  './modals.js',
+  './items.js',
+  './app.js',
   './manifest.webmanifest',
   'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap'
 ];
