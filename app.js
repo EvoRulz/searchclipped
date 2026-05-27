@@ -1,6 +1,6 @@
 'use strict';
-// @version 21
-var SC_VERSION = '@version 21';
+// @version 22
+var SC_VERSION = '@version 22';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
