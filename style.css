@@ -71,7 +71,7 @@ button { font-family: var(--font); }
   margin-bottom: 5px;
 }
 #sc-title {
-  font-size: 15px;
+  font-size: 30px;
   font-weight: 600;
   color: var(--blue);
   letter-spacing: 0.04em;
@@ -120,8 +120,8 @@ button { font-family: var(--font); }
 }
 .search-input-wrap #btn-star-filter {
   position: absolute;
-  top: -11px;
-  right: -11px;
+  top: -12px;
+  right: -12px;
   background: none;
   border: none;
   border-radius: 0;
@@ -377,8 +377,8 @@ button { font-family: var(--font); }
 }
 .star-btn {
   position: absolute;
-  top: -11px;
-  right: -11px;
+  top: -12px;
+  right: -12px;
   background: none;
   border: none;
   border-radius: 0;
