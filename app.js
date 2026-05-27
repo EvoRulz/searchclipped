@@ -1,6 +1,6 @@
 'use strict';
-// @version 27
-var SC_VERSION = '@version 27';
+// @version 28
+var SC_VERSION = '@version 28';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -104,8 +104,13 @@ var SC_VERSION = '@version 27';
   });
   /* ===== STAR FILTER ===== */
   function _updateStarBtn() {
-    if (state.starFilter) btnStarFilter.classList.add('active');
-    else                  btnStarFilter.classList.remove('active');
+    if (state.starFilter) {
+      btnStarFilter.classList.add('active');
+      btnStarFilter.textContent = '★';
+    } else {
+      btnStarFilter.classList.remove('active');
+      btnStarFilter.textContent = '☆';
+    }
   }
 document.addEventListener('sc:filter-tag', function (e) {
     searchInput.value = e.detail.tag;
