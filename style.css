@@ -45,7 +45,7 @@ body {
   font-family: var(--font);
   font-size: 13px;
   line-height: 1.5;
-  overscroll-behavior-x: none;
+  overscroll-behavior: none;
 }
 button { font-family: var(--font); }
 /* ===== APP SHELL ===== */
@@ -121,13 +121,13 @@ button { font-family: var(--font); }
 }
 .search-input-wrap #btn-star-filter {
   position: absolute;
-  top: -11px;
-  right: -11px;
+  top: -22px;
+  right: -22px;
   background: none;
   border: none;
   border-radius: 0;
-  width: 22px;
-  height: 22px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   display: flex;
   align-items: center;
@@ -238,6 +238,7 @@ button { font-family: var(--font); }
   overflow-x: hidden;
   padding: 14px 18px 80px 6px;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: auto;
 }
 #item-list::-webkit-scrollbar       { width: 3px; }
 #item-list::-webkit-scrollbar-track { background: transparent; }
@@ -377,13 +378,13 @@ button { font-family: var(--font); }
 }
 .star-btn {
   position: absolute;
-  top: -11px;
-  right: -11px;
+  top: -22px;
+  right: -22px;
   background: none;
   border: none;
   border-radius: 0;
-  width: 22px;
-  height: 22px;
+  width: 44px;
+  height: 44px;
   cursor: pointer;
   font-size: 15px;
   color: var(--text-ph);
