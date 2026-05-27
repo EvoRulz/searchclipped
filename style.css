@@ -379,20 +379,18 @@ button { font-family: var(--font); }
   position: absolute;
   top: -11px;
   right: -11px;
-  background: var(--bg-panel);
-  border: 1px solid var(--border-lo);
-  border-radius: 50%;
-  width: 22px;
-  height: 22px;
+  background: none;
+  border: none;
+  border-radius: 0;
+  width: auto;
+  height: auto;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-ph);
   padding: 0;
   line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color var(--transition), background var(--transition);
+  display: block;
+  transition: color var(--transition);
   z-index: 1;
 }
 .star-btn.active    { color: var(--yellow); }
