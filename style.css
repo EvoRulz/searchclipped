@@ -121,13 +121,13 @@ button { font-family: var(--font); }
 }
 .search-input-wrap #btn-star-filter {
   position: absolute;
-  top: -22px;
-  right: -22px;
+  top: -44px;
+  right: -44px;
   background: none;
   border: none;
   border-radius: 0;
-  width: 44px;
-  height: 44px;
+  width: 88px;
+  height: 88px;
   padding: 0;
   display: flex;
   align-items: center;
@@ -341,14 +341,14 @@ button { font-family: var(--font); }
   border: none;
   color: var(--text-ph);
   cursor: pointer;
-  font-size: 10px;
+  font-size: 20px;
   padding: 2px 4px;
   line-height: 1;
   border-radius: 3px;
   transition: color var(--transition), background var(--transition);
 }
 .arrow-btn:hover, .arrow-btn:active { color: var(--blue); background: var(--surface); }
-.arrow-btn.top-bumped               { color: var(--orange); font-size: 12px; }
+.arrow-btn.top-bumped               { color: var(--orange); font-size: 24px; }
 /* Item content */
 .item-content {
   grid-area: content;
@@ -378,13 +378,13 @@ button { font-family: var(--font); }
 }
 .star-btn {
   position: absolute;
-  top: -22px;
-  right: -22px;
+  top: -44px;
+  right: -44px;
   background: none;
   border: none;
   border-radius: 0;
-  width: 44px;
-  height: 44px;
+  width: 88px;
+  height: 88px;
   cursor: pointer;
   font-size: 15px;
   color: var(--text-ph);
