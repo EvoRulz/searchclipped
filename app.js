@@ -1,6 +1,6 @@
 'use strict';
-// @version 30
-var SC_VERSION = '@version 30';
+// @version 31
+var SC_VERSION = '@version 31';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -56,6 +56,10 @@ var SC_VERSION = '@version 30';
     _updateStarBtn();
     _updateSortBtns();
     _lastFiltered = result.filtered;
+    var _allVisible = result.filtered.concat(result.rest);
+    var _selIds = Items.getSelectedIds();
+    cbSelectAll.checked = _allVisible.length > 0 && _allVisible.every(function (i) { return _selIds.has(i.id); });
+    cbSelFiltered.checked = result.filtered.length > 0 && result.filtered.every(function (i) { return _selIds.has(i.id); });
   }
   var _lastFiltered = [];
   /* ===== INIT ITEMS ===== */
@@ -80,7 +84,6 @@ var SC_VERSION = '@version 30';
     } else {
       Items.clearSelection();
     }
-    cbSelectAll.checked = false; // reset visual
   });
   cbSelFiltered.addEventListener('change', function () {
     if (cbSelFiltered.checked) {
@@ -88,7 +91,6 @@ var SC_VERSION = '@version 30';
     } else {
       Items.clearSelection();
     }
-    cbSelFiltered.checked = false;
   });
   cbShowDeleted.addEventListener('change', function () {
     showDeleted = cbShowDeleted.checked;
