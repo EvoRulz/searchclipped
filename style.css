@@ -348,6 +348,13 @@ button { font-family: var(--font); }
 .item.deleted            { opacity: 0.52; }
 .item.deleted .item-content { text-decoration: line-through; color: var(--text-muted); }
 .item.new-placeholder    { background: transparent; border-style: dashed; border-color: var(--border); }
+.new-placeholder .item-content { border-top: 1px solid var(--border-lo); padding-top: 5px; margin-top: 3px; }
+.item-content[data-placeholder]:empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-ph);
+  font-style: italic;
+  pointer-events: none;
+}
 .item.copy-flash         { border-color: var(--blue); background: var(--surface); }
 .item.has-image {
   grid-template-rows: auto auto auto;
