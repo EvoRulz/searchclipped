@@ -444,9 +444,10 @@ button { font-family: var(--font); }
   min-width: 0;
 }
 .item-title {
-  color: var(--text-muted);
+  color: var(--blue);
   font-size: 11px;
-  font-style: italic;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   outline: none;
   word-break: break-word;
   overflow-wrap: break-word;
@@ -457,7 +458,7 @@ button { font-family: var(--font); }
   color: var(--text-ph);
   pointer-events: none;
 }
-.item-title:focus { color: var(--text); font-style: normal; }
+.item-title:focus { color: var(--text); }
 /* Item right */
 .item-right {
   grid-area: right;
