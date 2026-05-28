@@ -476,6 +476,9 @@ button { font-family: var(--font); }
   color: var(--text-ph);
   padding: 0 1px;
   line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: color var(--transition);
 }
 .copy-btn:hover, .copy-btn:active   { color: var(--blue); }
@@ -495,18 +498,18 @@ button { font-family: var(--font); }
 .item-footer {
   grid-area: footer;
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 8px;
   margin-top: 5px;
   padding-top: 4px;
   border-top: 1px solid var(--border-lo);
 }
 .item-timestamps {
-  width: 100%;
   display: flex;
-  flex-wrap: wrap;
-  gap: 2px 10px;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
 }
 .item-ts {
   font-size: 10px;
@@ -522,6 +525,8 @@ button { font-family: var(--font); }
   flex-wrap: wrap;
   gap: 3px;
   align-items: center;
+  margin-left: auto;
+  justify-content: flex-end;
 }
 .tag-pill {
   background: var(--surface);
