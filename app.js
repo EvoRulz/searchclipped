@@ -1,6 +1,6 @@
 'use strict';
-// @version 32
-var SC_VERSION = '@version 32';
+// @version 33
+var SC_VERSION = '@version 33';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -56,20 +56,42 @@ var SC_VERSION = '@version 32';
     _updateStarBtn();
     _updateSortBtns();
     _lastFiltered = result.filtered;
+    _altShortcuts = {};
+    document.querySelectorAll('.item[data-shortcut]').forEach(function (el) {
+      var letter = el.dataset.shortcut;
+      var id = el.dataset.id;
+      if (letter && id && id !== '__new__') _altShortcuts[letter] = id;
+    });
+    if (_refocusEntry) {
+      _refocusEntry = false;
+      var ph = document.querySelector('[data-placeholder]');
+      if (ph) ph.focus();
+    }
     var _allVisible = result.filtered.concat(result.rest);
     var _selIds = Items.getSelectedIds();
     cbSelectAll.checked = _allVisible.length > 0 && _allVisible.every(function (i) { return _selIds.has(i.id); });
     cbSelFiltered.checked = result.filtered.length > 0 && result.filtered.every(function (i) { return _selIds.has(i.id); });
   }
   var _lastFiltered = [];
+  var _refocusEntry = false;
+  var _altShortcuts = {};
+  document.addEventListener('sc:create-item', function () { _refocusEntry = true; });
   /* ===== INIT ITEMS ===== */
   Items.init(state, refresh);
   /* Initial render */
   refresh();
+  searchInput.focus();
   /* ===== SEARCH ===== */
   searchInput.addEventListener('input', function () {
     query = searchInput.value;
     refresh();
+  });
+  searchInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      var ph = document.querySelector('[data-placeholder]');
+      if (ph) ph.focus();
+    }
   });
   /* ===== CHECKBOXES ===== */
   cbSelectAll.addEventListener('change', function () {
@@ -146,6 +168,30 @@ document.addEventListener('sc:filter-tag', function (e) {
     state.sortMode = sortSelect.value;
     State.saveState(state);
     refresh();
+  });
+  /* ===== ALT SHORTCUTS ===== */
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Alt') {
+      document.getElementById('app').classList.add('alt-mode');
+    }
+    if (e.altKey && e.code && e.code.startsWith('Key')) {
+      var letter = e.code.slice(3).toLowerCase();
+      var id = _altShortcuts[letter];
+      if (id) {
+        e.preventDefault();
+        document.dispatchEvent(new CustomEvent('sc:copy-item', { detail: { id: id } }));
+        var el = document.querySelector('.item[data-id="' + id + '"]');
+        if (el) {
+          el.classList.add('copy-flash');
+          setTimeout(function () { el.classList.remove('copy-flash'); }, 500);
+        }
+      }
+    }
+  });
+  document.addEventListener('keyup', function (e) {
+    if (e.key === 'Alt') {
+      document.getElementById('app').classList.remove('alt-mode');
+    }
   });
   /* ===== BULK COPY ===== */
   btnBulkCopy.addEventListener('click', function () {

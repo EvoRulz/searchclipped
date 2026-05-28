@@ -648,4 +648,26 @@ button { font-family: var(--font); }
 @media (max-width: 480px) {
   #item-list::-webkit-scrollbar { width: 0; }
 }
-
+/* ===== ALT SHORTCUT BADGES ===== */
+.item[data-shortcut]::after {
+  content: attr(data-shortcut);
+  position: absolute;
+  top: 50%;
+  left: 2px;
+  transform: translateY(-50%);
+  background: var(--orange);
+  color: var(--bg-dark);
+  font-size: 9px;
+  font-weight: 700;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  pointer-events: none;
+}
+.alt-mode .item[data-shortcut]:not(.new-placeholder)::after {
+  display: flex;
+}
