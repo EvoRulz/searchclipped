@@ -385,11 +385,12 @@ button { font-family: var(--font); }
 }
 .placeholder-content-row .item-content {
   padding-left: 0;
+  flex: 1;
+  min-width: 0;
 }
 .img-pick-btn {
   background: none;
-  border: 1px dashed var(--border);
-  border-radius: var(--radius);
+  border: none;
   color: var(--text-ph);
   padding: 0;
   cursor: pointer;

@@ -98,7 +98,7 @@ function _makePlaceholder() {
   var imgBtn = document.createElement('button');
   imgBtn.className = 'img-pick-btn';
   imgBtn.tabIndex = -1;
-  imgBtn.innerHTML = '<svg width="48" height="48" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="2" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/><circle cx="4.5" cy="5.5" r="1" stroke="currentColor" stroke-width="1.2"/><path d="M1 9.5 L4 6.5 L6.5 9 L9 7 L13 10.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  imgBtn.innerHTML = '<svg width="26" height="26" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="22" height="22" rx="3" fill="currentColor" opacity="0.12"/><rect x="0.75" y="0.75" width="20.5" height="20.5" rx="2.5" stroke="currentColor" stroke-width="1.5"/><circle cx="6.5" cy="6.5" r="2.2" fill="currentColor" opacity="0.65"/><path d="M0 15.5 L6 9 L10.5 13.5 L14.5 10 L22 16.5 L22 22 L0 22 Z" fill="currentColor" opacity="0.5"/></svg>';
   imgBtn.addEventListener('click', function (e) { e.preventDefault(); imgInput.click(); });
   topRow.appendChild(titleEl);
   var sep = document.createElement('div');
