@@ -39,9 +39,12 @@ function render(filtered, rest, selectedIds, tagSelMode, selectedTags) {
   var _li = 0;
   if (filtered.length > 0) {
     filtered.forEach(function (item) {
-      var el = _makeItem(item, true, selectedIds, tagSelMode, selectedTags);
-      if (_li < _sc.length) el.dataset.shortcut = _sc[_li++];
-      frag.appendChild(el);
+      var rowEl = _makeItem(item, true, selectedIds, tagSelMode, selectedTags);
+      if (_li < _sc.length) {
+        var innerEl = rowEl.querySelector('.item');
+        if (innerEl) innerEl.dataset.shortcut = _sc[_li++]; else _li++;
+      }
+      frag.appendChild(rowEl);
     });
     var div = document.createElement('div');
     div.className   = 'filter-divider';
@@ -50,9 +53,12 @@ function render(filtered, rest, selectedIds, tagSelMode, selectedTags) {
   }
   // Rest section
   rest.forEach(function (item) {
-    var el = _makeItem(item, false, selectedIds, tagSelMode, selectedTags);
-    if (_li < _sc.length) el.dataset.shortcut = _sc[_li++];
-    frag.appendChild(el);
+    var rowEl = _makeItem(item, false, selectedIds, tagSelMode, selectedTags);
+    if (_li < _sc.length) {
+      var innerEl = rowEl.querySelector('.item');
+      if (innerEl) innerEl.dataset.shortcut = _sc[_li++]; else _li++;
+    }
+    frag.appendChild(rowEl);
   });
   _list.innerHTML = '';
   _list.appendChild(frag);
@@ -111,7 +117,7 @@ function _makePlaceholder() {
   });
   var imgBtn = document.createElement('button');
   imgBtn.className   = 'img-pick-btn';
-  imgBtn.textContent = '+img';
+  imgBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="2" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/><circle cx="4.5" cy="5.5" r="1" stroke="currentColor" stroke-width="1.2"/><path d="M1 9.5 L4 6.5 L6.5 9 L9 7 L13 10.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   imgBtn.addEventListener('click', function (e) { e.preventDefault(); imgInput.click(); });
   right.appendChild(imgInput);
   right.appendChild(imgBtn);
@@ -131,8 +137,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   left.className = 'item-left';
   var idSpan = document.createElement('span');
   idSpan.className   = 'item-id';
-  idSpan.textContent = item.deleted ? '' : item.bumpOrder + 1;
-  left.appendChild(idSpan);
+  idSpan.textContent = item.deleted ? '×' : item.bumpOrder + 1;
   var isBumpMode = (_state.sortMode === 'id-asc' || _state.sortMode === 'id-desc' || _state.sortMode === 'bump');
   var isTop = _topBumped.has(item.id);
   var upBtn = document.createElement('button');
@@ -145,19 +150,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   var controls = document.createElement('div');
   controls.className = 'item-controls';
   controls.appendChild(upBtn);
-  var cbWrap = document.createElement('label');
-  cbWrap.className = 'item-cb-wrap cb-wrap';
-  var cb    = document.createElement('input');
-  cb.type   = 'checkbox';
-  cb.checked = selectedIds.has(item.id);
-  cb.addEventListener('change', function () {
-    document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: item.id } }));
-  });
-  var cbMark = document.createElement('span');
-  cbMark.className = 'cb-mark';
-  cbWrap.appendChild(cb);
-  cbWrap.appendChild(cbMark);
-  controls.appendChild(cbWrap);
+  controls.appendChild(idSpan);
   var dnBtn = document.createElement('button');
   dnBtn.className   = 'arrow-btn';
   dnBtn.textContent = isBumpMode ? '▼' : '⇓';
@@ -239,14 +232,6 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     });
     right.appendChild(copyBtn);
   }
-  var trashBtn = document.createElement('button');
-  trashBtn.className   = 'trash-btn';
-  trashBtn.title       = 'Delete';
-  trashBtn.innerHTML   = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 4h10M5 4V2.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5V4M6 7v3.5M8 7v3.5M3 4l.8 7.2a1 1 0 001 .8h4.4a1 1 0 001-.8L11 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  trashBtn.addEventListener('click', function () {
-    document.dispatchEvent(new CustomEvent('sc:swipe-delete', { detail: { id: item.id } }));
-  });
-  right.appendChild(trashBtn);
   el.appendChild(right);
   // --- Image ---
   if (item.imageId) {
@@ -264,10 +249,23 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   // --- Footer ---
   var footer = document.createElement('div');
   footer.className = 'item-footer';
-  var ts = document.createElement('span');
-  ts.className   = 'item-ts';
-  ts.textContent = _fmtDate(item.modifiedAt || item.createdAt);
-  footer.appendChild(ts);
+  var tsCont = document.createElement('div');
+  tsCont.className = 'item-timestamps';
+  var tsCreated = document.createElement('span');
+  tsCreated.className   = 'item-ts';
+  tsCreated.textContent = 'created: ' + _fmtDate(item.createdAt);
+  tsCont.appendChild(tsCreated);
+  var tsModified = document.createElement('span');
+  tsModified.className   = 'item-ts';
+  tsModified.textContent = 'modified: ' + _fmtDate(item.modifiedAt);
+  tsCont.appendChild(tsModified);
+  if (item.deleted) {
+    var tsDeleted = document.createElement('span');
+    tsDeleted.className   = 'item-ts item-ts-deleted';
+    tsDeleted.textContent = 'deleted: ' + _fmtDate(item.modifiedAt);
+    tsCont.appendChild(tsDeleted);
+  }
+  footer.appendChild(tsCont);
   // Tags row
   var tagsRow = _makeTagsRow(item, tagSelMode, selectedTags);
   footer.appendChild(tagsRow);
@@ -284,7 +282,32 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   el.appendChild(footer);
   // --- Swipe-to-delete ---
   _attachSwipe(el, item.id);
-  return el;
+  // --- Outer row wrapper ---
+  var rowWrap = document.createElement('div');
+  rowWrap.className = 'item-row';
+  var outerCbWrap = document.createElement('label');
+  outerCbWrap.className = 'item-cb-outer cb-wrap';
+  var outerCb = document.createElement('input');
+  outerCb.type    = 'checkbox';
+  outerCb.checked = selectedIds.has(item.id);
+  outerCb.addEventListener('change', function () {
+    document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: item.id } }));
+  });
+  var outerCbMark = document.createElement('span');
+  outerCbMark.className = 'cb-mark';
+  outerCbWrap.appendChild(outerCb);
+  outerCbWrap.appendChild(outerCbMark);
+  var outerTrash = document.createElement('button');
+  outerTrash.className = 'item-trash-outer trash-btn';
+  outerTrash.title     = 'Delete';
+  outerTrash.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 4h10M5 4V2.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5V4M6 7v3.5M8 7v3.5M3 4l.8 7.2a1 1 0 001 .8h4.4a1 1 0 001-.8L11 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  outerTrash.addEventListener('click', function () {
+    document.dispatchEvent(new CustomEvent('sc:swipe-delete', { detail: { id: item.id } }));
+  });
+  rowWrap.appendChild(outerCbWrap);
+  rowWrap.appendChild(el);
+  rowWrap.appendChild(outerTrash);
+  return rowWrap;
 }
 /* ====== TAGS ROW ====== */
 function _makeTagsRow(item, tagSelMode, selectedTags) {

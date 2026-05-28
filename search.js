@@ -88,6 +88,20 @@ function _sort(items, mode) {
       return new Date(a.modifiedAt) - new Date(b.modifiedAt);
     });
   }
+  if (mode === 'deleted-desc') {
+    return items.slice().sort(function (a, b) {
+      var aT = a.deleted ? new Date(a.modifiedAt).getTime() : 0;
+      var bT = b.deleted ? new Date(b.modifiedAt).getTime() : 0;
+      return bT - aT;
+    });
+  }
+  if (mode === 'deleted-asc') {
+    return items.slice().sort(function (a, b) {
+      var aT = a.deleted ? new Date(a.modifiedAt).getTime() : 0;
+      var bT = b.deleted ? new Date(b.modifiedAt).getTime() : 0;
+      return aT - bT;
+    });
+  }
   // id sorts (and bump fallback)
   if (mode === 'id-desc') {
     return items.slice().sort(function (a, b) {
