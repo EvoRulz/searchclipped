@@ -348,7 +348,7 @@ button { font-family: var(--font); }
 .item.deleted            { opacity: 0.52; }
 .item.deleted .item-content { text-decoration: line-through; color: var(--text-muted); }
 .item.new-placeholder    { background: transparent; border-style: dashed; border-color: var(--border); }
-.new-placeholder .item-content { border-top: 1px solid var(--border-lo); padding-top: 5px; margin-top: 3px; }
+.new-placeholder .item-content { padding-top: 5px; margin-top: 3px; }
 .item-content[data-placeholder]:empty::before {
   content: attr(data-placeholder);
   color: var(--text-ph);
@@ -534,8 +534,7 @@ button { font-family: var(--font); }
   gap: 8px;
   margin-top: 5px;
   padding-top: 4px;
-  border-top: 1px solid var(--border-lo);
-}
+  }
 .item-timestamps {
   display: flex;
   flex-direction: column;
