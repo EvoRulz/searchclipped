@@ -138,6 +138,7 @@ async function _doDelete(ids, message) {
     if (item) {
       item.deleted    = true;
       item.starred    = false;
+      item.bumpOrder  = item.bumpOrder + 0.5;
       item.modifiedAt = State.nowISO();
     }
   });
@@ -153,6 +154,7 @@ async function _onRestore(e) {
   if (!item) return;
   State.pushUndo(_state);
   item.deleted    = false;
+  item.bumpOrder  = Math.floor(item.bumpOrder);
   item.modifiedAt = State.nowISO();
   State.saveState(_state);
   _refresh();
