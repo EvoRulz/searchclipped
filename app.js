@@ -1,6 +1,6 @@
 'use strict';
-// @version 39
-var SC_VERSION = '@version 39';
+// @version 40
+var SC_VERSION = '@version 40';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -24,8 +24,8 @@ var SC_VERSION = '@version 39';
   var searchInput    = document.getElementById('search-input');
   var cbSelectAll    = document.getElementById('cb-select-all');
   var cbSelFiltered  = document.getElementById('cb-select-filtered');
-  var cbShowDeleted  = document.getElementById('cb-show-deleted');
-  var cbHideActive   = document.getElementById('cb-hide-undeleted');
+  var btnShowDeleted = document.getElementById('btn-show-deleted');
+  var btnHideActive  = document.getElementById('btn-hide-undeleted');
   var cbTagsOnly     = document.getElementById('cb-tags-only');
   var btnStarFilter  = document.getElementById('btn-star-filter');
   var btnUndo        = document.getElementById('btn-undo');
@@ -114,12 +114,14 @@ var SC_VERSION = '@version 39';
       Items.clearSelection();
     }
   });
-  cbShowDeleted.addEventListener('change', function () {
-    showDeleted = cbShowDeleted.checked;
+  btnShowDeleted.addEventListener('click', function () {
+    showDeleted = !showDeleted;
+    btnShowDeleted.classList.toggle('active', showDeleted);
     refresh();
   });
-  cbHideActive.addEventListener('change', function () {
-    hideActive = cbHideActive.checked;
+  btnHideActive.addEventListener('click', function () {
+    hideActive = !hideActive;
+    btnHideActive.classList.toggle('active', hideActive);
     refresh();
   });
   cbTagsOnly.addEventListener('change', function () {

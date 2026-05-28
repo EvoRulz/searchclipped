@@ -172,6 +172,32 @@ button { font-family: var(--font); }
   color: var(--text-muted);
   white-space: nowrap;
 }
+/* ===== EYE BUTTONS ===== */
+.eye-btn {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px 3px;
+  border-radius: var(--radius);
+  flex-shrink: 0;
+  transition: color var(--transition);
+}
+.eye-btn:hover { color: var(--text); }
+.eye-btn.active { color: var(--blue); }
+.eye-btn .eye-open  { display: none; }
+.eye-btn .eye-closed { display: block; }
+.eye-btn.active .eye-open  { display: block; }
+.eye-btn.active .eye-closed { display: none; }
+.eye-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.eye-btn.active .eye-label { color: var(--blue); }
 /* ===== ICON BUTTONS ===== */
 .icon-btn {
   background: none;
