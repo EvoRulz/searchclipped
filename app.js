@@ -1,6 +1,6 @@
 'use strict';
-// @version 53
-var SC_VERSION = '@version 53';
+// @version 54
+var SC_VERSION = '@version 54';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -76,6 +76,7 @@ var SC_VERSION = '@version 53';
     var _allVisible = result.filtered.concat(result.rest);
     var _selIds = Items.getSelectedIds();
     cbSelectAll.checked = _allVisible.length > 0 && _allVisible.every(function (i) { return _selIds.has(i.id); });
+    _updatePlaceholder();
     cbSelFiltered.checked = result.filtered.length > 0 && result.filtered.every(function (i) { return _selIds.has(i.id); });
   }
   var _lastFiltered = [];
@@ -87,6 +88,22 @@ var SC_VERSION = '@version 53';
   /* Initial render */
   refresh();
   searchInput.focus();
+  /* ===== PLACEHOLDER ===== */
+  function _updatePlaceholder() {
+    var parts = [];
+    if (searchItems)  parts.push('items');
+    if (searchTitles) parts.push('titles');
+    if (searchTags)   parts.push('tags');
+    if (!parts.length) {
+      searchInput.placeholder = 'Select a search type below';
+      return;
+    }
+    var base = 'Search ' + parts.join(', ');
+    var del = '';
+    if (showDeleted && hideActive) del = ' (deleted only)';
+    else if (showDeleted)          del = ' (including deleted)';
+    searchInput.placeholder = base + del + '...';
+  }
   /* ===== SEARCH ===== */
   searchInput.addEventListener('input', function () {
     query = searchInput.value;
