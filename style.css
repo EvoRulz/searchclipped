@@ -367,7 +367,7 @@ button { font-family: var(--font); }
 }
 .img-pick-btn {
   background: none;
-  border: 1px dashed var(--border);
+  border: none;
   border-radius: var(--radius);
   color: var(--text-ph);
   font-family: var(--font);

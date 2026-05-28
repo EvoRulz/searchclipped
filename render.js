@@ -117,7 +117,7 @@ function _makePlaceholder() {
   });
   var imgBtn = document.createElement('button');
   imgBtn.className   = 'img-pick-btn';
-  imgBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="2" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/><circle cx="4.5" cy="5.5" r="1" stroke="currentColor" stroke-width="1.2"/><path d="M1 9.5 L4 6.5 L6.5 9 L9 7 L13 10.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  imgBtn.innerHTML = '<svg width="28" height="28" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="2" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/><circle cx="4.5" cy="5.5" r="1" stroke="currentColor" stroke-width="1.2"/><path d="M1 9.5 L4 6.5 L6.5 9 L9 7 L13 10.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   imgBtn.addEventListener('click', function (e) { e.preventDefault(); imgInput.click(); });
   right.appendChild(imgInput);
   right.appendChild(imgBtn);
