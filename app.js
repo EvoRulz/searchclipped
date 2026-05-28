@@ -1,6 +1,6 @@
 'use strict';
-// @version 54
-var SC_VERSION = '@version 54';
+// @version 55
+var SC_VERSION = '@version 55';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -98,7 +98,10 @@ var SC_VERSION = '@version 54';
       searchInput.placeholder = 'Select a search type below';
       return;
     }
-    var base = 'Search ' + parts.join(', ');
+    var joined = parts.length > 1
+      ? parts.slice(0, -1).join(', ') + ', and ' + parts[parts.length - 1]
+      : parts[0];
+    var base = 'Search ' + joined;
     var del = '';
     if (showDeleted && hideActive) del = ' (deleted only)';
     else if (showDeleted)          del = ' (including deleted)';

@@ -461,6 +461,7 @@ button { font-family: var(--font); }
 /* Item right */
 .item-right {
   grid-area: right;
+  grid-row: 1 / -1;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
