@@ -1,6 +1,6 @@
 'use strict';
-// @version 61
-var SC_VERSION = '@version 61';
+// @version 62
+var SC_VERSION = '@version 62';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -70,7 +70,7 @@ var SC_VERSION = '@version 61';
     });
     if (_refocusEntry) {
       _refocusEntry = false;
-      var ph = document.querySelector('[data-placeholder]');
+      var ph = document.querySelector('.item-content[data-placeholder]');
       if (ph) ph.focus();
     }
     var _allVisible = result.filtered.concat(result.rest);
@@ -115,7 +115,7 @@ var SC_VERSION = '@version 61';
   searchInput.addEventListener('keydown', function (e) {
     if (e.key === 'Tab') {
       e.preventDefault();
-      var ph = document.querySelector('[data-placeholder]');
+      var ph = document.querySelector('.item-content[data-placeholder]');
       if (ph) ph.focus();
     }
   });
