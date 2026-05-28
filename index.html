@@ -55,10 +55,15 @@
         <span class="cb-mark"></span>
         <span class="cb-label">tags only</span>
       </label>
-      <div id="sort-btns">
-        <button class="sort-btn active" data-sort="bump">Default</button>
-        <button class="sort-btn" data-sort="created">Created</button>
-        <button class="sort-btn" data-sort="modified">Modified</button>
+      <div id="sort-wrap">
+        <span id="sort-label">sort by:</span>
+        <select id="sort-select">
+          <option value="bump">Default</option>
+          <option value="created-desc">Newest Created</option>
+          <option value="created-asc">Oldest Created</option>
+          <option value="modified-desc">Newest Modified</option>
+          <option value="modified-asc">Oldest Modified</option>
+        </select>
       </div>
     </div>
     <div id="action-row">

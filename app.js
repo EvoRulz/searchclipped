@@ -1,6 +1,6 @@
 'use strict';
-// @version 31
-var SC_VERSION = '@version 31';
+// @version 32
+var SC_VERSION = '@version 32';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -36,7 +36,7 @@ var SC_VERSION = '@version 31';
   var _verEl = document.getElementById('sc-version');
   if (_verEl) _verEl.textContent = SC_VERSION;
   var importInput    = document.getElementById('import-input');
-  var sortBtns       = document.querySelectorAll('.sort-btn');
+  var sortSelect     = document.getElementById('sort-select');
   /* ===== REFRESH ===== */
   function refresh() {
     var result = Search.getDisplayList(state, query, {
@@ -135,18 +135,17 @@ document.addEventListener('sc:filter-tag', function (e) {
   btnRedo.addEventListener('click', function () {
     if (State.redo(state)) { State.saveState(state); refresh(); }
   });
-  /* ===== SORT BUTTONS ===== */
+  /* ===== SORT SELECT ===== */
   function _updateSortBtns() {
-    sortBtns.forEach(function (btn) {
-      btn.classList.toggle('active', btn.dataset.sort === state.sortMode);
-    });
+    var mode = state.sortMode;
+    if (mode === 'created')  mode = 'created-desc';
+    if (mode === 'modified') mode = 'modified-desc';
+    sortSelect.value = mode;
   }
-  sortBtns.forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      state.sortMode = btn.dataset.sort;
-      State.saveState(state);
-      refresh();
-    });
+  sortSelect.addEventListener('change', function () {
+    state.sortMode = sortSelect.value;
+    State.saveState(state);
+    refresh();
   });
   /* ===== BULK COPY ===== */
   btnBulkCopy.addEventListener('click', function () {

@@ -189,27 +189,30 @@ button { font-family: var(--font); }
 .icon-btn.active                  { color: var(--yellow); }
 .icon-btn:disabled                { opacity: 0.28; cursor: default; pointer-events: none; }
 /* ===== SORT BUTTONS ===== */
-#sort-btns {
+#sort-wrap {
   display: flex;
-  gap: 3px;
+  align-items: center;
+  gap: 5px;
   margin-left: auto;
 }
-.sort-btn {
+#sort-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+#sort-select {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   color: var(--text-muted);
-  cursor: pointer;
+  font-family: var(--font);
   font-size: 10px;
-  padding: 3px 7px;
-  transition: all var(--transition);
+  padding: 3px 5px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--transition), color var(--transition);
 }
-.sort-btn.active {
-  background: var(--blue-dim);
-  border-color: var(--blue);
-  color: var(--bg-dark);
-  font-weight: 600;
-}
+#sort-select:focus { border-color: var(--blue-dim); color: var(--text); }
 /* ===== ACTION BUTTONS ===== */
 .action-btn, .import-label {
   background: var(--surface);

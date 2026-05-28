@@ -68,14 +68,24 @@ function _matches(item, q, tagsOnly) {
   return false;
 }
 function _sort(items, mode) {
-  if (mode === 'created') {
+  if (mode === 'created' || mode === 'created-desc') {
     return items.slice().sort(function (a, b) {
       return new Date(b.createdAt) - new Date(a.createdAt);
     });
   }
-  if (mode === 'modified') {
+  if (mode === 'created-asc') {
+    return items.slice().sort(function (a, b) {
+      return new Date(a.createdAt) - new Date(b.createdAt);
+    });
+  }
+  if (mode === 'modified' || mode === 'modified-desc') {
     return items.slice().sort(function (a, b) {
       return new Date(b.modifiedAt) - new Date(a.modifiedAt);
+    });
+  }
+  if (mode === 'modified-asc') {
+    return items.slice().sort(function (a, b) {
+      return new Date(a.modifiedAt) - new Date(b.modifiedAt);
     });
   }
   // bump (default)
