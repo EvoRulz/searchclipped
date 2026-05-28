@@ -1,6 +1,6 @@
 'use strict';
-// @version 52
-var SC_VERSION = '@version 52';
+// @version 53
+var SC_VERSION = '@version 53';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -19,14 +19,18 @@ var SC_VERSION = '@version 52';
   var query       = '';
   var showDeleted = false;
   var hideActive  = false;
-  var tagsOnly    = false;
+  var searchItems  = true;
+  var searchTitles = true;
+  var searchTags   = true;
   /* ===== HEADER ELEMENTS ===== */
   var searchInput    = document.getElementById('search-input');
   var cbSelectAll    = document.getElementById('cb-select-all');
   var cbSelFiltered  = document.getElementById('cb-select-filtered');
   var btnShowDeleted = document.getElementById('btn-show-deleted');
   var btnHideActive  = document.getElementById('btn-hide-undeleted');
-  var cbTagsOnly     = document.getElementById('cb-tags-only');
+  var cbSearchItems  = document.getElementById('cb-search-items');
+  var cbSearchTitles = document.getElementById('cb-search-titles');
+  var cbSearchTags   = document.getElementById('cb-search-tags');
   var btnStarFilter  = document.getElementById('btn-star-filter');
   var btnUndo        = document.getElementById('btn-undo');
   var btnRedo        = document.getElementById('btn-redo');
@@ -42,7 +46,9 @@ var SC_VERSION = '@version 52';
     var result = Search.getDisplayList(state, query, {
       showDeleted:   showDeleted,
       hideUndeleted: hideActive,
-      tagsOnly:      tagsOnly,
+      searchItems:   searchItems,
+      searchTitles:  searchTitles,
+      searchTags:    searchTags,
       starFilter:    state.starFilter
     });
     Render.render(
@@ -99,7 +105,9 @@ var SC_VERSION = '@version 52';
       var result = Search.getDisplayList(state, query, {
         showDeleted:   showDeleted,
         hideUndeleted: hideActive,
-        tagsOnly:      tagsOnly,
+        searchItems:   searchItems,
+        searchTitles:  searchTitles,
+        searchTags:    searchTags,
         starFilter:    state.starFilter
       });
       Items.selectAll(result.filtered.concat(result.rest));
@@ -124,8 +132,16 @@ var SC_VERSION = '@version 52';
     btnHideActive.classList.toggle('active', hideActive);
     refresh();
   });
-  cbTagsOnly.addEventListener('change', function () {
-    tagsOnly = cbTagsOnly.checked;
+  cbSearchItems.addEventListener('change', function () {
+    searchItems = cbSearchItems.checked;
+    refresh();
+  });
+  cbSearchTitles.addEventListener('change', function () {
+    searchTitles = cbSearchTitles.checked;
+    refresh();
+  });
+  cbSearchTags.addEventListener('change', function () {
+    searchTags = cbSearchTags.checked;
     refresh();
   });
   /* ===== STAR FILTER ===== */

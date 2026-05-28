@@ -162,6 +162,26 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   left.appendChild(controls);
   el.appendChild(left);
   // --- Content ---
+  var contentCol = document.createElement('div');
+  contentCol.className = 'item-content-col';
+  var titleEl = document.createElement('div');
+  titleEl.className       = 'item-title';
+  titleEl.contentEditable = item.deleted ? 'false' : 'true';
+  titleEl.dataset.placeholder = 'add title...';
+  titleEl.dataset.id      = item.id;
+  if (item.title) { titleEl.textContent = item.title; }
+  titleEl.addEventListener('blur', function () {
+    var newTitle = (titleEl.textContent || '').trim();
+    if (newTitle !== (item.title || '').trim()) {
+      document.dispatchEvent(new CustomEvent('sc:edit-title', {
+        detail: { id: item.id, title: newTitle }
+      }));
+    }
+  });
+  titleEl.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); titleEl.blur(); }
+  });
+  contentCol.appendChild(titleEl);
   var content = document.createElement('div');
   content.className       = 'item-content';
   content.contentEditable = item.deleted ? 'false' : 'true';
@@ -199,7 +219,8 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   content.addEventListener('pointerup',    function () { clearTimeout(_lpTimer); });
   content.addEventListener('pointermove',  function () { clearTimeout(_lpTimer); });
   content.addEventListener('pointercancel',function () { clearTimeout(_lpTimer); });
-  el.appendChild(content);
+  contentCol.appendChild(content);
+  el.appendChild(contentCol);
   // --- Right column ---
   var right = document.createElement('div');
   right.className = 'item-right';

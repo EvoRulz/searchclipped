@@ -20,6 +20,7 @@ function init(state, refreshFn) {
   document.addEventListener('sc:restore-item',   _onRestore);
   document.addEventListener('sc:open-tags',      _onOpenTags);
   document.addEventListener('sc:enter-tag-sel-mode', _onEnterTagSelMode);
+ document.addEventListener('sc:edit-title',         _onEditTitle);
   document.addEventListener('sc:create-image',       function (e) { _createImageItem(e.detail.blob); });
   document.addEventListener('paste',                 _onPaste);
   document.addEventListener('sc:toggle-tag-sel', _onToggleTagSel);
@@ -46,6 +47,16 @@ function _onEdit(e) {
   State.pushUndo(_state);
   item.text       = e.detail.text || '';
   item.html       = e.detail.html || item.text;
+  item.modifiedAt = State.nowISO();
+  State.saveState(_state);
+  _refresh();
+}
+/* ====== EDIT TITLE ====== */
+function _onEditTitle(e) {
+  var item = State.getItem(_state, e.detail.id);
+  if (!item || item.deleted) return;
+  State.pushUndo(_state);
+  item.title      = e.detail.title || '';
   item.modifiedAt = State.nowISO();
   State.saveState(_state);
   _refresh();

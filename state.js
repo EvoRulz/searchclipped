@@ -94,6 +94,7 @@ function createItem(text, html, imageId) {
     id:         generateId(),
     text:       text    || '',
     html:       html    || '',
+    title:      '',
     imageId:    imageId || null,
     tags:       [],
     starred:    false,

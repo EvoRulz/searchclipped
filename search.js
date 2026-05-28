@@ -46,25 +46,25 @@ function getDisplayList(state, query, opts) {
   var filteredStarred = [], restStarred   = [];
   var filteredNormal  = [], restNormal    = [];
   starred.forEach(function (item) {
-    if (_matches(item, q, opts.tagsOnly)) filteredStarred.push(item);
-    else                                  restStarred.push(item);
+    if (_matches(item, q, opts)) filteredStarred.push(item);
+    else                         restStarred.push(item);
   });
   normal.forEach(function (item) {
-    if (_matches(item, q, opts.tagsOnly)) filteredNormal.push(item);
-    else                                  restNormal.push(item);
+    if (_matches(item, q, opts)) filteredNormal.push(item);
+    else                         restNormal.push(item);
   });
   var filtered = filteredStarred.concat(filteredNormal);
   var rest     = restStarred.concat(restNormal);
   return { filtered: filtered, rest: rest };
 }
-function _matches(item, q, tagsOnly) {
-  if (tagsOnly) {
-    return item.tags.some(function (t) {
-      return t.toLowerCase().includes(q);
-    });
-  }
-  if ((item.text || '').toLowerCase().includes(q)) return true;
-  if (item.tags.some(function (t) { return t.toLowerCase().includes(q); })) return true;
+function _matches(item, q, opts) {
+  var si = opts.searchItems  !== false;
+  var st = opts.searchTitles !== false;
+  var sg = opts.searchTags   !== false;
+  if (!si && !st && !sg) return false;
+  if (si && (item.text  || '').toLowerCase().includes(q)) return true;
+  if (st && (item.title || '').toLowerCase().includes(q)) return true;
+  if (sg && item.tags.some(function (t) { return t.toLowerCase().includes(q); })) return true;
   return false;
 }
 function _sort(items, mode) {
