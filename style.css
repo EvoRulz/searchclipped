@@ -412,6 +412,7 @@ button { font-family: var(--font); }
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  justify-content: center;
   gap: 3px;
   padding-left: 3px;
   flex-shrink: 0;

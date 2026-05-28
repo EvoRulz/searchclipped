@@ -374,7 +374,7 @@ function _fmtDate(iso) {
     var ampm = h >= 12 ? 'pm' : 'am';
     h = h % 12 || 12;
     var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
-    return d.getDate() + ' ' + (d.getMonth()+1) + ' ' + String(d.getFullYear()).slice(2) +
+    return d.getDate() + '/' + (d.getMonth()+1) + '/' + String(d.getFullYear()).slice(2) +
            ' ' + h + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()) + ampm;
   } catch (e) { return iso; }
 }
