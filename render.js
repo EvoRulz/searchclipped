@@ -68,11 +68,11 @@ function _makePlaceholder() {
   var el = document.createElement('div');
   el.className   = 'item new-placeholder';
   el.dataset.id  = '__new__';
-  var contentCol = document.createElement('div');
-  contentCol.className = 'item-content-col';
+  var topRow = document.createElement('div');
+  topRow.className = 'placeholder-top-row';
   var titleEl = document.createElement('div');
-  titleEl.className       = 'item-title';
-  titleEl.contentEditable = 'true';
+  titleEl.className           = 'item-title';
+  titleEl.contentEditable     = 'true';
   titleEl.dataset.placeholder = 'title (optional)';
   titleEl.setAttribute('aria-label', 'New item title');
   titleEl.addEventListener('keydown', function (e) {
@@ -81,9 +81,27 @@ function _makePlaceholder() {
       content.focus();
     }
   });
+  var imgInput = document.createElement('input');
+  imgInput.type          = 'file';
+  imgInput.accept        = 'image/*';
+  imgInput.style.display = 'none';
+  imgInput.addEventListener('change', function () {
+    var file = imgInput.files[0];
+    if (file) document.dispatchEvent(new CustomEvent('sc:create-image', { detail: { blob: file } }));
+    imgInput.value = '';
+  });
+  var imgBtn = document.createElement('button');
+  imgBtn.className = 'img-pick-btn';
+  imgBtn.innerHTML = '<svg width="28" height="28" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="2" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/><circle cx="4.5" cy="5.5" r="1" stroke="currentColor" stroke-width="1.2"/><path d="M1 9.5 L4 6.5 L6.5 9 L9 7 L13 10.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  imgBtn.addEventListener('click', function (e) { e.preventDefault(); imgInput.click(); });
+  topRow.appendChild(titleEl);
+  topRow.appendChild(imgInput);
+  topRow.appendChild(imgBtn);
+  var sep = document.createElement('div');
+  sep.className = 'placeholder-sep';
   var content = document.createElement('div');
-  content.className         = 'item-content placeholder';
-  content.contentEditable   = 'true';
+  content.className           = 'item-content placeholder';
+  content.contentEditable     = 'true';
   content.dataset.placeholder = 'create new item…';
   content.setAttribute('aria-label', 'Create new item');
   content.addEventListener('focus', function () {
@@ -117,27 +135,9 @@ function _makePlaceholder() {
       if (si) si.focus();
     }
   });
-  contentCol.appendChild(titleEl);
-  contentCol.appendChild(content);
-  el.appendChild(contentCol);
-  var right = document.createElement('div');
-  right.className = 'item-right';
-  var imgInput = document.createElement('input');
-  imgInput.type          = 'file';
-  imgInput.accept        = 'image/*';
-  imgInput.style.display = 'none';
-  imgInput.addEventListener('change', function () {
-    var file = imgInput.files[0];
-    if (file) document.dispatchEvent(new CustomEvent('sc:create-image', { detail: { blob: file } }));
-    imgInput.value = '';
-  });
-  var imgBtn = document.createElement('button');
-  imgBtn.className   = 'img-pick-btn';
-  imgBtn.innerHTML = '<svg width="28" height="28" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="2" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/><circle cx="4.5" cy="5.5" r="1" stroke="currentColor" stroke-width="1.2"/><path d="M1 9.5 L4 6.5 L6.5 9 L9 7 L13 10.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  imgBtn.addEventListener('click', function (e) { e.preventDefault(); imgInput.click(); });
-  right.appendChild(imgInput);
-  right.appendChild(imgBtn);
-  el.appendChild(right);
+  el.appendChild(topRow);
+  el.appendChild(sep);
+  el.appendChild(content);
   return el;
 }
 /* ====== ITEM ELEMENT ====== */
