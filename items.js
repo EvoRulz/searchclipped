@@ -31,6 +31,7 @@ function _onCreate(e) {
   if (!text) return;
   State.pushUndo(_state);
   var item = State.createItem(text, e.detail.html || text, null);
+  if (e.detail.title) item.title = e.detail.title.trim();
   // Give it the next bumpOrder slot at the top
   State.reindexBumpOrder(_state);
   // Insert at position 0 by giving it bumpOrder = -1 then reindexing

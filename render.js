@@ -68,6 +68,19 @@ function _makePlaceholder() {
   var el = document.createElement('div');
   el.className   = 'item new-placeholder';
   el.dataset.id  = '__new__';
+  var contentCol = document.createElement('div');
+  contentCol.className = 'item-content-col';
+  var titleEl = document.createElement('div');
+  titleEl.className       = 'item-title';
+  titleEl.contentEditable = 'true';
+  titleEl.dataset.placeholder = 'add title...';
+  titleEl.setAttribute('aria-label', 'New item title');
+  titleEl.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      content.focus();
+    }
+  });
   var content = document.createElement('div');
   content.className         = 'item-content placeholder';
   content.contentEditable   = 'true';
@@ -84,12 +97,13 @@ function _makePlaceholder() {
     if (!text) {
       content.classList.add('placeholder');
     } else {
-      // Dispatch to items.js
+      var title = (titleEl.textContent || '').trim();
       document.dispatchEvent(new CustomEvent('sc:create-item', {
-        detail: { text: text, html: content.innerHTML }
+        detail: { text: text, html: content.innerHTML, title: title }
       }));
       content.textContent = '';
       content.classList.add('placeholder');
+      titleEl.textContent = '';
     }
   });
   content.addEventListener('keydown', function (e) {
@@ -103,7 +117,9 @@ function _makePlaceholder() {
       if (si) si.focus();
     }
   });
-  el.appendChild(content);
+  contentCol.appendChild(titleEl);
+  contentCol.appendChild(content);
+  el.appendChild(contentCol);
   var right = document.createElement('div');
   right.className = 'item-right';
   var imgInput = document.createElement('input');
