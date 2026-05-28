@@ -139,11 +139,14 @@ function _makePlaceholder() {
       if (si) si.focus();
     }
   });
+  var contentRow = document.createElement('div');
+  contentRow.className = 'placeholder-content-row';
+  contentRow.appendChild(content);
+  contentRow.appendChild(imgInput);
+  contentRow.appendChild(imgBtn);
   el.appendChild(topRow);
   el.appendChild(sep);
-  el.appendChild(content);
-  el.appendChild(imgInput);
-  el.appendChild(imgBtn);
+  el.appendChild(contentRow);
   return el;
 }
 /* ====== ITEM ELEMENT ====== */
