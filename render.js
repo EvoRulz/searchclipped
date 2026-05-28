@@ -239,6 +239,14 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     });
     right.appendChild(copyBtn);
   }
+  var trashBtn = document.createElement('button');
+  trashBtn.className   = 'trash-btn';
+  trashBtn.title       = 'Delete';
+  trashBtn.innerHTML   = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 4h10M5 4V2.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5V4M6 7v3.5M8 7v3.5M3 4l.8 7.2a1 1 0 001 .8h4.4a1 1 0 001-.8L11 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  trashBtn.addEventListener('click', function () {
+    document.dispatchEvent(new CustomEvent('sc:swipe-delete', { detail: { id: item.id } }));
+  });
+  right.appendChild(trashBtn);
   el.appendChild(right);
   // --- Image ---
   if (item.imageId) {
