@@ -126,7 +126,23 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
                   (item.deleted ? ' deleted' : '') +
                   (item.imageId ? ' has-image' : '');
   el.dataset.id = item.id;
-  // --- Checkbox ---
+  // --- Left column (ID + up + checkbox + down) ---
+  var left = document.createElement('div');
+  left.className = 'item-left';
+  var idSpan = document.createElement('span');
+  idSpan.className   = 'item-id';
+  idSpan.textContent = item.deleted ? '' : item.bumpOrder;
+  left.appendChild(idSpan);
+  var isBumpMode = (_state.sortMode === 'id-asc' || _state.sortMode === 'id-desc' || _state.sortMode === 'bump');
+  var isTop = _topBumped.has(item.id);
+  var upBtn = document.createElement('button');
+  upBtn.className   = 'arrow-btn' + (isTop && !isBumpMode ? ' top-bumped' : '');
+  upBtn.textContent = isBumpMode ? '▲' : '⇑';
+  upBtn.title       = 'Move up';
+  upBtn.addEventListener('click', function () {
+    document.dispatchEvent(new CustomEvent('sc:bump', { detail: { id: item.id, dir: -1 } }));
+  });
+  left.appendChild(upBtn);
   var cbWrap = document.createElement('label');
   cbWrap.className = 'item-cb-wrap cb-wrap';
   var cb    = document.createElement('input');
@@ -139,29 +155,16 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   cbMark.className = 'cb-mark';
   cbWrap.appendChild(cb);
   cbWrap.appendChild(cbMark);
-  el.appendChild(cbWrap);
-  // --- Arrows ---
-  var arrows = document.createElement('div');
-  arrows.className = 'item-arrows';
-  var isTop = _topBumped.has(item.id);
-  var upBtn = document.createElement('button');
-  upBtn.className   = 'arrow-btn' + (isTop && _state.sortMode !== 'bump' ? ' top-bumped' : '');
-  upBtn.textContent = _state.sortMode !== 'bump' ? '⇑' : '▲';
-  upBtn.title       = 'Move up';
-  upBtn.addEventListener('click', function () {
-    document.dispatchEvent(new CustomEvent('sc:bump', { detail: { id: item.id, dir: -1 } }));
-  });
+  left.appendChild(cbWrap);
   var dnBtn = document.createElement('button');
   dnBtn.className   = 'arrow-btn';
-  dnBtn.textContent = _state.sortMode !== 'bump' ? '⇓' : '▼';
+  dnBtn.textContent = isBumpMode ? '▼' : '⇓';
   dnBtn.title       = 'Move down';
   dnBtn.addEventListener('click', function () {
     document.dispatchEvent(new CustomEvent('sc:bump', { detail: { id: item.id, dir: 1 } }));
   });
-  // Only show down arrow in bump mode; in date modes only up (promote)
-  arrows.appendChild(upBtn);
-  if (_state.sortMode === 'bump') arrows.appendChild(dnBtn);
-  el.appendChild(arrows);
+  if (isBumpMode) left.appendChild(dnBtn);
+  el.appendChild(left);
   // --- Content ---
   var content = document.createElement('div');
   content.className       = 'item-content';

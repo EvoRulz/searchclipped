@@ -88,7 +88,12 @@ function _sort(items, mode) {
       return new Date(a.modifiedAt) - new Date(b.modifiedAt);
     });
   }
-  // bump (default)
+  // id sorts (and bump fallback)
+  if (mode === 'id-desc') {
+    return items.slice().sort(function (a, b) {
+      return b.bumpOrder - a.bumpOrder;
+    });
+  }
   return items.slice().sort(function (a, b) {
     return a.bumpOrder - b.bumpOrder;
   });

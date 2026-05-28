@@ -1,6 +1,6 @@
 'use strict';
-// @version 34
-var SC_VERSION = '@version 34';
+// @version 35
+var SC_VERSION = '@version 35';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -162,6 +162,7 @@ document.addEventListener('sc:filter-tag', function (e) {
     var mode = state.sortMode;
     if (mode === 'created')  mode = 'created-desc';
     if (mode === 'modified') mode = 'modified-desc';
+    if (mode === 'bump')     mode = 'id-asc';
     sortSelect.value = mode;
   }
   sortSelect.addEventListener('change', function () {

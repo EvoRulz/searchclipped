@@ -269,11 +269,11 @@ button { font-family: var(--font); }
 /* ===== ITEM ===== */
 .item {
   display: grid;
-  grid-template-columns: 20px 26px 1fr auto;
+  grid-template-columns: 28px 1fr auto;
   grid-template-rows: auto auto;
   grid-template-areas:
-    "cb arrows content  right"
-    "cb arrows footer   footer";
+    "left content right"
+    "left footer  footer";
   background: var(--bg-panel);
   border: 1px solid var(--border-lo);
   border-radius: var(--radius-lg);
@@ -296,9 +296,9 @@ button { font-family: var(--font); }
 .item.has-image {
   grid-template-rows: auto auto auto;
   grid-template-areas:
-    "cb arrows content right"
-    "cb arrows image   image"
-    "cb arrows footer  footer";
+    "left content right"
+    "left image   image"
+    "left footer  footer";
 }
 .item-image {
   grid-area: image;
@@ -321,23 +321,28 @@ button { font-family: var(--font); }
   transition: all var(--transition);
 }
 .img-pick-btn:hover { border-color: var(--blue-dim); color: var(--blue); }
-/* Item checkbox */
-.item-cb-wrap {
-  grid-area: cb;
-  display: flex;
-  align-items: center;
-  align-self: center;
-}
-.item-cb-wrap .cb-mark { width: 13px; height: 13px; }
-/* Item arrows */
-.item-arrows {
-  grid-area: arrows;
+/* Item left column */
+.item-left {
+  grid-area: left;
   display: flex;
   flex-direction: column;
   align-items: center;
+  align-self: stretch;
+  padding-top: 3px;
   gap: 1px;
-  align-self: center;
 }
+.item-id {
+  font-size: 9px;
+  color: var(--text-ph);
+  font-weight: 500;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.item-cb-wrap {
+  display: flex;
+  align-items: center;
+}
+.item-cb-wrap .cb-mark { width: 13px; height: 13px; }
 .arrow-btn {
   background: none;
   border: none;
