@@ -73,7 +73,7 @@ function _makePlaceholder() {
   var titleEl = document.createElement('div');
   titleEl.className       = 'item-title';
   titleEl.contentEditable = 'true';
-  titleEl.dataset.placeholder = 'add title...';
+  titleEl.dataset.placeholder = 'title (optional)';
   titleEl.setAttribute('aria-label', 'New item title');
   titleEl.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -183,7 +183,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   var titleEl = document.createElement('div');
   titleEl.className       = 'item-title';
   titleEl.contentEditable = item.deleted ? 'false' : 'true';
-  titleEl.dataset.placeholder = 'add title (optional)';
+  titleEl.dataset.placeholder = 'add title...';
   titleEl.dataset.id      = item.id;
   if (item.title) { titleEl.textContent = item.title; }
   titleEl.addEventListener('blur', function () {
