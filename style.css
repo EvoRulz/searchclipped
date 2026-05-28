@@ -329,6 +329,13 @@ button { font-family: var(--font); }
   align-items: center;
   align-self: stretch;
   padding-top: 3px;
+}
+.item-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
   gap: 1px;
 }
 .item-id {

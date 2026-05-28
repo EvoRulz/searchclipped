@@ -131,7 +131,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   left.className = 'item-left';
   var idSpan = document.createElement('span');
   idSpan.className   = 'item-id';
-  idSpan.textContent = item.deleted ? '' : item.bumpOrder;
+  idSpan.textContent = item.deleted ? '' : item.bumpOrder + 1;
   left.appendChild(idSpan);
   var isBumpMode = (_state.sortMode === 'id-asc' || _state.sortMode === 'id-desc' || _state.sortMode === 'bump');
   var isTop = _topBumped.has(item.id);
@@ -142,7 +142,9 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   upBtn.addEventListener('click', function () {
     document.dispatchEvent(new CustomEvent('sc:bump', { detail: { id: item.id, dir: -1 } }));
   });
-  left.appendChild(upBtn);
+  var controls = document.createElement('div');
+  controls.className = 'item-controls';
+  controls.appendChild(upBtn);
   var cbWrap = document.createElement('label');
   cbWrap.className = 'item-cb-wrap cb-wrap';
   var cb    = document.createElement('input');
@@ -155,7 +157,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   cbMark.className = 'cb-mark';
   cbWrap.appendChild(cb);
   cbWrap.appendChild(cbMark);
-  left.appendChild(cbWrap);
+  controls.appendChild(cbWrap);
   var dnBtn = document.createElement('button');
   dnBtn.className   = 'arrow-btn';
   dnBtn.textContent = isBumpMode ? '▼' : '⇓';
@@ -163,7 +165,8 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   dnBtn.addEventListener('click', function () {
     document.dispatchEvent(new CustomEvent('sc:bump', { detail: { id: item.id, dir: 1 } }));
   });
-  if (isBumpMode) left.appendChild(dnBtn);
+  if (isBumpMode) controls.appendChild(dnBtn);
+  left.appendChild(controls);
   el.appendChild(left);
   // --- Content ---
   var content = document.createElement('div');
