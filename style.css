@@ -671,3 +671,4 @@ button { font-family: var(--font); }
 .alt-mode .item[data-shortcut]:not(.new-placeholder)::after {
   display: flex;
 }
+

@@ -356,9 +356,12 @@ function _fmtDate(iso) {
   if (!iso) return '';
   try {
     var d = new Date(iso);
+    var h = d.getHours();
+    var ampm = h >= 12 ? 'pm' : 'am';
+    h = h % 12 || 12;
     var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
-    return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) +
-           ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+    return d.getDate() + ' ' + (d.getMonth()+1) + ' ' + String(d.getFullYear()).slice(2) +
+           ' ' + h + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()) + ampm;
   } catch (e) { return iso; }
 }
 window.Render = { init, render };
