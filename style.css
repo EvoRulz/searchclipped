@@ -816,4 +816,11 @@ button { font-family: var(--font); }
 #app.hide-item-content .item:not(.new-placeholder) .item-content { display: none; }
 #app.hide-titles .item:not(.new-placeholder) .item-title { display: none; }
 #app.hide-tags .item .tags-row { display: none; }
+#app.hide-arrows .item:not(.new-placeholder) .arrow-btn { display: none; }
+#app.hide-ids .item:not(.new-placeholder) .item-id { display: none; }
+#app.hide-copy .item:not(.new-placeholder) .copy-btn { display: none; }
+#app.hide-stars .item:not(.new-placeholder) .star-btn { display: none; }
+#app.hide-starred .item-row:has(.item.starred) { display: none; }
+#app.hide-timestamps .item:not(.new-placeholder) .item-timestamps { display: none; }
+#app.hide-checkboxes .item-cb-outer { display: none; }
 

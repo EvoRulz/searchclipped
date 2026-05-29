@@ -1,6 +1,6 @@
 'use strict';
-// @version 65
-var SC_VERSION = '@version 65';
+// @version 66
+var SC_VERSION = '@version 66';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -22,6 +22,13 @@ var SC_VERSION = '@version 65';
   var hideItemContent   = false;
   var hideTitles        = false;
   var hideTags          = false;
+  var hideArrows        = false;
+  var hideIds           = false;
+  var hideCopy          = false;
+  var hideStars         = false;
+  var hideStarred       = false;
+  var hideTimestamps    = false;
+  var hideCheckboxes    = false;
   var searchItems  = true;
   var searchTitles = true;
   var searchTags   = true;
@@ -34,6 +41,13 @@ var SC_VERSION = '@version 65';
   var btnHideItemContent   = document.getElementById('btn-hide-item-content');
   var btnHideTitles        = document.getElementById('btn-hide-titles');
   var btnHideTagsBtn       = document.getElementById('btn-hide-tags');
+  var btnHideArrows        = document.getElementById('btn-hide-arrows');
+  var btnHideIds           = document.getElementById('btn-hide-ids');
+  var btnHideCopy          = document.getElementById('btn-hide-copy');
+  var btnHideStars         = document.getElementById('btn-hide-stars');
+  var btnHideStarred       = document.getElementById('btn-hide-starred');
+  var btnHideTimestamps    = document.getElementById('btn-hide-timestamps');
+  var btnHideCheckboxes    = document.getElementById('btn-hide-checkboxes');
   var cbSearchItems  = document.getElementById('cb-search-items');
   var cbSearchTitles = document.getElementById('cb-search-titles');
   var cbSearchTags   = document.getElementById('cb-search-tags');
@@ -172,6 +186,41 @@ var SC_VERSION = '@version 65';
     hideTags = !hideTags;
     btnHideTagsBtn.classList.toggle('active', hideTags);
     document.getElementById('app').classList.toggle('hide-tags', hideTags);
+  });
+  btnHideArrows.addEventListener('click', function () {
+    hideArrows = !hideArrows;
+    btnHideArrows.classList.toggle('active', hideArrows);
+    document.getElementById('app').classList.toggle('hide-arrows', hideArrows);
+  });
+  btnHideIds.addEventListener('click', function () {
+    hideIds = !hideIds;
+    btnHideIds.classList.toggle('active', hideIds);
+    document.getElementById('app').classList.toggle('hide-ids', hideIds);
+  });
+  btnHideCopy.addEventListener('click', function () {
+    hideCopy = !hideCopy;
+    btnHideCopy.classList.toggle('active', hideCopy);
+    document.getElementById('app').classList.toggle('hide-copy', hideCopy);
+  });
+  btnHideStars.addEventListener('click', function () {
+    hideStars = !hideStars;
+    btnHideStars.classList.toggle('active', hideStars);
+    document.getElementById('app').classList.toggle('hide-stars', hideStars);
+  });
+  btnHideStarred.addEventListener('click', function () {
+    hideStarred = !hideStarred;
+    btnHideStarred.classList.toggle('active', hideStarred);
+    document.getElementById('app').classList.toggle('hide-starred', hideStarred);
+  });
+  btnHideTimestamps.addEventListener('click', function () {
+    hideTimestamps = !hideTimestamps;
+    btnHideTimestamps.classList.toggle('active', hideTimestamps);
+    document.getElementById('app').classList.toggle('hide-timestamps', hideTimestamps);
+  });
+  btnHideCheckboxes.addEventListener('click', function () {
+    hideCheckboxes = !hideCheckboxes;
+    btnHideCheckboxes.classList.toggle('active', hideCheckboxes);
+    document.getElementById('app').classList.toggle('hide-checkboxes', hideCheckboxes);
   });
   cbSearchItems.addEventListener('change', function () {
     searchItems = cbSearchItems.checked;

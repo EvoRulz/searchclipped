@@ -438,12 +438,13 @@ function _attachSwipe(el, id) {
 function _fmtDate(iso) {
   if (!iso) return '';
   try {
+    var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
     var d = new Date(iso);
     var h = d.getHours();
     var ampm = h >= 12 ? 'pm' : 'am';
     h = h % 12 || 12;
     var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
-    return d.getDate() + '/' + (d.getMonth()+1) + '/' + String(d.getFullYear()).slice(2) +
+    return days[d.getDay()] + ' ' + d.getDate() + '/' + (d.getMonth()+1) + '/' + String(d.getFullYear()).slice(2) +
            ' ' + h + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()) + ampm;
   } catch (e) { return iso; }
 }
