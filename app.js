@@ -1,6 +1,6 @@
 'use strict';
-// @version 64
-var SC_VERSION = '@version 64';
+// @version 65
+var SC_VERSION = '@version 65';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -18,7 +18,10 @@ var SC_VERSION = '@version 64';
   /* ===== FILTER UI STATE ===== */
   var query       = '';
   var showDeleted = false;
-  var hideActive  = false;
+  var hideActive        = false;
+  var hideItemContent   = false;
+  var hideTitles        = false;
+  var hideTags          = false;
   var searchItems  = true;
   var searchTitles = true;
   var searchTags   = true;
@@ -27,7 +30,10 @@ var SC_VERSION = '@version 64';
   var cbSelectAll    = document.getElementById('cb-select-all');
   var cbSelFiltered  = document.getElementById('cb-select-filtered');
   var btnShowDeleted = document.getElementById('btn-show-deleted');
-  var btnHideActive  = document.getElementById('btn-hide-undeleted');
+  var btnHideActive        = document.getElementById('btn-hide-undeleted');
+  var btnHideItemContent   = document.getElementById('btn-hide-item-content');
+  var btnHideTitles        = document.getElementById('btn-hide-titles');
+  var btnHideTagsBtn       = document.getElementById('btn-hide-tags');
   var cbSearchItems  = document.getElementById('cb-search-items');
   var cbSearchTitles = document.getElementById('cb-search-titles');
   var cbSearchTags   = document.getElementById('cb-search-tags');
@@ -151,6 +157,21 @@ var SC_VERSION = '@version 64';
     hideActive = !hideActive;
     btnHideActive.classList.toggle('active', hideActive);
     refresh();
+  });
+  btnHideItemContent.addEventListener('click', function () {
+    hideItemContent = !hideItemContent;
+    btnHideItemContent.classList.toggle('active', hideItemContent);
+    document.getElementById('app').classList.toggle('hide-item-content', hideItemContent);
+  });
+  btnHideTitles.addEventListener('click', function () {
+    hideTitles = !hideTitles;
+    btnHideTitles.classList.toggle('active', hideTitles);
+    document.getElementById('app').classList.toggle('hide-titles', hideTitles);
+  });
+  btnHideTagsBtn.addEventListener('click', function () {
+    hideTags = !hideTags;
+    btnHideTagsBtn.classList.toggle('active', hideTags);
+    document.getElementById('app').classList.toggle('hide-tags', hideTags);
   });
   cbSearchItems.addEventListener('change', function () {
     searchItems = cbSearchItems.checked;

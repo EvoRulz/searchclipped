@@ -812,4 +812,8 @@ button { font-family: var(--font); }
 .alt-mode .item[data-shortcut]:not(.new-placeholder)::after {
   display: flex;
 }
+/* ===== HIDE TOGGLES ===== */
+#app.hide-item-content .item:not(.new-placeholder) .item-content { display: none; }
+#app.hide-titles .item:not(.new-placeholder) .item-title { display: none; }
+#app.hide-tags .item .tags-row { display: none; }
 
