@@ -1,6 +1,6 @@
 'use strict';
-// @version 67
-var SC_VERSION = '@version 67';
+// @version 68
+var SC_VERSION = '@version 68';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -28,6 +28,10 @@ var SC_VERSION = '@version 67';
   var hideStars         = false;
   var hideStarred       = false;
   var hideTimestamps    = false;
+  var hideTsCreated     = false;
+  var hideTsModified    = false;
+  var hideTsDeleted     = false;
+  var hideTsRestored    = false;
   var hideCheckboxes    = false;
   var hideDelete       = false;
   var hideTitleEntry   = false;
@@ -52,6 +56,10 @@ var SC_VERSION = '@version 67';
   var btnHideStars         = document.getElementById('btn-hide-stars');
   var btnHideStarred       = document.getElementById('btn-hide-starred');
   var btnHideTimestamps    = document.getElementById('btn-hide-timestamps');
+  var btnHideTsCreated     = document.getElementById('btn-hide-ts-created');
+  var btnHideTsModified    = document.getElementById('btn-hide-ts-modified');
+  var btnHideTsDeleted     = document.getElementById('btn-hide-ts-deleted');
+  var btnHideTsRestored    = document.getElementById('btn-hide-ts-restored');
   var btnHideCheckboxes    = document.getElementById('btn-hide-checkboxes');
   var btnHideDelete      = document.getElementById('btn-hide-delete');
   var btnHideTitleEntry  = document.getElementById('btn-hide-title-entry');
@@ -226,6 +234,26 @@ var SC_VERSION = '@version 67';
     hideTimestamps = !hideTimestamps;
     btnHideTimestamps.classList.toggle('active', hideTimestamps);
     document.getElementById('app').classList.toggle('hide-timestamps', hideTimestamps);
+  });
+  btnHideTsCreated.addEventListener('click', function () {
+    hideTsCreated = !hideTsCreated;
+    btnHideTsCreated.classList.toggle('active', hideTsCreated);
+    document.getElementById('app').classList.toggle('hide-ts-created', hideTsCreated);
+  });
+  btnHideTsModified.addEventListener('click', function () {
+    hideTsModified = !hideTsModified;
+    btnHideTsModified.classList.toggle('active', hideTsModified);
+    document.getElementById('app').classList.toggle('hide-ts-modified', hideTsModified);
+  });
+  btnHideTsDeleted.addEventListener('click', function () {
+    hideTsDeleted = !hideTsDeleted;
+    btnHideTsDeleted.classList.toggle('active', hideTsDeleted);
+    document.getElementById('app').classList.toggle('hide-ts-deleted', hideTsDeleted);
+  });
+  btnHideTsRestored.addEventListener('click', function () {
+    hideTsRestored = !hideTsRestored;
+    btnHideTsRestored.classList.toggle('active', hideTsRestored);
+    document.getElementById('app').classList.toggle('hide-ts-restored', hideTsRestored);
   });
   btnHideCheckboxes.addEventListener('click', function () {
     hideCheckboxes = !hideCheckboxes;

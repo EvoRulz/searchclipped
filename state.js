@@ -101,7 +101,8 @@ function createItem(text, html, imageId) {
     deleted:    false,
     createdAt:  now,
     modifiedAt: now,
-    bumpOrder:  0
+    bumpOrder:  0,
+    restoredAt: null
   };
 }
 function getItem(state, id) {

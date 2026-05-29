@@ -298,11 +298,11 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   var tsCont = document.createElement('div');
   tsCont.className = 'item-timestamps';
   var tsCreated = document.createElement('span');
-  tsCreated.className   = 'item-ts';
+  tsCreated.className   = 'item-ts item-ts-created';
   tsCreated.textContent = 'created: ' + _fmtDate(item.createdAt);
   tsCont.appendChild(tsCreated);
   var tsModified = document.createElement('span');
-  tsModified.className   = 'item-ts';
+  tsModified.className   = 'item-ts item-ts-modified';
   tsModified.textContent = 'modified: ' + _fmtDate(item.modifiedAt);
   tsCont.appendChild(tsModified);
   if (item.deleted) {

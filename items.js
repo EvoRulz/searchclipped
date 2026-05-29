@@ -167,6 +167,7 @@ async function _onRestore(e) {
   State.pushUndo(_state);
   item.deleted    = false;
   item.bumpOrder  = Math.floor(item.bumpOrder);
+  item.restoredAt = State.nowISO();
   item.modifiedAt = State.nowISO();
   State.saveState(_state);
   _refresh();
