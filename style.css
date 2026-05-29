@@ -93,6 +93,8 @@ button { font-family: var(--font); }
   gap: 6px;
   flex-wrap: wrap;
   margin-bottom: 4px;
+  overflow-y: auto;
+  max-height: 120px;
 }
 #action-row {
   display: flex;
