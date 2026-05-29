@@ -823,4 +823,8 @@ button { font-family: var(--font); }
 #app.hide-starred .item-row:has(.item.starred) { display: none; }
 #app.hide-timestamps .item:not(.new-placeholder) .item-timestamps { display: none; }
 #app.hide-checkboxes .item-cb-outer { display: none; }
+#app.hide-delete .item-trash-outer { display: none; }
+#app.hide-title-entry .new-placeholder .item-title { display: none; }
+#app.hide-item-entry .placeholder-content-row .item-content { display: none; }
+#app.hide-img-entry .img-pick-btn { display: none; }
 

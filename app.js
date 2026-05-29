@@ -1,6 +1,6 @@
 'use strict';
-// @version 66
-var SC_VERSION = '@version 66';
+// @version 67
+var SC_VERSION = '@version 67';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -29,6 +29,11 @@ var SC_VERSION = '@version 66';
   var hideStarred       = false;
   var hideTimestamps    = false;
   var hideCheckboxes    = false;
+  var hideDelete       = false;
+  var hideTitleEntry   = false;
+  var hideItemEntry    = false;
+  var hideImgEntry     = false;
+  var hideFilterRow    = false;
   var searchItems  = true;
   var searchTitles = true;
   var searchTags   = true;
@@ -48,6 +53,11 @@ var SC_VERSION = '@version 66';
   var btnHideStarred       = document.getElementById('btn-hide-starred');
   var btnHideTimestamps    = document.getElementById('btn-hide-timestamps');
   var btnHideCheckboxes    = document.getElementById('btn-hide-checkboxes');
+  var btnHideDelete      = document.getElementById('btn-hide-delete');
+  var btnHideTitleEntry  = document.getElementById('btn-hide-title-entry');
+  var btnHideItemEntry   = document.getElementById('btn-hide-item-entry');
+  var btnHideImgEntry    = document.getElementById('btn-hide-img-entry');
+  var btnToggleFilterRow = document.getElementById('btn-toggle-filter-row');
   var cbSearchItems  = document.getElementById('cb-search-items');
   var cbSearchTitles = document.getElementById('cb-search-titles');
   var cbSearchTags   = document.getElementById('cb-search-tags');
@@ -221,6 +231,31 @@ var SC_VERSION = '@version 66';
     hideCheckboxes = !hideCheckboxes;
     btnHideCheckboxes.classList.toggle('active', hideCheckboxes);
     document.getElementById('app').classList.toggle('hide-checkboxes', hideCheckboxes);
+  });
+  btnHideDelete.addEventListener('click', function () {
+    hideDelete = !hideDelete;
+    btnHideDelete.classList.toggle('active', hideDelete);
+    document.getElementById('app').classList.toggle('hide-delete', hideDelete);
+  });
+  btnHideTitleEntry.addEventListener('click', function () {
+    hideTitleEntry = !hideTitleEntry;
+    btnHideTitleEntry.classList.toggle('active', hideTitleEntry);
+    document.getElementById('app').classList.toggle('hide-title-entry', hideTitleEntry);
+  });
+  btnHideItemEntry.addEventListener('click', function () {
+    hideItemEntry = !hideItemEntry;
+    btnHideItemEntry.classList.toggle('active', hideItemEntry);
+    document.getElementById('app').classList.toggle('hide-item-entry', hideItemEntry);
+  });
+  btnHideImgEntry.addEventListener('click', function () {
+    hideImgEntry = !hideImgEntry;
+    btnHideImgEntry.classList.toggle('active', hideImgEntry);
+    document.getElementById('app').classList.toggle('hide-img-entry', hideImgEntry);
+  });
+  btnToggleFilterRow.addEventListener('click', function () {
+    hideFilterRow = !hideFilterRow;
+    document.getElementById('filter-row').style.display = hideFilterRow ? 'none' : '';
+    btnToggleFilterRow.textContent = hideFilterRow ? 'show list' : 'hide list';
   });
   cbSearchItems.addEventListener('change', function () {
     searchItems = cbSearchItems.checked;
