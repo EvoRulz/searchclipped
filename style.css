@@ -828,6 +828,7 @@ button { font-family: var(--font); }
 #app.hide-checkboxes .item-cb-outer { display: none; }
 #app.hide-delete .item-trash-outer { display: none; }
 #app.hide-title-entry .new-placeholder .item-title { display: none; }
+#app.hide-title-entry .new-placeholder .placeholder-sep { display: none; }
 #app.hide-item-entry .placeholder-content-row .item-content { display: none; }
 #app.hide-img-entry .img-pick-btn { display: none; }
 #app.hide-ts-created .item:not(.new-placeholder) .item-ts-created { display: none; }
