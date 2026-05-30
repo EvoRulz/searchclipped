@@ -405,6 +405,7 @@ function _attachSwipe(el, id) {
   var THRESHOLD = 80;
   el.addEventListener('pointerdown', function (e) {
     if (e.target.closest('button, input, [contenteditable]')) return;
+    if (e.target === el || e.target.closest('.item-left') || e.target.closest('.item-right')) return;
     startX = e.clientX;
     startY = e.clientY;
     dx     = 0;
