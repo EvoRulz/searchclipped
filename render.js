@@ -256,7 +256,18 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   starBtn.addEventListener('click', function () {
     document.dispatchEvent(new CustomEvent('sc:toggle-star', { detail: { id: item.id } }));
   });
+  var iUndoBtn = document.createElement('button');
+  iUndoBtn.className = 'item-hist-btn';
+  iUndoBtn.title = 'Undo this item';
+  iUndoBtn.textContent = '\u21b6';
+  iUndoBtn.disabled = !(item.itemUndoStack && item.itemUndoStack.length);
   iUndoBtn.style.fontSize = '15px';
+  var iRedoBtn = document.createElement('button');
+  iRedoBtn.className = 'item-hist-btn';
+  iRedoBtn.title = 'Redo this item';
+  iRedoBtn.textContent = '\u21b7';
+  iRedoBtn.disabled = !(item.itemRedoStack && item.itemRedoStack.length);
+  iRedoBtn.style.fontSize = '15px';
   iRedoBtn.style.fontSize = '15px';
   right.appendChild(iUndoBtn);
   right.appendChild(iRedoBtn);
@@ -320,16 +331,6 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   vDropBtn.title = 'Version history (' + _versions.length + ')';
   vDropBtn.textContent = '\u25be';
   if (!_versions.length) vDropBtn.classList.add('no-versions');
-  var iUndoBtn = document.createElement('button');
-  iUndoBtn.className = 'item-hist-btn';
-  iUndoBtn.title = 'Undo this item';
-  iUndoBtn.textContent = '\u21b6';
-  iUndoBtn.disabled = !(item.itemUndoStack && item.itemUndoStack.length);
-  var iRedoBtn = document.createElement('button');
-  iRedoBtn.className = 'item-hist-btn';
-  iRedoBtn.title = 'Redo this item';
-  iRedoBtn.textContent = '\u21b7';
-  iRedoBtn.disabled = !(item.itemRedoStack && item.itemRedoStack.length);
   tsModRow.appendChild(tsModified);
   tsModRow.appendChild(vDropBtn);
   tsModWrap.appendChild(tsModRow);
