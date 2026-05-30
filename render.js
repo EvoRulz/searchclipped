@@ -301,10 +301,131 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   tsCreated.className   = 'item-ts item-ts-created';
   tsCreated.textContent = 'created: ' + _fmtDate(item.createdAt);
   tsCont.appendChild(tsCreated);
+  var tsModWrap = document.createElement('div');
+  tsModWrap.className = 'item-ts-modified-wrap';
+  var tsModRow = document.createElement('div');
+  tsModRow.className = 'item-ts-modified-row';
   var tsModified = document.createElement('span');
-  tsModified.className   = 'item-ts item-ts-modified';
-  tsModified.textContent = 'modified: ' + _fmtDate(item.modifiedAt);
-  tsCont.appendChild(tsModified);
+  tsModified.className = 'item-ts item-ts-modified';
+  var _modLabel = 'modified: ' + _fmtDate(item.modifiedAt);
+  if (item.versionName) _modLabel += ' \u00b7 ' + item.versionName;
+  tsModified.textContent = _modLabel;
+  var _versions = item.versions || [];
+  var vDropBtn = document.createElement('button');
+  vDropBtn.className = 'version-drop-btn';
+  vDropBtn.title = 'Version history (' + _versions.length + ')';
+  vDropBtn.textContent = '\u25be';
+  if (!_versions.length) vDropBtn.classList.add('no-versions');
+  var iUndoBtn = document.createElement('button');
+  iUndoBtn.className = 'item-hist-btn';
+  iUndoBtn.title = 'Undo this item';
+  iUndoBtn.textContent = '\u21b6';
+  iUndoBtn.disabled = !(item.itemUndoStack && item.itemUndoStack.length);
+  var iRedoBtn = document.createElement('button');
+  iRedoBtn.className = 'item-hist-btn';
+  iRedoBtn.title = 'Redo this item';
+  iRedoBtn.textContent = '\u21b7';
+  iRedoBtn.disabled = !(item.itemRedoStack && item.itemRedoStack.length);
+  tsModRow.appendChild(tsModified);
+  tsModRow.appendChild(vDropBtn);
+  tsModRow.appendChild(iUndoBtn);
+  tsModRow.appendChild(iRedoBtn);
+  tsModWrap.appendChild(tsModRow);
+  var vPanel = document.createElement('div');
+  vPanel.className = 'version-panel hidden';
+  var curRow = document.createElement('div');
+  curRow.className = 'version-entry version-current';
+  var curLabel = document.createElement('span');
+  curLabel.className = 'version-entry-ts';
+  curLabel.textContent = 'current';
+  var curNameInput = document.createElement('input');
+  curNameInput.type = 'text';
+  curNameInput.className = 'version-name-input';
+  curNameInput.placeholder = 'name\u2026';
+  curNameInput.value = item.versionName || '';
+  (function () {
+    var _t = null;
+    function _save() {
+      document.dispatchEvent(new CustomEvent('sc:name-version', {
+        detail: { id: item.id, versionIndex: -1, name: curNameInput.value }
+      }));
+    }
+    curNameInput.addEventListener('input', function () { clearTimeout(_t); _t = setTimeout(_save, 400); });
+    curNameInput.addEventListener('blur',  function () { clearTimeout(_t); _save(); });
+    curNameInput.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') curNameInput.blur(); ev.stopPropagation(); });
+    curNameInput.addEventListener('click',   function (ev) { ev.stopPropagation(); });
+  })();
+  curRow.appendChild(curLabel);
+  curRow.appendChild(curNameInput);
+  vPanel.appendChild(curRow);
+  if (_versions.length) {
+    var vList = document.createElement('div');
+    vList.className = 'version-list';
+    _versions.slice().reverse().forEach(function (ver, rIdx) {
+      var realIdx = _versions.length - 1 - rIdx;
+      var vRow = document.createElement('div');
+      vRow.className = 'version-entry';
+      var vTs = document.createElement('span');
+      vTs.className = 'version-entry-ts';
+      vTs.textContent = _fmtDate(ver.ts);
+      var vNameInp = document.createElement('input');
+      vNameInp.type = 'text';
+      vNameInp.className = 'version-name-input';
+      vNameInp.placeholder = 'name\u2026';
+      vNameInp.value = ver.name || '';
+      (function (idx) {
+        var _t2 = null;
+        function _save2() {
+          document.dispatchEvent(new CustomEvent('sc:name-version', {
+            detail: { id: item.id, versionIndex: idx, name: vNameInp.value }
+          }));
+        }
+        vNameInp.addEventListener('input', function () { clearTimeout(_t2); _t2 = setTimeout(_save2, 400); });
+        vNameInp.addEventListener('blur',  function () { clearTimeout(_t2); _save2(); });
+        vNameInp.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') vNameInp.blur(); ev.stopPropagation(); });
+        vNameInp.addEventListener('click',   function (ev) { ev.stopPropagation(); });
+        var vRestBtn = document.createElement('button');
+        vRestBtn.className = 'version-restore-btn';
+        vRestBtn.textContent = 'restore';
+        vRestBtn.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          document.dispatchEvent(new CustomEvent('sc:restore-version', {
+            detail: { id: item.id, versionIndex: idx }
+          }));
+        });
+        vRow.appendChild(vTs);
+        vRow.appendChild(vNameInp);
+        vRow.appendChild(vRestBtn);
+      })(realIdx);
+      vList.appendChild(vRow);
+    });
+    vPanel.appendChild(vList);
+  } else {
+    var noVer = document.createElement('div');
+    noVer.className = 'version-empty';
+    noVer.textContent = 'no history yet';
+    vPanel.appendChild(noVer);
+  }
+  tsModWrap.appendChild(vPanel);
+  (function () {
+    var _open = false;
+    vDropBtn.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      _open = !_open;
+      vPanel.classList.toggle('hidden', !_open);
+      vDropBtn.textContent = _open ? '\u25b4' : '\u25be';
+      vDropBtn.classList.toggle('active', _open);
+    });
+  })();
+  iUndoBtn.addEventListener('click', function (ev) {
+    ev.stopPropagation();
+    document.dispatchEvent(new CustomEvent('sc:item-undo', { detail: { id: item.id } }));
+  });
+  iRedoBtn.addEventListener('click', function (ev) {
+    ev.stopPropagation();
+    document.dispatchEvent(new CustomEvent('sc:item-redo', { detail: { id: item.id } }));
+  });
+  tsCont.appendChild(tsModWrap);
   if (item.deleted) {
     var tsDeleted = document.createElement('span');
     tsDeleted.className   = 'item-ts item-ts-deleted';

@@ -23,7 +23,11 @@ function init(state, refreshFn) {
  document.addEventListener('sc:edit-title',         _onEditTitle);
   document.addEventListener('sc:create-image',       function (e) { _createImageItem(e.detail.blob); });
   document.addEventListener('paste',                 _onPaste);
-  document.addEventListener('sc:toggle-tag-sel', _onToggleTagSel);
+  document.addEventListener('sc:toggle-tag-sel',   _onToggleTagSel);
+  document.addEventListener('sc:item-undo',         _onItemUndo);
+  document.addEventListener('sc:item-redo',         _onItemRedo);
+  document.addEventListener('sc:restore-version',   _onRestoreVersion);
+  document.addEventListener('sc:name-version',      _onNameVersion);
 }
 /* ====== CREATE ====== */
 function _onCreate(e) {
@@ -45,10 +49,17 @@ function _onCreate(e) {
 function _onEdit(e) {
   var item = State.getItem(_state, e.detail.id);
   if (!item || item.deleted) return;
+  var oldSnap = {
+    ts: item.modifiedAt, text: item.text, html: item.html,
+    title: item.title, tags: (item.tags || []).slice(), name: item.versionName || ''
+  };
   State.pushUndo(_state);
-  item.text       = e.detail.text || '';
-  item.html       = e.detail.html || item.text;
-  item.modifiedAt = State.nowISO();
+  item.text        = e.detail.text || '';
+  item.html        = e.detail.html || item.text;
+  item.modifiedAt  = State.nowISO();
+  item.versionName = '';
+  State.pushItemUndo(item, oldSnap);
+  State.addItemVersion(item, oldSnap);
   State.saveState(_state);
   _refresh();
 }
@@ -56,9 +67,16 @@ function _onEdit(e) {
 function _onEditTitle(e) {
   var item = State.getItem(_state, e.detail.id);
   if (!item || item.deleted) return;
+  var oldSnap = {
+    ts: item.modifiedAt, text: item.text, html: item.html,
+    title: item.title, tags: (item.tags || []).slice(), name: item.versionName || ''
+  };
   State.pushUndo(_state);
-  item.title      = e.detail.title || '';
-  item.modifiedAt = State.nowISO();
+  item.title       = e.detail.title || '';
+  item.modifiedAt  = State.nowISO();
+  item.versionName = '';
+  State.pushItemUndo(item, oldSnap);
+  State.addItemVersion(item, oldSnap);
   State.saveState(_state);
   _refresh();
 }
@@ -174,8 +192,21 @@ async function _onRestore(e) {
 }
 /* ====== TAGS ====== */
 function _onOpenTags(e) {
-  Modals.openTagEditor(_state, e.detail.id, function (item) {
-    State.pushUndo(_state);
+  var item = State.getItem(_state, e.detail.id);
+  if (!item) return;
+  var oldSnap = {
+    ts: item.modifiedAt, text: item.text, html: item.html,
+    title: item.title, tags: (item.tags || []).slice(), name: item.versionName || ''
+  };
+  Modals.openTagEditor(_state, e.detail.id, function (changedItem) {
+    var tagsChanged = JSON.stringify(oldSnap.tags) !== JSON.stringify(changedItem.tags);
+    if (tagsChanged) {
+      changedItem.modifiedAt  = State.nowISO();
+      changedItem.versionName = '';
+      State.pushUndo(_state);
+      State.pushItemUndo(changedItem, oldSnap);
+      State.addItemVersion(changedItem, oldSnap);
+    }
     State.saveState(_state);
     _refresh();
   });
@@ -245,6 +276,54 @@ async function bulkDeleteTags() {
   _tagSelMode = false;
   State.saveState(_state);
   _refresh();
+}
+/* ====== ITEM UNDO / REDO ====== */
+function _onItemUndo(e) {
+  var item = State.getItem(_state, e.detail.id);
+  if (!item || !State.itemUndo(item)) return;
+  State.saveState(_state);
+  _refresh();
+}
+function _onItemRedo(e) {
+  var item = State.getItem(_state, e.detail.id);
+  if (!item || !State.itemRedo(item)) return;
+  State.saveState(_state);
+  _refresh();
+}
+/* ====== RESTORE VERSION ====== */
+function _onRestoreVersion(e) {
+  var item = State.getItem(_state, e.detail.id);
+  if (!item) return;
+  var versions = item.versions || [];
+  var vIdx = e.detail.versionIndex;
+  if (vIdx < 0 || vIdx >= versions.length) return;
+  var ver = versions[vIdx];
+  State.pushUndo(_state);
+  item.text          = ver.text;
+  item.html          = ver.html;
+  item.title         = ver.title;
+  item.tags          = (ver.tags || []).slice();
+  item.modifiedAt    = State.nowISO();
+  item.versionName   = '';
+  item.itemUndoStack = [];
+  item.itemRedoStack = [];
+  State.saveState(_state);
+  _refresh();
+}
+/* ====== NAME VERSION ====== */
+function _onNameVersion(e) {
+  var item = State.getItem(_state, e.detail.id);
+  if (!item) return;
+  if (e.detail.versionIndex === -1) {
+    item.versionName = e.detail.name || '';
+  } else {
+    var versions = item.versions || [];
+    var vIdx = e.detail.versionIndex;
+    if (vIdx >= 0 && vIdx < versions.length) {
+      versions[vIdx].name = e.detail.name || '';
+    }
+  }
+  State.saveState(_state);
 }
 window.Items = {
   init,

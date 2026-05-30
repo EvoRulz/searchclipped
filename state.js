@@ -44,6 +44,12 @@ function loadState() {
     // Ensure undoStack / redoStack exist
     if (!Array.isArray(merged.undoStack)) merged.undoStack = [];
     if (!Array.isArray(merged.redoStack)) merged.redoStack = [];
+    merged.items.forEach(function (item) {
+      if (!Array.isArray(item.versions))      item.versions = [];
+      if (!Array.isArray(item.itemUndoStack)) item.itemUndoStack = [];
+      if (!Array.isArray(item.itemRedoStack)) item.itemRedoStack = [];
+      if (item.versionName === undefined)     item.versionName = '';
+    });
     return merged;
   } catch (e) {
     console.error('loadState error', e);
@@ -101,8 +107,12 @@ function createItem(text, html, imageId) {
     deleted:    false,
     createdAt:  now,
     modifiedAt: now,
-    bumpOrder:  0,
-    restoredAt: null
+    bumpOrder:     0,
+    restoredAt:    null,
+    versions:      [],
+    versionName:   '',
+    itemUndoStack: [],
+    itemRedoStack: []
   };
 }
 function getItem(state, id) {
@@ -148,6 +158,45 @@ function getTopBumped(state, n) {
   }
   return result;
 }
+/* Per-item version history helpers */
+function pushItemUndo(item, snapshot) {
+  item.itemUndoStack = item.itemUndoStack || [];
+  item.itemUndoStack.push(snapshot);
+  if (item.itemUndoStack.length > 50) item.itemUndoStack.shift();
+  item.itemRedoStack = [];
+}
+function addItemVersion(item, snapshot) {
+  item.versions = item.versions || [];
+  item.versions.push(snapshot);
+}
+function itemUndo(item) {
+  item.itemUndoStack = item.itemUndoStack || [];
+  item.itemRedoStack = item.itemRedoStack || [];
+  if (!item.itemUndoStack.length) return false;
+  item.itemRedoStack.push({
+    text: item.text, html: item.html, title: item.title,
+    tags: (item.tags || []).slice()
+  });
+  var snap = item.itemUndoStack.pop();
+  item.text  = snap.text;  item.html  = snap.html;
+  item.title = snap.title; item.tags  = snap.tags || [];
+  item.modifiedAt = nowISO();
+  return true;
+}
+function itemRedo(item) {
+  item.itemUndoStack = item.itemUndoStack || [];
+  item.itemRedoStack = item.itemRedoStack || [];
+  if (!item.itemRedoStack.length) return false;
+  item.itemUndoStack.push({
+    text: item.text, html: item.html, title: item.title,
+    tags: (item.tags || []).slice()
+  });
+  var snap = item.itemRedoStack.pop();
+  item.text  = snap.text;  item.html  = snap.html;
+  item.title = snap.title; item.tags  = snap.tags || [];
+  item.modifiedAt = nowISO();
+  return true;
+}
 window.State = {
   loadState,
   saveState,
@@ -161,6 +210,10 @@ window.State = {
   upsertItem,
   reindexBumpOrder,
   bumpItem,
-  getTopBumped
+  getTopBumped,
+  pushItemUndo,
+  addItemVersion,
+  itemUndo,
+  itemRedo
 };
 
