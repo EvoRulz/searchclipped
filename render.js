@@ -256,21 +256,6 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   starBtn.addEventListener('click', function () {
     document.dispatchEvent(new CustomEvent('sc:toggle-star', { detail: { id: item.id } }));
   });
-  var iUndoBtn = document.createElement('button');
-  iUndoBtn.className = 'item-hist-btn';
-  iUndoBtn.title = 'Undo this item';
-  iUndoBtn.textContent = '\u21b6';
-  iUndoBtn.disabled = !(item.itemUndoStack && item.itemUndoStack.length);
-  iUndoBtn.style.fontSize = '15px';
-  var iRedoBtn = document.createElement('button');
-  iRedoBtn.className = 'item-hist-btn';
-  iRedoBtn.title = 'Redo this item';
-  iRedoBtn.textContent = '\u21b7';
-  iRedoBtn.disabled = !(item.itemRedoStack && item.itemRedoStack.length);
-  iRedoBtn.style.fontSize = '15px';
-  iRedoBtn.style.fontSize = '15px';
-  right.appendChild(iUndoBtn);
-  right.appendChild(iRedoBtn);
   right.appendChild(starBtn);
   if (item.imageId) {
     var shareBtn = document.createElement('button');
@@ -293,6 +278,21 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     });
     right.appendChild(copyBtn);
   }
+  var iUndoBtn = document.createElement('button');
+  iUndoBtn.className = 'item-hist-btn';
+  iUndoBtn.title = 'Undo this item';
+  iUndoBtn.textContent = '\u21b6';
+  iUndoBtn.disabled = !(item.itemUndoStack && item.itemUndoStack.length);
+  iUndoBtn.style.fontSize = '15px';
+  var iRedoBtn = document.createElement('button');
+  iRedoBtn.className = 'item-hist-btn';
+  iRedoBtn.title = 'Redo this item';
+  iRedoBtn.textContent = '\u21b7';
+  iRedoBtn.disabled = !(item.itemRedoStack && item.itemRedoStack.length);
+  iRedoBtn.style.fontSize = '15px';
+  iRedoBtn.style.fontSize = '15px';
+  right.appendChild(iUndoBtn);
+  right.appendChild(iRedoBtn);
   el.appendChild(right);
   // --- Image ---
   if (item.imageId) {
