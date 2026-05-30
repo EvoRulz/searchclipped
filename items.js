@@ -59,7 +59,9 @@ function _onEdit(e) {
   item.modifiedAt  = State.nowISO();
   item.versionName = '';
   State.pushItemUndo(item, oldSnap);
-  State.addItemVersion(item, oldSnap);
+  var _lastVer = item.versions && item.versions.length ? item.versions[item.versions.length - 1] : null;
+  var _isDup = _lastVer && _lastVer.text === oldSnap.text && _lastVer.html === oldSnap.html && _lastVer.title === oldSnap.title && JSON.stringify(_lastVer.tags) === JSON.stringify(oldSnap.tags);
+  if (!_isDup) State.addItemVersion(item, oldSnap);
   State.saveState(_state);
   _refresh();
 }
@@ -76,7 +78,9 @@ function _onEditTitle(e) {
   item.modifiedAt  = State.nowISO();
   item.versionName = '';
   State.pushItemUndo(item, oldSnap);
-  State.addItemVersion(item, oldSnap);
+  var _lastVerTi = item.versions && item.versions.length ? item.versions[item.versions.length - 1] : null;
+  var _isDupTi = _lastVerTi && _lastVerTi.text === oldSnap.text && _lastVerTi.html === oldSnap.html && _lastVerTi.title === oldSnap.title && JSON.stringify(_lastVerTi.tags) === JSON.stringify(oldSnap.tags);
+  if (!_isDupTi) State.addItemVersion(item, oldSnap);
   State.saveState(_state);
   _refresh();
 }
@@ -205,7 +209,9 @@ function _onOpenTags(e) {
       changedItem.versionName = '';
       State.pushUndo(_state);
       State.pushItemUndo(changedItem, oldSnap);
-      State.addItemVersion(changedItem, oldSnap);
+      var _lastVerT = changedItem.versions && changedItem.versions.length ? changedItem.versions[changedItem.versions.length - 1] : null;
+      var _isDupT = _lastVerT && _lastVerT.text === oldSnap.text && _lastVerT.html === oldSnap.html && _lastVerT.title === oldSnap.title && JSON.stringify(_lastVerT.tags) === JSON.stringify(oldSnap.tags);
+      if (!_isDupT) State.addItemVersion(changedItem, oldSnap);
     }
     State.saveState(_state);
     _refresh();

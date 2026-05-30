@@ -630,10 +630,6 @@ button { font-family: var(--font); }
 .item-hist-btn:disabled      { opacity: 0.25; cursor: default; pointer-events: none; }
 .version-panel {
   margin-top: 5px;
-  background: var(--bg-dark);
-  border: 1px solid var(--border-lo);
-  border-radius: var(--radius);
-  padding: 5px;
   display: flex;
   flex-direction: column;
   gap: 3px;

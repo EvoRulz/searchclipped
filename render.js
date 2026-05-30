@@ -256,6 +256,10 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   starBtn.addEventListener('click', function () {
     document.dispatchEvent(new CustomEvent('sc:toggle-star', { detail: { id: item.id } }));
   });
+  iUndoBtn.style.fontSize = '15px';
+  iRedoBtn.style.fontSize = '15px';
+  right.appendChild(iUndoBtn);
+  right.appendChild(iRedoBtn);
   right.appendChild(starBtn);
   if (item.imageId) {
     var shareBtn = document.createElement('button');
@@ -328,8 +332,6 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   iRedoBtn.disabled = !(item.itemRedoStack && item.itemRedoStack.length);
   tsModRow.appendChild(tsModified);
   tsModRow.appendChild(vDropBtn);
-  tsModRow.appendChild(iUndoBtn);
-  tsModRow.appendChild(iRedoBtn);
   tsModWrap.appendChild(tsModRow);
   var vPanel = document.createElement('div');
   vPanel.className = 'version-panel hidden';
@@ -356,6 +358,8 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     curNameInput.addEventListener('click',   function (ev) { ev.stopPropagation(); });
   })();
   curRow.appendChild(curLabel);
+  curRow.style.justifyContent = 'space-between';
+  curNameInput.style.textAlign = 'right';
   curRow.appendChild(curNameInput);
   vPanel.appendChild(curRow);
   if (_versions.length) {
@@ -393,9 +397,11 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
             detail: { id: item.id, versionIndex: idx }
           }));
         });
+        vRow.style.justifyContent = 'space-between';
+        vNameInp.style.textAlign = 'right';
         vRow.appendChild(vTs);
-        vRow.appendChild(vNameInp);
         vRow.appendChild(vRestBtn);
+        vRow.appendChild(vNameInp);
       })(realIdx);
       vList.appendChild(vRow);
     });
