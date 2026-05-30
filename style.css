@@ -264,11 +264,20 @@ button { font-family: var(--font); }
 .action-btn.danger              { border-color: var(--red-dim); color: var(--red); }
 .action-btn.danger:hover        { background: var(--red-dim); color: var(--text); border-color: var(--red); }
 /* ===== ITEM LIST ===== */
+#scroll-layout {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  min-height: 0;
+}
+#scroll-left, #scroll-right {
+  flex: 0 0 clamp(4px, calc((100vw - 600px) / 2), 9999px);
+  cursor: ns-resize;
+}
 #item-list {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  touch-action: pan-y;
   padding: 14px 18px 80px 6px;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: auto;

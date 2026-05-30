@@ -1,6 +1,6 @@
 'use strict';
-// @version 72
-var SC_VERSION = '@version 72';
+// @version 73
+var SC_VERSION = '@version 73';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -455,6 +455,31 @@ document.addEventListener('sc:filter-tag', function (e) {
     }
     importInput.value = '';
   });
+  /* ===== SIDE SCROLL HANDLES ===== */
+  (function () {
+    var left  = document.getElementById('scroll-left');
+    var right = document.getElementById('scroll-right');
+    var list  = document.getElementById('item-list');
+    if (!left || !right || !list) return;
+    function attachHandle(el) {
+      var startY = 0, startScroll = 0, dragging = false;
+      el.addEventListener('pointerdown', function (e) {
+        dragging = true;
+        startY = e.clientY;
+        startScroll = list.scrollTop;
+        el.setPointerCapture(e.pointerId);
+        e.preventDefault();
+      });
+      el.addEventListener('pointermove', function (e) {
+        if (!dragging) return;
+        list.scrollTop = startScroll + (e.clientY - startY);
+      });
+      el.addEventListener('pointerup',     function () { dragging = false; });
+      el.addEventListener('pointercancel', function () { dragging = false; });
+    }
+    attachHandle(left);
+    attachHandle(right);
+  })();
   /* ===== SERVICE WORKER ===== */
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(function (e) {
