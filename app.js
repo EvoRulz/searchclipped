@@ -1,6 +1,6 @@
 'use strict';
-// @version 82
-var SC_VERSION = '@version 82';
+// @version 83
+var SC_VERSION = '@version 83';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -282,7 +282,7 @@ var SC_VERSION = '@version 82';
   });
   btnToggleFilterRow.addEventListener('click', function () {
     hideFilterRow = !hideFilterRow;
-    document.getElementById('item-list').style.display = hideFilterRow ? 'none' : '';
+    document.getElementById('filter-row').style.display = hideFilterRow ? 'none' : '';
     btnToggleFilterRow.textContent = hideFilterRow ? 'show list' : 'hide list';
   });
   cbSearchItems.addEventListener('change', function () {
