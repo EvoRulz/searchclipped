@@ -271,7 +271,7 @@ button { font-family: var(--font); }
   min-height: 0;
 }
 #scroll-left, #scroll-right {
-  flex: 0 0 clamp(4px, calc((100vw - 600px) / 2), 9999px);
+  flex: 0 0 clamp(4px, calc((100vw - 600px) / 2), 60px);
   cursor: ns-resize;
 }
 #item-list {
