@@ -100,6 +100,13 @@ button { font-family: var(--font); }
   overflow-y: auto;
   max-height: 120px;
 }
+#search-options-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
 #action-row {
   display: flex;
   gap: 4px;
@@ -944,7 +951,8 @@ button { font-family: var(--font); }
 #app.hide-tags .item .tags-row { display: none; }
 #app.hide-arrows .item:not(.new-placeholder) .arrow-btn { display: none; }
 #app.hide-ids .item:not(.new-placeholder) .item-id { display: none; }
-#app.hide-copy .item:not(.new-placeholder) .copy-btn { display: none; }
+#app.hide-copy .item-row .copy-btn { display: none; }
+#app.hide-copy .item-row .share-btn { display: none; }
 #app.hide-stars .item:not(.new-placeholder) .star-btn { display: none; }
 #app.hide-starred .item-row:has(.item.starred) { display: none; }
 #app.hide-timestamps .item:not(.new-placeholder) .item-timestamps { display: none; }

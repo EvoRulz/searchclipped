@@ -40,6 +40,36 @@
       <button id="btn-undo" class="icon-btn" title="Undo" disabled>↶</button>
       <button id="btn-redo" class="icon-btn" title="Redo" disabled>↷</button>
       </div>
+    <div id="search-options-row">
+      <label class="cb-wrap" title="Search item content">
+        <input type="checkbox" id="cb-search-items" checked>
+        <span class="cb-mark"></span>
+        <span class="cb-label">items</span>
+      </label>
+      <label class="cb-wrap" title="Search titles">
+        <input type="checkbox" id="cb-search-titles" checked>
+        <span class="cb-mark"></span>
+        <span class="cb-label">titles</span>
+      </label>
+      <label class="cb-wrap" title="Search tags">
+        <input type="checkbox" id="cb-search-tags" checked>
+        <span class="cb-mark"></span>
+        <span class="cb-label">tags</span>
+      </label>
+      <span id="sort-label">sort by:</span>
+      <select id="sort-select">
+        <option value="id-asc">Smallest ID</option>
+        <option value="id-desc">Largest ID</option>
+        <option value="created-desc">Newest Created</option>
+        <option value="created-asc">Oldest Created</option>
+        <option value="modified-desc">Newest Modified</option>
+        <option value="modified-asc">Oldest Modified</option>
+        <option value="deleted-desc">Newest Deleted</option>
+        <option value="deleted-asc">Oldest Deleted</option>
+        <option value="restored-desc">Newest Restored</option>
+        <option value="restored-asc">Oldest Restored</option>
+      </select>
+    </div>
     <div id="filter-row">
       <button id="btn-show-deleted" class="eye-btn" title="Show deleted">
         <svg class="eye-open" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 7 Q4 4 7 4 Q10 4 13.5 7 Q10 10 7 10 Q4 10 0.5 7 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>
@@ -152,30 +182,7 @@
         <input type="file" id="import-input" accept=".json" hidden>
       </label>
       <button id="btn-toggle-filter-row" class="action-btn">hide list</button>
-      <label class="cb-wrap" title="Search item content">
-        <input type="checkbox" id="cb-search-items" checked>
-        <span class="cb-mark"></span>
-        <span class="cb-label">items</span>
-      </label>
-      <label class="cb-wrap" title="Search titles">
-        <input type="checkbox" id="cb-search-titles" checked>
-        <span class="cb-mark"></span>
-        <span class="cb-label">titles</span>
-      </label>
-      <label class="cb-wrap" title="Search tags">
-        <input type="checkbox" id="cb-search-tags" checked>
-        <span class="cb-mark"></span>
-        <span class="cb-label">tags</span>
-      </label>
-      <select id="sort-select">
-        <option value="id-asc">bump asc</option>
-        <option value="id-desc">bump desc</option>
-        <option value="created-desc">created desc</option>
-        <option value="created-asc">created asc</option>
-        <option value="modified-desc">modified desc</option>
-        <option value="modified-asc">modified asc</option>
-      </select>
-    </div>
+      </div>
   </header>
   <!-- ===== ITEM LIST ===== -->
   <div id="scroll-layout">

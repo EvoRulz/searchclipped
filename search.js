@@ -102,6 +102,20 @@ function _sort(items, mode) {
       return aT - bT;
     });
   }
+  if (mode === 'restored-desc') {
+    return items.slice().sort(function (a, b) {
+      var aT = a.restoredAt ? new Date(a.restoredAt).getTime() : 0;
+      var bT = b.restoredAt ? new Date(b.restoredAt).getTime() : 0;
+      return bT - aT;
+    });
+  }
+  if (mode === 'restored-asc') {
+    return items.slice().sort(function (a, b) {
+      var aT = a.restoredAt ? new Date(a.restoredAt).getTime() : 0;
+      var bT = b.restoredAt ? new Date(b.restoredAt).getTime() : 0;
+      return aT - bT;
+    });
+  }
   // id sorts (and bump fallback)
   if (mode === 'id-desc') {
     return items.slice().sort(function (a, b) {
