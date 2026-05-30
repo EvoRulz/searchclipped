@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#252d38">
+  <link rel="icon" href="data:,">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -151,6 +152,21 @@
         <input type="file" id="import-input" accept=".json" hidden>
       </label>
       <button id="btn-toggle-filter-row" class="action-btn">hide list</button>
+      <label class="cb-wrap" title="Search item content">
+        <input type="checkbox" id="cb-search-items" checked>
+        <span class="cb-mark"></span>
+        <span class="cb-label">items</span>
+      </label>
+      <label class="cb-wrap" title="Search titles">
+        <input type="checkbox" id="cb-search-titles" checked>
+        <span class="cb-mark"></span>
+        <span class="cb-label">titles</span>
+      </label>
+      <label class="cb-wrap" title="Search tags">
+        <input type="checkbox" id="cb-search-tags" checked>
+        <span class="cb-mark"></span>
+        <span class="cb-label">tags</span>
+      </label>
       <select id="sort-select">
         <option value="id-asc">bump asc</option>
         <option value="id-desc">bump desc</option>
