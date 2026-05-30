@@ -279,24 +279,6 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     });
     _outerActionBtn = copyBtn;
   }
-    shareBtn.textContent = '⬆';
-    shareBtn.title       = 'Share image';
-    shareBtn.addEventListener('click', function () {
-      document.dispatchEvent(new CustomEvent('sc:share-item', { detail: { id: item.id } }));
-    });
-    right.appendChild(shareBtn);
-  } else {
-    var copyBtn = document.createElement('button');
-    copyBtn.className   = 'copy-btn';
-    copyBtn.title       = 'Copy';
-    copyBtn.innerHTML   = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3 10H2a1 1 0 01-1-1V2a1 1 0 011-1h7a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>';
-    copyBtn.addEventListener('click', function () {
-      document.dispatchEvent(new CustomEvent('sc:copy-item', { detail: { id: item.id } }));
-      el.classList.add('copy-flash');
-      setTimeout(function () { el.classList.remove('copy-flash'); }, 500);
-    });
-    right.appendChild(copyBtn);
-  }
   var iUndoBtn = document.createElement('button');
   iUndoBtn.className = 'item-hist-btn';
   iUndoBtn.title = 'Undo this item';
