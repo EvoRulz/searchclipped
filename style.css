@@ -52,12 +52,13 @@ button { font-family: var(--font); }
   display: flex;
   flex-direction: column;
   height: 100dvh;
-  max-width: 600px;
-  margin: 0 auto;
+  width: 100%;
   overflow: hidden;
 }
 /* ===== HEADER ===== */
 #header {
+  max-width: 600px;
+  margin: 0 auto;
   background: var(--bg-dark);
   border-bottom: 1px solid var(--border);
   padding: 6px 8px 5px;
@@ -269,13 +270,15 @@ button { font-family: var(--font); }
   display: flex;
   overflow: hidden;
   min-height: 0;
+  justify-content: center;
 }
 #scroll-left, #scroll-right {
-  flex: 0 0 clamp(4px, calc((100vw - 600px) / 2), 60px);
+  flex: 1;
   cursor: ns-resize;
+  min-width: 0;
 }
 #item-list {
-  flex: 1;
+  flex: 0 0 min(600px, 100vw);
   overflow-y: auto;
   overflow-x: hidden;
   padding: 14px 18px 80px 6px;
