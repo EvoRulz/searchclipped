@@ -1,6 +1,6 @@
 'use strict';
-// @version 98
-var SC_VERSION = '@version 98';
+// @version 99
+var SC_VERSION = '@version 99';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -393,6 +393,23 @@ document.addEventListener('sc:filter-tag', function (e) {
       var active = document.activeElement;
       if (active && (active.isContentEditable || active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')) return;
       e.preventDefault();
+      if (e.shiftKey) {
+        var list = document.getElementById('item-list');
+        if (!list) return;
+        var rows = Array.from(list.querySelectorAll('.item-row'));
+        if (!rows.length) return;
+        var dir = e.key === 'ArrowDown' ? 1 : -1;
+        var listTop = list.getBoundingClientRect().top;
+        var current = -1;
+        for (var i = 0; i < rows.length; i++) {
+          if (rows[i].getBoundingClientRect().top - listTop > 2) { current = i; break; }
+        }
+        var target = dir === 1
+          ? (current === -1 ? 0 : Math.min(current + 1, rows.length - 1))
+          : Math.max(current - 1, 0);
+        rows[target].scrollIntoView({ block: 'start', behavior: 'instant' });
+        return;
+      }
       var dir = e.key === 'ArrowDown' ? 1 : -1;
       if (_scrollDir === dir) return;
       _scrollDir = dir;
