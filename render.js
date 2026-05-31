@@ -210,7 +210,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   var content = document.createElement('div');
   content.className       = 'item-content';
   content.contentEditable = item.deleted ? 'false' : 'true';
-  content.textContent     = item.text || '';
+  content.innerHTML       = item.html || item.text || '';
   content.setAttribute('data-id', item.id);
   content.addEventListener('blur', function () {
     var newText = (content.textContent || '').trim();
