@@ -1,6 +1,6 @@
 'use strict';
-// @version 96
-var SC_VERSION = '@version 96';
+// @version 97
+var SC_VERSION = '@version 97';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -386,7 +386,7 @@ document.addEventListener('sc:filter-tag', function (e) {
     var list = document.getElementById('item-list');
     if (!list) return;
     e.preventDefault();
-    list.scrollBy({ top: e.key === 'ArrowDown' ? 80 : -80, behavior: 'smooth' });
+    list.scrollBy({ top: e.key === 'ArrowDown' ? 80 : -80, behavior: 'instant' });
   });
   /* ===== BULK COPY ===== */
   btnBulkCopy.addEventListener('click', function () {
