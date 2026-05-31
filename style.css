@@ -604,7 +604,7 @@ button { font-family: var(--font); }
   flex-direction: column;
 }
 .item-ts-modified-row {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 3px;
   flex-wrap: wrap;

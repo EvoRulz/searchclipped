@@ -429,9 +429,9 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
           }));
         });
         vRow.style.justifyContent = 'space-between';
-        vNameInp.style.textAlign = 'right';
-        vRow.appendChild(vTs);
+        vNameInp.style.textAlign = 'left';
         vRow.appendChild(vRestBtn);
+        vRow.appendChild(vTs);
         vRow.appendChild(vNameInp);
       })(realIdx);
       vList.appendChild(vRow);
