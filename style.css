@@ -67,6 +67,7 @@ button { font-family: var(--font); }
   overflow-y: auto;
   max-height: 60vh;
   cursor: default;
+  scrollbar-gutter: stable;
 }
 #title-row {
   display: flex;
