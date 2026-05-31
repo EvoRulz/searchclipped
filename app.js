@@ -1,6 +1,6 @@
 'use strict';
-// @version 97
-var SC_VERSION = '@version 97';
+// @version 98
+var SC_VERSION = '@version 98';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -379,15 +379,32 @@ document.addEventListener('sc:filter-tag', function (e) {
   window.addEventListener('blur', function () {
     document.getElementById('app').classList.remove('alt-mode');
   });
-  document.addEventListener('keydown', function (e) {
-    if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
-    var active = document.activeElement;
-    if (active && (active.isContentEditable || active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')) return;
-    var list = document.getElementById('item-list');
-    if (!list) return;
-    e.preventDefault();
-    list.scrollBy({ top: e.key === 'ArrowDown' ? 80 : -80, behavior: 'instant' });
-  });
+  (function () {
+    var _scrollDir = 0;
+    var _scrollRaf = null;
+    function _scrollStep() {
+      if (!_scrollDir) return;
+      var list = document.getElementById('item-list');
+      if (list) list.scrollTop += _scrollDir * 8;
+      _scrollRaf = requestAnimationFrame(_scrollStep);
+    }
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+      var active = document.activeElement;
+      if (active && (active.isContentEditable || active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')) return;
+      e.preventDefault();
+      var dir = e.key === 'ArrowDown' ? 1 : -1;
+      if (_scrollDir === dir) return;
+      _scrollDir = dir;
+      if (!_scrollRaf) _scrollRaf = requestAnimationFrame(_scrollStep);
+    });
+    document.addEventListener('keyup', function (e) {
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        _scrollDir = 0;
+        if (_scrollRaf) { cancelAnimationFrame(_scrollRaf); _scrollRaf = null; }
+      }
+    });
+  })();
   /* ===== BULK COPY ===== */
   btnBulkCopy.addEventListener('click', function () {
     var ids   = Items.getSelectedIds();
