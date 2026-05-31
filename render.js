@@ -370,16 +370,6 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   vDropBtn.title = 'Version history (' + _versions.length + ')';
   vDropBtn.textContent = '\u25be';
   if (!_versions.length) vDropBtn.classList.add('no-versions');
-  tsModRow.appendChild(tsModified);
-  tsModRow.appendChild(vDropBtn);
-  tsModWrap.appendChild(tsModRow);
-  var vPanel = document.createElement('div');
-  vPanel.className = 'version-panel hidden';
-  var curRow = document.createElement('div');
-  curRow.className = 'version-entry version-current';
-  var curLabel = document.createElement('span');
-  curLabel.className = 'version-entry-ts';
-  curLabel.textContent = 'current';
   var curNameInput = document.createElement('input');
   curNameInput.type = 'text';
   curNameInput.className = 'version-name-input';
@@ -397,11 +387,12 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     curNameInput.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') curNameInput.blur(); ev.stopPropagation(); });
     curNameInput.addEventListener('click',   function (ev) { ev.stopPropagation(); });
   })();
-  curRow.appendChild(curLabel);
-  curRow.style.justifyContent = 'space-between';
-  curNameInput.style.textAlign = 'right';
-  curRow.appendChild(curNameInput);
-  vPanel.appendChild(curRow);
+  tsModRow.appendChild(tsModified);
+  tsModRow.appendChild(curNameInput);
+  tsModRow.appendChild(vDropBtn);
+  tsModWrap.appendChild(tsModRow);
+  var vPanel = document.createElement('div');
+  vPanel.className = 'version-panel hidden';
   if (_versions.length) {
     var vList = document.createElement('div');
     vList.className = 'version-list';
