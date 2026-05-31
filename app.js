@@ -1,6 +1,6 @@
 'use strict';
-// @version 101
-var SC_VERSION = '@version 101';
+// @version 102
+var SC_VERSION = '@version 102';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -426,9 +426,14 @@ document.addEventListener('sc:filter-tag', function (e) {
         if (!rows.length) return;
         var dir = e.key === 'ArrowDown' ? 1 : -1;
         if (e.key === 'ArrowRight') {
-          // Focus/highlight current top visible item if none focused
-          if (!_focusedItemId) {
+          // Focus/highlight current top visible item
+          {
             var listTop2 = list.getBoundingClientRect().top;
+            if (_focusedItemId) {
+              var prevFocEl = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
+              if (prevFocEl) prevFocEl.classList.remove('keyboard-focused');
+              _focusedItemId = null;
+            }
             for (var ri = 0; ri < rows.length; ri++) {
               var rowTop2 = rows[ri].getBoundingClientRect().top - listTop2;
               if (rowTop2 >= -2) {
@@ -440,7 +445,8 @@ document.addEventListener('sc:filter-tag', function (e) {
                 break;
               }
             }
-          } else {
+          }
+          if (false) {
             // Already focused: copy it
             document.dispatchEvent(new CustomEvent('sc:copy-item', { detail: { id: _focusedItemId } }));
             var focusedEl = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
