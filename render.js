@@ -265,6 +265,8 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   var _clickTimer = null;
   content.addEventListener('click', function (e) {
     if (document.activeElement === content) return; // already editing
+    content.classList.add('copy-flash');
+    setTimeout(function () { content.classList.remove('copy-flash'); }, 500);
     clearTimeout(_clickTimer);
     _clickTimer = setTimeout(function () {
       document.dispatchEvent(new CustomEvent('sc:copy-item', { detail: { id: item.id } }));
