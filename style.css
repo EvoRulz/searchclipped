@@ -238,6 +238,7 @@ button { font-family: var(--font); }
   font-size: 10px;
   color: var(--text-muted);
   white-space: nowrap;
+  margin-left: auto;
 }
 #sort-select {
   background: var(--surface);
