@@ -1,6 +1,6 @@
 'use strict';
-// @version 99
-var SC_VERSION = '@version 99';
+// @version 100
+var SC_VERSION = '@version 100';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -400,12 +400,13 @@ document.addEventListener('sc:filter-tag', function (e) {
         if (!rows.length) return;
         var dir = e.key === 'ArrowDown' ? 1 : -1;
         var listTop = list.getBoundingClientRect().top;
-        var current = -1;
+        var current = 0;
         for (var i = 0; i < rows.length; i++) {
-          if (rows[i].getBoundingClientRect().top - listTop > 2) { current = i; break; }
+          var rowTop = rows[i].getBoundingClientRect().top - listTop;
+          if (rowTop <= 2) { current = i; } else { break; }
         }
         var target = dir === 1
-          ? (current === -1 ? 0 : Math.min(current + 1, rows.length - 1))
+          ? Math.min(current + 1, rows.length - 1)
           : Math.max(current - 1, 0);
         rows[target].scrollIntoView({ block: 'start', behavior: 'instant' });
         return;
