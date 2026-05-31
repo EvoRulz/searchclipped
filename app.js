@@ -1,6 +1,6 @@
 'use strict';
-// @version 100
-var SC_VERSION = '@version 100';
+// @version 101
+var SC_VERSION = '@version 101';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -81,6 +81,10 @@ var SC_VERSION = '@version 100';
   var sortSelect     = document.getElementById('sort-select');
   /* ===== REFRESH ===== */
   function refresh() {
+    if (_focusedItemId) {
+      var _prevFocused = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
+      if (_prevFocused) _prevFocused.classList.remove('keyboard-focused');
+    }
     var result = Search.getDisplayList(state, query, {
       showDeleted:   showDeleted,
       hideUndeleted: hideActive,
@@ -120,6 +124,7 @@ var SC_VERSION = '@version 100';
   var _lastFiltered = [];
   var _refocusEntry = false;
   var _altShortcuts = {};
+  var _focusedItemId = null;
   document.addEventListener('sc:create-item', function () { _refocusEntry = true; });
   /* ===== INIT ITEMS ===== */
   Items.init(state, refresh);
@@ -357,6 +362,27 @@ document.addEventListener('sc:filter-tag', function (e) {
       e.preventDefault();
       document.getElementById('app').classList.add('alt-mode');
     }
+    if (!e.altKey && !e.ctrlKey && !e.metaKey && _focusedItemId) {
+      var _active = document.activeElement;
+      var _isEditing = _active && (_active.isContentEditable || _active.tagName === 'INPUT' || _active.tagName === 'TEXTAREA');
+      if (!_isEditing) {
+        if (e.key === 's') {
+          e.preventDefault();
+          document.dispatchEvent(new CustomEvent('sc:toggle-star', { detail: { id: _focusedItemId } }));
+          return;
+        }
+        if (e.key === 'c') {
+          e.preventDefault();
+          document.dispatchEvent(new CustomEvent('sc:copy-item', { detail: { id: _focusedItemId } }));
+          var _fEl = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
+          if (_fEl) {
+            _fEl.classList.add('copy-flash');
+            setTimeout(function () { _fEl.classList.remove('copy-flash'); }, 500);
+          }
+          return;
+        }
+      }
+    }
     if (e.altKey && e.code && e.code.startsWith('Key')) {
       var letter = e.code.slice(3).toLowerCase();
       var id = _altShortcuts[letter];
@@ -399,6 +425,41 @@ document.addEventListener('sc:filter-tag', function (e) {
         var rows = Array.from(list.querySelectorAll('.item-row'));
         if (!rows.length) return;
         var dir = e.key === 'ArrowDown' ? 1 : -1;
+        if (e.key === 'ArrowRight') {
+          // Focus/highlight current top visible item if none focused
+          if (!_focusedItemId) {
+            var listTop2 = list.getBoundingClientRect().top;
+            for (var ri = 0; ri < rows.length; ri++) {
+              var rowTop2 = rows[ri].getBoundingClientRect().top - listTop2;
+              if (rowTop2 >= -2) {
+                var innerEl2 = rows[ri].querySelector('.item[data-id]');
+                if (innerEl2) {
+                  _focusedItemId = innerEl2.dataset.id;
+                  innerEl2.classList.add('keyboard-focused');
+                }
+                break;
+              }
+            }
+          } else {
+            // Already focused: copy it
+            document.dispatchEvent(new CustomEvent('sc:copy-item', { detail: { id: _focusedItemId } }));
+            var focusedEl = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
+            if (focusedEl) {
+              focusedEl.classList.add('copy-flash');
+              setTimeout(function () { focusedEl.classList.remove('copy-flash'); }, 500);
+            }
+          }
+          return;
+        }
+        if (e.key === 'ArrowLeft') {
+          // Un-focus
+          if (_focusedItemId) {
+            var prevEl = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
+            if (prevEl) prevEl.classList.remove('keyboard-focused');
+            _focusedItemId = null;
+          }
+          return;
+        }
         var listTop = list.getBoundingClientRect().top;
         var current = 0;
         for (var i = 0; i < rows.length; i++) {
@@ -409,6 +470,16 @@ document.addEventListener('sc:filter-tag', function (e) {
           ? Math.min(current + 1, rows.length - 1)
           : Math.max(current - 1, 0);
         rows[target].scrollIntoView({ block: 'start', behavior: 'instant' });
+        // Move keyboard focus to new top item
+        if (_focusedItemId) {
+          var oldEl = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
+          if (oldEl) oldEl.classList.remove('keyboard-focused');
+          var newInner = rows[target].querySelector('.item[data-id]');
+          if (newInner) {
+            _focusedItemId = newInner.dataset.id;
+            newInner.classList.add('keyboard-focused');
+          }
+        }
         return;
       }
       var dir = e.key === 'ArrowDown' ? 1 : -1;

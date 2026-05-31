@@ -387,6 +387,7 @@ button { font-family: var(--font); }
   pointer-events: none;
 }
 .item.copy-flash         { border-color: var(--blue); background: var(--surface); }
+.item.keyboard-focused   { border-color: var(--orange); background: var(--surface); outline: 2px solid var(--orange); outline-offset: 1px; }
 .item.has-image {
   grid-template-rows: auto auto auto;
   grid-template-areas:
