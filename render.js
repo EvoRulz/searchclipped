@@ -469,11 +469,6 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     tsDeleted.textContent = 'deleted: ' + _fmtDate(item.modifiedAt);
     tsCont.appendChild(tsDeleted);
   }
-  footer.appendChild(tsCont);
-  // Tags row
-  var tagsRow = _makeTagsRow(item, tagSelMode, selectedTags);
-  footer.appendChild(tagsRow);
-  // Restore button for deleted items
   if (item.deleted) {
     var restoreBtn = document.createElement('button');
     restoreBtn.className   = 'restore-btn';
@@ -483,6 +478,10 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     });
     footer.appendChild(restoreBtn);
   }
+  footer.appendChild(tsCont);
+  // Tags row
+  var tagsRow = _makeTagsRow(item, tagSelMode, selectedTags);
+  footer.appendChild(tagsRow);
   el.appendChild(footer);
   // --- Swipe-to-delete ---
   _attachSwipe(el, item.id);

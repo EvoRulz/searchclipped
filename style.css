@@ -654,7 +654,7 @@ button { font-family: var(--font); }
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 4px;
+  padding: 3px 0;
   border-radius: 3px;
 }
 .version-entry:hover   { background: var(--surface); }
@@ -674,7 +674,6 @@ button { font-family: var(--font); }
   min-width: 0;
   background: transparent;
   border: none;
-  border-bottom: 1px dashed var(--border-lo);
   color: var(--text-muted);
   font-family: var(--font);
   font-size: 10px;

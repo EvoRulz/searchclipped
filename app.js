@@ -1,6 +1,6 @@
 'use strict';
-// @version 92
-var SC_VERSION = '@version 92';
+// @version 93
+var SC_VERSION = '@version 93';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -344,6 +344,7 @@ document.addEventListener('sc:filter-tag', function (e) {
   /* ===== ALT SHORTCUTS ===== */
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Alt') {
+      e.preventDefault();
       document.getElementById('app').classList.add('alt-mode');
     }
     if (e.altKey && e.code && e.code.startsWith('Key')) {
