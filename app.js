@@ -1,6 +1,6 @@
 'use strict';
-// @version 102
-var SC_VERSION = '@version 102';
+// @version 103
+var SC_VERSION = '@version 103';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -348,6 +348,39 @@ document.addEventListener('sc:filter-tag', function (e) {
   });
   /* ===== ALT SHORTCUTS ===== */
   document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight' && e.shiftKey) {
+      e.preventDefault();
+      var list = document.getElementById('item-list');
+      if (!list) return;
+      var rows = Array.from(list.querySelectorAll('.item-row'));
+      if (_focusedItemId) {
+        var prevFocEl = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
+        if (prevFocEl) prevFocEl.classList.remove('keyboard-focused');
+        _focusedItemId = null;
+      }
+      var listTop = list.getBoundingClientRect().top;
+      for (var ri = 0; ri < rows.length; ri++) {
+        var rowTop = rows[ri].getBoundingClientRect().top - listTop;
+        if (rowTop >= -2) {
+          var innerEl = rows[ri].querySelector('.item[data-id]');
+          if (innerEl && innerEl.dataset.id !== '__new__') {
+            _focusedItemId = innerEl.dataset.id;
+            innerEl.classList.add('keyboard-focused');
+          }
+          break;
+        }
+      }
+      return;
+    }
+    if (e.key === 'ArrowLeft' && e.shiftKey) {
+      e.preventDefault();
+      if (_focusedItemId) {
+        var prevEl = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
+        if (prevEl) prevEl.classList.remove('keyboard-focused');
+        _focusedItemId = null;
+      }
+      return;
+    }
     if (e.key === 'Escape') {
       if (document.activeElement === searchInput && !searchInput.value) {
         searchInput.blur();
