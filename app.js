@@ -1,6 +1,6 @@
 'use strict';
-// @version 95
-var SC_VERSION = '@version 95';
+// @version 96
+var SC_VERSION = '@version 96';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -378,6 +378,15 @@ document.addEventListener('sc:filter-tag', function (e) {
   });
   window.addEventListener('blur', function () {
     document.getElementById('app').classList.remove('alt-mode');
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+    var active = document.activeElement;
+    if (active && (active.isContentEditable || active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')) return;
+    var list = document.getElementById('item-list');
+    if (!list) return;
+    e.preventDefault();
+    list.scrollBy({ top: e.key === 'ArrowDown' ? 80 : -80, behavior: 'smooth' });
   });
   /* ===== BULK COPY ===== */
   btnBulkCopy.addEventListener('click', function () {
