@@ -222,6 +222,44 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   });
   content.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); content.blur(); }
+    if (e.ctrlKey && e.shiftKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+      e.preventDefault();
+      e.stopPropagation();
+      var dir = e.key === 'ArrowUp' ? -1 : 1;
+      var lines = content.innerHTML.split(/<br\s*\/?>/i);
+      if (lines.length < 2) return;
+      var sel = window.getSelection();
+      if (!sel.rangeCount) return;
+      var lineIdx = 0;
+      var walker = content.firstChild;
+      while (walker && walker !== sel.anchorNode && walker !== sel.anchorNode.parentNode) {
+        if (walker.nodeName === 'BR') lineIdx++;
+        walker = walker.nextSibling;
+      }
+      var target = lineIdx + dir;
+      if (target < 0 || target >= lines.length) return;
+      var tmp = lines[lineIdx];
+      lines[lineIdx] = lines[target];
+      lines[target] = tmp;
+      content.innerHTML = lines.join('<br>');
+      var cur = content.firstChild;
+      var count = 0;
+      if (target === 0) {
+        cur = content.firstChild;
+      } else {
+        while (cur) {
+          if (cur.nodeName === 'BR') { count++; if (count === target) { cur = cur.nextSibling; break; } }
+          cur = cur.nextSibling;
+        }
+      }
+      var r = document.createRange();
+      if (cur && cur.nodeType === 3) { r.setStart(cur, cur.length); }
+      else { r.setStart(content, content.childNodes.length); }
+      r.collapse(true);
+      var s = window.getSelection();
+      s.removeAllRanges();
+      s.addRange(r);
+    }
   });
   // Single click to copy (only when not editing)
   var _clickTimer = null;
