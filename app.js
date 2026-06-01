@@ -1,6 +1,6 @@
 'use strict';
-// @version 109
-var SC_VERSION = '@version 109';
+// @version 110
+var SC_VERSION = '@version 110';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -416,6 +416,11 @@ document.addEventListener('sc:filter-tag', function (e) {
         if (e.key === 's') {
           e.preventDefault();
           document.dispatchEvent(new CustomEvent('sc:toggle-star', { detail: { id: _focusedItemId } }));
+          return;
+        }
+        if (e.key === 'd') {
+          e.preventDefault();
+          document.dispatchEvent(new CustomEvent('sc:swipe-delete', { detail: { id: _focusedItemId } }));
           return;
         }
         if (e.key === 'c') {
