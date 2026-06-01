@@ -1,6 +1,6 @@
 'use strict';
-// @version 106
-var SC_VERSION = '@version 106';
+// @version 107
+var SC_VERSION = '@version 107';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -360,7 +360,6 @@ document.addEventListener('sc:filter-tag', function (e) {
           prevFocEl.classList.add('copy-flash');
           setTimeout(function () { prevFocEl.classList.remove('copy-flash'); }, 500);
         }
-        _focusedItemId = null;
         return;
       }
       var listTop = list.getBoundingClientRect().top;
