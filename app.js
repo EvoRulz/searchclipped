@@ -1,6 +1,6 @@
 'use strict';
-// @version 108
-var SC_VERSION = '@version 108';
+// @version 109
+var SC_VERSION = '@version 109';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -348,6 +348,16 @@ document.addEventListener('sc:filter-tag', function (e) {
   });
   /* ===== ALT SHORTCUTS ===== */
   document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight' && !e.shiftKey && _focusedItemId) {
+      e.preventDefault();
+      var prevFocEl2 = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
+      if (prevFocEl2) {
+        document.dispatchEvent(new CustomEvent('sc:copy-item', { detail: { id: _focusedItemId } }));
+        prevFocEl2.classList.add('copy-flash');
+        setTimeout(function () { prevFocEl2.classList.remove('copy-flash'); }, 500);
+      }
+      return;
+    }
     if (e.key === 'ArrowRight' && e.shiftKey) {
       e.preventDefault();
       var list = document.getElementById('item-list');
