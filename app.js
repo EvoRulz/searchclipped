@@ -1,6 +1,6 @@
 'use strict';
-// @version 111
-var SC_VERSION = '@version 111';
+// @version 112
+var SC_VERSION = '@version 112';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -409,6 +409,12 @@ document.addEventListener('sc:filter-tag', function (e) {
       e.preventDefault();
       document.getElementById('app').classList.add('alt-mode');
     }
+    if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown') && _focusedItemId) {
+      e.preventDefault();
+      var _bumpDir = e.key === 'ArrowUp' ? -1 : 1;
+      document.dispatchEvent(new CustomEvent('sc:bump', { detail: { id: _focusedItemId, dir: _bumpDir } }));
+      return;
+    }
     if (!e.altKey && !e.ctrlKey && !e.metaKey && _focusedItemId) {
       var _active = document.activeElement;
       var _isEditing = _active && (_active.isContentEditable || _active.tagName === 'INPUT' || _active.tagName === 'TEXTAREA');
@@ -421,16 +427,6 @@ document.addEventListener('sc:filter-tag', function (e) {
         if (e.key === 'd') {
           e.preventDefault();
           document.dispatchEvent(new CustomEvent('sc:swipe-delete', { detail: { id: _focusedItemId } }));
-          return;
-        }
-        if (e.key === 'ArrowUp' && e.altKey) {
-          e.preventDefault();
-          document.dispatchEvent(new CustomEvent('sc:bump', { detail: { id: _focusedItemId, dir: -1 } }));
-          return;
-        }
-        if (e.key === 'ArrowDown' && e.altKey) {
-          e.preventDefault();
-          document.dispatchEvent(new CustomEvent('sc:bump', { detail: { id: _focusedItemId, dir: 1 } }));
           return;
         }
         if (e.key === 'c') {
