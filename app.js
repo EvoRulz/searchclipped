@@ -1,6 +1,6 @@
 'use strict';
-// @version 112
-var SC_VERSION = '@version 112';
+// @version 113
+var SC_VERSION = '@version 113';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -413,6 +413,13 @@ document.addEventListener('sc:filter-tag', function (e) {
       e.preventDefault();
       var _bumpDir = e.key === 'ArrowUp' ? -1 : 1;
       document.dispatchEvent(new CustomEvent('sc:bump', { detail: { id: _focusedItemId, dir: _bumpDir } }));
+      requestAnimationFrame(function () {
+        var _bumpedEl = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
+        if (_bumpedEl) {
+          _bumpedEl.classList.add('keyboard-focused');
+          _bumpedEl.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+        }
+      });
       return;
     }
     if (!e.altKey && !e.ctrlKey && !e.metaKey && _focusedItemId) {
