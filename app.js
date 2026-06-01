@@ -1,6 +1,6 @@
 'use strict';
-// @version 105
-var SC_VERSION = '@version 105';
+// @version 106
+var SC_VERSION = '@version 106';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -355,8 +355,13 @@ document.addEventListener('sc:filter-tag', function (e) {
       var rows = Array.from(list.querySelectorAll('.item-row'));
       if (_focusedItemId) {
         var prevFocEl = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
-        if (prevFocEl) prevFocEl.classList.remove('keyboard-focused');
+        if (prevFocEl) {
+          document.dispatchEvent(new CustomEvent('sc:copy-item', { detail: { id: _focusedItemId } }));
+          prevFocEl.classList.add('copy-flash');
+          setTimeout(function () { prevFocEl.classList.remove('copy-flash'); }, 500);
+        }
         _focusedItemId = null;
+        return;
       }
       var listTop = list.getBoundingClientRect().top;
       for (var ri = 0; ri < rows.length; ri++) {
