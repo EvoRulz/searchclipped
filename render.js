@@ -153,9 +153,9 @@ function _makePlaceholder() {
 function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   var el = document.createElement('div');
   el.className  = 'item' + (isFiltered ? ' filtered' : '') +
-                  (item.starred ? ' starred' : '') +
-                  (item.deleted ? ' deleted' : '') +
-                  (item.imageId ? ' has-image' : '');
+  (item.starred ? ' starred' : '') +
+  (item.deleted ? ' deleted' : '') +
+  (item.imageId ? ' has-image' : '');
   el.dataset.id = item.id;
   // --- Left column (ID + up + checkbox + down) ---
   var left = document.createElement('div');
@@ -431,10 +431,21 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
           }));
         });
         vRow.style.justifyContent = 'space-between';
+        vRow.style.flexDirection = 'column';
+        vRow.style.alignItems = 'stretch';
         vNameInp.style.textAlign = 'left';
-        vRow.appendChild(vRestBtn);
-        vRow.appendChild(vTs);
+        vNameInp.style.display = 'block';
+        vNameInp.style.width = '100%';
+        vNameInp.style.marginBottom = '2px';
+        var vRowInner = document.createElement('div');
+        vRowInner.style.display = 'flex';
+        vRowInner.style.alignItems = 'center';
+        vRowInner.style.gap = '4px';
+        vRowInner.style.width = '100%';
+        vRowInner.appendChild(vRestBtn);
+        vRowInner.appendChild(vTs);
         vRow.appendChild(vNameInp);
+        vRow.appendChild(vRowInner);
       })(realIdx);
       vList.appendChild(vRow);
     });
@@ -606,7 +617,7 @@ function _fmtDate(iso) {
     h = h % 12 || 12;
     var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
     return days[d.getDay()] + ' ' + d.getDate() + '/' + (d.getMonth()+1) + '/' + String(d.getFullYear()).slice(2) +
-           ' ' + h + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()) + ampm;
+    ' ' + h + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()) + ampm;
   } catch (e) { return iso; }
 }
 window.Render = { init, render };
