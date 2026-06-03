@@ -430,13 +430,6 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
             detail: { id: item.id, versionIndex: idx }
           }));
         });
-        vRow.style.justifyContent = 'space-between';
-        vRow.style.flexDirection = 'column';
-        vRow.style.alignItems = 'stretch';
-        vNameInp.style.textAlign = 'left';
-        vNameInp.style.display = 'block';
-        vNameInp.style.width = '100%';
-        vNameInp.style.marginBottom = '2px';
         var vRowInner = document.createElement('div');
         vRowInner.style.display = 'flex';
         vRowInner.style.alignItems = 'center';
@@ -444,7 +437,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
         vRowInner.style.width = '100%';
         vRowInner.appendChild(vRestBtn);
         vRowInner.appendChild(vTs);
-        vRow.appendChild(vNameInp);
+        vRowInner.appendChild(vNameInp);
         vRow.appendChild(vRowInner);
       })(realIdx);
       vList.appendChild(vRow);
