@@ -28,6 +28,8 @@ function init(state, refreshFn) {
   document.addEventListener('sc:item-redo',         _onItemRedo);
   document.addEventListener('sc:restore-version',   _onRestoreVersion);
   document.addEventListener('sc:name-version',      _onNameVersion);
+  document.addEventListener('sc:version-delete',    _onVersionDelete);
+  document.addEventListener('sc:version-undelete',  _onVersionUndelete);
 }
 /* ====== CREATE ====== */
 function _onCreate(e) {
@@ -331,6 +333,26 @@ function _onNameVersion(e) {
     }
   }
   State.saveState(_state);
+}
+function _onVersionDelete(e) {
+  var item = State.getItem(_state, e.detail.id);
+  if (!item) return;
+  State.pushUndo(_state);
+  e.detail.indices.forEach(function (idx) {
+    if (item.versions[idx]) item.versions[idx].deleted = true;
+  });
+  State.saveState(_state);
+  _refresh();
+}
+function _onVersionUndelete(e) {
+  var item = State.getItem(_state, e.detail.id);
+  if (!item) return;
+  State.pushUndo(_state);
+  e.detail.indices.forEach(function (idx) {
+    if (item.versions[idx]) item.versions[idx].deleted = false;
+  });
+  State.saveState(_state);
+  _refresh();
 }
 window.Items = {
   init,

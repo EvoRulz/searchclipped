@@ -703,6 +703,53 @@ button { font-family: var(--font); }
   transition: all var(--transition);
 }
 .version-restore-btn:hover { background: var(--blue-dim); color: var(--bg-dark); border-color: var(--blue); }
+.version-ctrl-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 0 5px;
+  border-bottom: 1px solid var(--border-lo);
+  margin-bottom: 3px;
+}
+.version-sel-cb,
+.version-row-cb {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: var(--blue-dim);
+}
+.version-restore-btn:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+.version-del-ver-btn {
+  background: none;
+  border: 1px solid var(--red-dim);
+  border-radius: 3px;
+  color: var(--red);
+  font-family: var(--font);
+  font-size: 9px;
+  padding: 1px 5px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all var(--transition);
+}
+.version-del-ver-btn:hover:not(:disabled) { background: var(--red-dim); color: var(--text); border-color: var(--red); }
+.version-del-ver-btn:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+.version-restore-ver-btn {
+  background: none;
+  border: 1px solid var(--green);
+  border-radius: 3px;
+  color: var(--green);
+  font-family: var(--font);
+  font-size: 9px;
+  padding: 1px 5px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all var(--transition);
+}
+.version-restore-ver-btn:hover:not(:disabled) { background: var(--green); color: var(--bg-dark); }
+.version-restore-ver-btn:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+.version-entry.version-deleted .version-entry-ts,
+.version-entry.version-deleted .version-name-input { text-decoration: line-through; opacity: 0.55; }
 .version-empty {
   font-size: 10px;
   color: var(--text-ph);
@@ -972,5 +1019,6 @@ button { font-family: var(--font); }
 #app.hide-ts-created .item:not(.new-placeholder) .item-ts-created { display: none; }
 #app.hide-ts-modified .item:not(.new-placeholder) .item-ts-modified-wrap { display: none; }
 #app.hide-ts-deleted .item:not(.new-placeholder) .item-ts-deleted { display: none; }
+#app.hide-ts-deleted .version-entry.version-deleted { display: none; }
 #app.hide-ts-restored .item:not(.new-placeholder) .item-ts-restored { display: none; }
 

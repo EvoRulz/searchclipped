@@ -403,12 +403,72 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   var vPanel = document.createElement('div');
   vPanel.className = 'version-panel hidden';
   if (_versions.length) {
+    var _selVersions = new Set();
     var vList = document.createElement('div');
     vList.className = 'version-list';
+    var vCtrlBar = document.createElement('div');
+    vCtrlBar.className = 'version-ctrl-bar';
+    var vSelAllCb = document.createElement('input');
+    vSelAllCb.type = 'checkbox';
+    vSelAllCb.className = 'version-sel-cb';
+    vSelAllCb.title = 'Select all';
+    var vSwitchBtn = document.createElement('button');
+    vSwitchBtn.className = 'version-restore-btn';
+    vSwitchBtn.textContent = 'switch';
+    vSwitchBtn.disabled = true;
+    var vDelVerBtn = document.createElement('button');
+    vDelVerBtn.className = 'version-del-ver-btn';
+    vDelVerBtn.textContent = 'delete';
+    vDelVerBtn.disabled = true;
+    var vRestVerBtn = document.createElement('button');
+    vRestVerBtn.className = 'version-restore-ver-btn';
+    vRestVerBtn.textContent = 'restore';
+    vRestVerBtn.disabled = true;
+    vCtrlBar.appendChild(vSelAllCb);
+    vCtrlBar.appendChild(vSwitchBtn);
+    vCtrlBar.appendChild(vDelVerBtn);
+    vCtrlBar.appendChild(vRestVerBtn);
+    var _updateVersionCtrl = function () {
+      var count = _selVersions.size;
+      vSwitchBtn.disabled = count !== 1;
+      vDelVerBtn.disabled = count === 0;
+      vRestVerBtn.disabled = count === 0;
+      vSelAllCb.indeterminate = count > 0 && count < _versions.length;
+      vSelAllCb.checked = _versions.length > 0 && count === _versions.length;
+    };
+    vSwitchBtn.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      var idx = Array.from(_selVersions)[0];
+      document.dispatchEvent(new CustomEvent('sc:restore-version', {
+        detail: { id: item.id, versionIndex: idx }
+      }));
+    });
+    vDelVerBtn.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      document.dispatchEvent(new CustomEvent('sc:version-delete', {
+        detail: { id: item.id, indices: Array.from(_selVersions) }
+      }));
+    });
+    vRestVerBtn.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      document.dispatchEvent(new CustomEvent('sc:version-undelete', {
+        detail: { id: item.id, indices: Array.from(_selVersions) }
+      }));
+    });
+    vSelAllCb.addEventListener('change', function () {
+      _selVersions.clear();
+      if (vSelAllCb.checked) {
+        for (var _vi = 0; _vi < _versions.length; _vi++) { _selVersions.add(_vi); }
+      }
+      vList.querySelectorAll('.version-row-cb').forEach(function (cb) {
+        cb.checked = vSelAllCb.checked;
+      });
+      _updateVersionCtrl();
+    });
     _versions.slice().reverse().forEach(function (ver, rIdx) {
       var realIdx = _versions.length - 1 - rIdx;
       var vRow = document.createElement('div');
-      vRow.className = 'version-entry';
+      vRow.className = 'version-entry' + (ver.deleted ? ' version-deleted' : '');
       var vTs = document.createElement('span');
       vTs.className = 'version-entry-ts';
       vTs.textContent = _fmtDate(ver.ts);
@@ -428,14 +488,13 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
         vNameInp.addEventListener('blur',  function () { clearTimeout(_t2); _save2(); });
         vNameInp.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') vNameInp.blur(); ev.stopPropagation(); });
         vNameInp.addEventListener('click',   function (ev) { ev.stopPropagation(); });
-        var vRestBtn = document.createElement('button');
-        vRestBtn.className = 'version-restore-btn';
-        vRestBtn.textContent = 'restore';
-        vRestBtn.addEventListener('click', function (ev) {
-          ev.stopPropagation();
-          document.dispatchEvent(new CustomEvent('sc:restore-version', {
-            detail: { id: item.id, versionIndex: idx }
-          }));
+        var vCb = document.createElement('input');
+        vCb.type = 'checkbox';
+        vCb.className = 'version-row-cb';
+        vCb.addEventListener('change', function () {
+          if (vCb.checked) _selVersions.add(idx);
+          else _selVersions.delete(idx);
+          _updateVersionCtrl();
         });
         var _origHTML = '';
         var _origTitle = '';
@@ -470,13 +529,14 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
         vRowInner.style.alignItems = 'center';
         vRowInner.style.gap = '4px';
         vRowInner.style.width = '100%';
-        vRowInner.appendChild(vRestBtn);
+        vRowInner.appendChild(vCb);
         vRowInner.appendChild(vTs);
         vRowInner.appendChild(vNameInp);
         vRow.appendChild(vRowInner);
       })(realIdx);
       vList.appendChild(vRow);
     });
+    vPanel.appendChild(vCtrlBar);
     vPanel.appendChild(vList);
   } else {
     var noVer = document.createElement('div');
