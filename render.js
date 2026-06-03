@@ -451,6 +451,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     var _selVersions = new Set();
     var _vTsArr = {};
     var _cbPeekIdx = null;
+    var _cbCheckOrder = [];
     var vList = document.createElement('div');
     vList.className = 'version-list';
     var vCtrlBar = document.createElement('div');
@@ -552,6 +553,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
         vCb.addEventListener('change', function () {
           if (vCb.checked) {
             _selVersions.add(idx);
+            _cbCheckOrder.push(idx);
             var anyPeeking = vList.querySelector('.version-entry-ts.version-ts-peeking');
             var isCbPeek = _cbPeekIdx !== null && _vTsArr[_cbPeekIdx] && _vTsArr[_cbPeekIdx].classList.contains('version-ts-peeking');
             if (!anyPeeking || isCbPeek) {
@@ -561,9 +563,15 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
             }
           } else {
             _selVersions.delete(idx);
+            _cbCheckOrder = _cbCheckOrder.filter(function (i) { return i !== idx; });
             if (_cbPeekIdx === idx && _vTsArr[idx] && _vTsArr[idx].classList.contains('version-ts-peeking')) {
               _vTsArr[idx].click();
               _cbPeekIdx = null;
+              var lastChecked = _cbCheckOrder.length ? _cbCheckOrder[_cbCheckOrder.length - 1] : null;
+              if (lastChecked !== null && _vTsArr[lastChecked]) {
+                _vTsArr[lastChecked].click();
+                _cbPeekIdx = lastChecked;
+              }
             }
           }
           _updateVersionCtrl();
