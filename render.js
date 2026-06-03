@@ -364,7 +364,6 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   var tsModified = document.createElement('span');
   tsModified.className = 'item-ts item-ts-modified';
   var _modLabel = 'modified: ' + _fmtDate(item.modifiedAt);
-  if (item.versionName) _modLabel += ' \u00b7 ' + item.versionName;
   tsModified.textContent = _modLabel;
   var _versions = item.versions || [];
   var vDropBtn = document.createElement('button');
