@@ -194,6 +194,28 @@ function addItemVersion(item, snapshot) {
   var isDup = item.versions.some(function (v) { return _vKey(v) === snapKey; });
   if (!isDup) item.versions.push(snapshot);
 }
+function dedupeVersions(item) {
+  if (!item.versions || !item.versions.length) return false;
+  var liveKey = (item.text || '').trim() + '\x00' + (item.title || '').replace(/\s*\(preview\)$/i, '').trim();
+  var reversed = item.versions.slice().reverse();
+  var seen = {};
+  var deduped = [];
+  var changed = false;
+  for (var i = 0; i < reversed.length; i++) {
+    var v = reversed[i];
+    var k = _vKey(v);
+    if (k === liveKey) { changed = true; continue; }
+    if (seen[k] !== undefined) {
+      if (!deduped[seen[k]].name && v.name) deduped[seen[k]] = v;
+      changed = true;
+    } else {
+      seen[k] = deduped.length;
+      deduped.push(v);
+    }
+  }
+  if (changed) item.versions = deduped.reverse();
+  return changed;
+}
 function itemUndo(item) {
   item.itemUndoStack = item.itemUndoStack || [];
   item.itemRedoStack = item.itemRedoStack || [];
@@ -238,6 +260,7 @@ window.State = {
   getTopBumped,
   pushItemUndo,
   addItemVersion,
+  dedupeVersions,
   itemUndo,
   itemRedo
 };

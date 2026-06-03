@@ -365,6 +365,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   tsModified.className = 'item-ts item-ts-modified';
   var _modLabel = 'modified: ' + _fmtDate(item.modifiedAt);
   tsModified.textContent = _modLabel;
+  if (State.dedupeVersions(item)) State.saveState(_state);
   var _versionsRaw = item.versions || [];
   var _vSeen = [];
   var _versions = _versionsRaw.filter(function (v) {
