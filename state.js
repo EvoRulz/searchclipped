@@ -57,6 +57,7 @@ function loadState() {
         return true;
       });
     });
+    saveState(merged);
     return merged;
   } catch (e) {
     console.error('loadState error', e);

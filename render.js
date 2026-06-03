@@ -365,7 +365,14 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   tsModified.className = 'item-ts item-ts-modified';
   var _modLabel = 'modified: ' + _fmtDate(item.modifiedAt);
   tsModified.textContent = _modLabel;
-  var _versions = item.versions || [];
+  var _versionsRaw = item.versions || [];
+  var _vSeen = [];
+  var _versions = _versionsRaw.filter(function (v) {
+    var k = (v.text||'') + '\x00' + (v.title||'') + '\x00' + JSON.stringify((v.tags||[]).slice().sort()) + '\x00' + (v.name||'');
+    if (_vSeen.indexOf(k) !== -1) return false;
+    _vSeen.push(k);
+    return true;
+  });
   var vDropBtn = document.createElement('button');
   vDropBtn.className = 'version-drop-btn';
   vDropBtn.title = 'Version history (' + _versions.length + ')';
