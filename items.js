@@ -301,6 +301,10 @@ function _onRestoreVersion(e) {
   var vIdx = e.detail.versionIndex;
   if (vIdx < 0 || vIdx >= versions.length) return;
   var ver = versions[vIdx];
+  State.addItemVersion(item, {
+    ts: item.modifiedAt, text: item.text, html: item.html,
+    title: item.title, tags: (item.tags || []).slice(), name: item.versionName || ''
+  });
   State.pushUndo(_state);
   item.text          = ver.text;
   item.html          = ver.html;
