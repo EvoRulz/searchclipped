@@ -49,13 +49,12 @@ function loadState() {
       if (!Array.isArray(item.itemUndoStack)) item.itemUndoStack = [];
       if (!Array.isArray(item.itemRedoStack)) item.itemRedoStack = [];
       if (item.versionName === undefined)     item.versionName = '';
-      var seen = [];
-      item.versions = item.versions.filter(function (v) {
-        var key = _vKey(v);
-        if (seen.indexOf(key) !== -1) return false;
-        seen.push(key);
-        return true;
-      });
+      var _seenK = [], _deduped = [];
+      for (var _vi = item.versions.length - 1; _vi >= 0; _vi--) {
+        var _vk = _vKey(item.versions[_vi]);
+        if (_seenK.indexOf(_vk) === -1) { _seenK.push(_vk); _deduped.unshift(item.versions[_vi]); }
+      }
+      item.versions = _deduped;
     });
     saveState(merged);
     return merged;
@@ -75,13 +74,12 @@ function saveState(state) {
   try {
     state.items.forEach(function (item) {
       if (!item.versions) return;
-      var seen = [];
-      item.versions = item.versions.filter(function (v) {
-        var key = _vKey(v);
-        if (seen.indexOf(key) !== -1) return false;
-        seen.push(key);
-        return true;
-      });
+      var _seenK2 = [], _deduped2 = [];
+      for (var _vi2 = item.versions.length - 1; _vi2 >= 0; _vi2--) {
+        var _vk2 = _vKey(item.versions[_vi2]);
+        if (_seenK2.indexOf(_vk2) === -1) { _seenK2.push(_vk2); _deduped2.unshift(item.versions[_vi2]); }
+      }
+      item.versions = _deduped2;
     });
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (e) {
