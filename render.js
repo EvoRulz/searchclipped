@@ -16,7 +16,7 @@ function _drawSelCanvas(canvas, total, selSet) {
   var style = getComputedStyle(document.documentElement);
   var colBorder  = (style.getPropertyValue('--border') || '#435160').trim();
   var colFill    = (style.getPropertyValue('--blue-dim') || '#5c9edb').trim();
-  var colBg      = (style.getPropertyValue('--surface') || '#3a4455').trim();
+  var colBg      = (style.getPropertyValue('--bg-panel') || '#2d3640').trim();
   // Border + background
   ctx.fillStyle = colBg;
   ctx.strokeStyle = colBorder;
