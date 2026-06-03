@@ -185,9 +185,10 @@ function pushItemUndo(item, snapshot) {
 }
 function addItemVersion(item, snapshot) {
   item.versions = item.versions || [];
-  var snapKey = (snapshot.text || '') + '\x00' + (snapshot.title || '') + '\x00' + JSON.stringify((snapshot.tags || []).slice().sort());
+  var _normT = function(t) { return (t || '').replace(/\s*\(preview\)$/i, ''); };
+  var snapKey = (snapshot.text || '') + '\x00' + _normT(snapshot.title) + '\x00' + JSON.stringify((snapshot.tags || []).slice().sort());
   var isDup = item.versions.some(function (v) {
-    return ((v.text || '') + '\x00' + (v.title || '') + '\x00' + JSON.stringify((v.tags || []).slice().sort())) === snapKey;
+    return ((v.text || '') + '\x00' + _normT(v.title) + '\x00' + JSON.stringify((v.tags || []).slice().sort())) === snapKey;
   });
   if (!isDup) item.versions.push(snapshot);
 }

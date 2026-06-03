@@ -196,7 +196,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   titleEl.dataset.id      = item.id;
   if (item.title) { titleEl.textContent = item.title; }
   titleEl.addEventListener('blur', function () {
-    var newTitle = (titleEl.textContent || '').trim().replace(/\s*\(preview\)$/, '');
+    var newTitle = (titleEl.textContent || '').trim().replace(/\s*\(preview\)$/i, '');
     if (newTitle !== (item.title || '').trim()) {
       document.dispatchEvent(new CustomEvent('sc:edit-title', {
         detail: { id: item.id, title: newTitle }
@@ -368,7 +368,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   var _versionsRaw = item.versions || [];
   var _vSeen = [];
   var _versions = _versionsRaw.filter(function (v) {
-    var k = (v.text||'') + '\x00' + (v.title||'') + '\x00' + JSON.stringify((v.tags||[]).slice().sort()) + '\x00' + (v.name||'');
+    var k = (v.text||'') + '\x00' + (v.title||'').replace(/\s*\(preview\)$/i,'') + '\x00' + JSON.stringify((v.tags||[]).slice().sort());
     if (_vSeen.indexOf(k) !== -1) return false;
     _vSeen.push(k);
     return true;
