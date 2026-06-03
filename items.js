@@ -310,7 +310,7 @@ function _onRestoreVersion(e) {
   item.title         = ver.title;
   item.tags          = (ver.tags || []).slice();
   item.modifiedAt    = State.nowISO();
-  item.versionName   = '';
+  item.versionName   = ver.name || '';
   item.itemUndoStack = [];
   item.itemRedoStack = [];
   State.saveState(_state);
