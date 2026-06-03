@@ -196,7 +196,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   titleEl.dataset.id      = item.id;
   if (item.title) { titleEl.textContent = item.title; }
   titleEl.addEventListener('blur', function () {
-    var newTitle = (titleEl.textContent || '').trim();
+    var newTitle = (titleEl.textContent || '').trim().replace(/\s*\(preview\)$/, '');
     if (newTitle !== (item.title || '').trim()) {
       document.dispatchEvent(new CustomEvent('sc:edit-title', {
         detail: { id: item.id, title: newTitle }
