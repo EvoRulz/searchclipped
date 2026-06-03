@@ -61,6 +61,16 @@ function cloneDefault() {
 }
 function saveState(state) {
   try {
+    state.items.forEach(function (item) {
+      if (!item.versions) return;
+      var seen = [];
+      item.versions = item.versions.filter(function (v) {
+        var key = v.text + '\x00' + v.title;
+        if (seen.indexOf(key) !== -1) return false;
+        seen.push(key);
+        return true;
+      });
+    });
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (e) {
     console.error('saveState error', e);
@@ -167,7 +177,8 @@ function pushItemUndo(item, snapshot) {
 }
 function addItemVersion(item, snapshot) {
   item.versions = item.versions || [];
-  item.versions.push(snapshot);
+  var isDup = item.versions.some(function (v) { return v.text === snapshot.text && v.title === snapshot.title; });
+  if (!isDup) item.versions.push(snapshot);
 }
 function itemUndo(item) {
   item.itemUndoStack = item.itemUndoStack || [];
