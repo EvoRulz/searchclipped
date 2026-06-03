@@ -487,6 +487,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
       vSelAllCb._indeterminate = count > 0 && count < _versions.length;
       _drawSelCanvas(vSelAllCb, _versions.length, _selVersions);
     };
+    _updateVersionCtrl();
     vSwitchBtn.addEventListener('click', function (ev) {
       ev.stopPropagation();
       var idx = Array.from(_selVersions)[0];
