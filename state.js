@@ -55,6 +55,7 @@ function loadState() {
         if (_sk.indexOf(_k) === -1) { _sk.push(_k); _dv.unshift(item.versions[_i]); }
       }
       item.versions = _dv;
+    });
     saveState(merged);
     return merged;
   } catch (e) {
