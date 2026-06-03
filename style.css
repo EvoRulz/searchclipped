@@ -711,13 +711,19 @@ button { font-family: var(--font); }
   border-bottom: 1px solid var(--border-lo);
   margin-bottom: 3px;
 }
-.version-sel-cb,
 .version-row-cb {
   width: 13px;
   height: 13px;
   flex-shrink: 0;
   cursor: pointer;
   accent-color: var(--blue-dim);
+}
+.version-sel-canvas {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  cursor: pointer;
+  display: block;
 }
 .version-restore-btn:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
 .version-del-ver-btn {

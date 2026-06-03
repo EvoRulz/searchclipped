@@ -8,6 +8,51 @@ var _list      = null;
 var _state     = null;
 var _topBumped = null; // Set<id>
 var _blobUrls  = {};   // imageId → objectURL cache
+function _drawSelCanvas(canvas, total, selSet) {
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+  var style = getComputedStyle(document.documentElement);
+  var colBorder  = (style.getPropertyValue('--border') || '#435160').trim();
+  var colFill    = (style.getPropertyValue('--blue-dim') || '#5c9edb').trim();
+  var colBg      = (style.getPropertyValue('--surface') || '#3a4455').trim();
+  // Border + background
+  ctx.fillStyle = colBg;
+  ctx.strokeStyle = colBorder;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.roundRect(0.75, 0.75, w - 1.5, h - 1.5, 2);
+  ctx.fill();
+  ctx.stroke();
+  if (!total || !selSet.size) return;
+  if (selSet.size === total) {
+    // Full fill with checkmark
+    ctx.fillStyle = colFill;
+    ctx.beginPath();
+    ctx.roundRect(0.75, 0.75, w - 1.5, h - 1.5, 2);
+    ctx.fill();
+    ctx.strokeStyle = '#1a2030';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(3, 6.5);
+    ctx.lineTo(5.5, 9);
+    ctx.lineTo(10, 4);
+    ctx.stroke();
+    return;
+  }
+  // Segmented bands — visual order: index 0 in selSet = top of list = top of canvas
+  // The list renders reversed (_versions.slice().reverse()), so visual index 0 = _versions[total-1]
+  ctx.fillStyle = colFill;
+  var bandH = (h - 1.5) / total;
+  for (var vi = 0; vi < total; vi++) {
+    // vi=0 is top of visual list = realIdx total-1-0 = total-1
+    var realIdx = total - 1 - vi;
+    if (!selSet.has(realIdx)) continue;
+    var y = 0.75 + vi * bandH;
+    ctx.fillRect(0.75, y, w - 1.5, bandH);
+  }
+}
 function init(state) {
   _state = state;
   _list  = document.getElementById('item-list');
@@ -408,10 +453,13 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     vList.className = 'version-list';
     var vCtrlBar = document.createElement('div');
     vCtrlBar.className = 'version-ctrl-bar';
-    var vSelAllCb = document.createElement('input');
-    vSelAllCb.type = 'checkbox';
-    vSelAllCb.className = 'version-sel-cb';
+    var vSelAllCb = document.createElement('canvas');
+    vSelAllCb.className = 'version-sel-cb version-sel-canvas';
     vSelAllCb.title = 'Select all';
+    vSelAllCb.width = 13;
+    vSelAllCb.height = 13;
+    vSelAllCb._checked = false;
+    vSelAllCb._indeterminate = false;
     var vSwitchBtn = document.createElement('button');
     vSwitchBtn.className = 'version-restore-btn';
     vSwitchBtn.textContent = 'switch';
@@ -424,6 +472,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     vRestVerBtn.className = 'version-restore-ver-btn';
     vRestVerBtn.textContent = 'restore';
     vRestVerBtn.disabled = true;
+    vRestVerBtn._noClose = true;
     vCtrlBar.appendChild(vSelAllCb);
     vCtrlBar.appendChild(vSwitchBtn);
     vCtrlBar.appendChild(vDelVerBtn);
@@ -432,9 +481,11 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
       var count = _selVersions.size;
       vSwitchBtn.disabled = count !== 1;
       vDelVerBtn.disabled = count === 0;
-      vRestVerBtn.disabled = count === 0;
-      vSelAllCb.indeterminate = count > 0 && count < _versions.length;
-      vSelAllCb.checked = _versions.length > 0 && count === _versions.length;
+      var hasDeleted = count > 0 && Array.from(_selVersions).some(function (idx) { return _versions[idx] && _versions[idx].deleted; });
+      vRestVerBtn.disabled = !hasDeleted;
+      vSelAllCb._checked = _versions.length > 0 && count === _versions.length;
+      vSelAllCb._indeterminate = count > 0 && count < _versions.length;
+      _drawSelCanvas(vSelAllCb, _versions.length, _selVersions);
     };
     vSwitchBtn.addEventListener('click', function (ev) {
       ev.stopPropagation();
@@ -451,17 +502,20 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     });
     vRestVerBtn.addEventListener('click', function (ev) {
       ev.stopPropagation();
+      var hasDeleted = Array.from(_selVersions).some(function (idx) { return _versions[idx] && _versions[idx].deleted; });
+      if (!hasDeleted) return;
       document.dispatchEvent(new CustomEvent('sc:version-undelete', {
         detail: { id: item.id, indices: Array.from(_selVersions) }
       }));
     });
-    vSelAllCb.addEventListener('change', function () {
+    vSelAllCb.addEventListener('click', function () {
+      var allSelected = _selVersions.size === _versions.length;
       _selVersions.clear();
-      if (vSelAllCb.checked) {
+      if (!allSelected) {
         for (var _vi = 0; _vi < _versions.length; _vi++) { _selVersions.add(_vi); }
       }
-      vList.querySelectorAll('.version-row-cb').forEach(function (cb) {
-        cb.checked = vSelAllCb.checked;
+      vList.querySelectorAll('.version-row-cb').forEach(function (cb, cbIdx) {
+        cb.checked = _selVersions.has(_versions.length - 1 - cbIdx);
       });
       _updateVersionCtrl();
     });
