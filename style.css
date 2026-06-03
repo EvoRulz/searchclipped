@@ -240,6 +240,7 @@ button { font-family: var(--font); }
   color: var(--text-muted);
   white-space: nowrap;
   margin-left: auto;
+  flex-shrink: 0;
 }
 #sort-select {
   background: var(--surface);
@@ -252,6 +253,8 @@ button { font-family: var(--font); }
   cursor: pointer;
   outline: none;
   transition: border-color var(--transition), color var(--transition);
+  flex-shrink: 0;
+  min-width: 0;
 }
 #sort-select:focus { border-color: var(--blue-dim); color: var(--text); }
 /* ===== ACTION BUTTONS ===== */
