@@ -449,6 +449,8 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   vPanel.className = 'version-panel hidden';
   if (_versions.length) {
     var _selVersions = new Set();
+    var _vTsArr = {};
+    var _cbPeekIdx = null;
     var vList = document.createElement('div');
     vList.className = 'version-list';
     var vCtrlBar = document.createElement('div');
@@ -546,9 +548,20 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
         var vCb = document.createElement('input');
         vCb.type = 'checkbox';
         vCb.className = 'version-row-cb';
+        _vTsArr[idx] = vTs;
         vCb.addEventListener('change', function () {
-          if (vCb.checked) _selVersions.add(idx);
-          else _selVersions.delete(idx);
+          if (vCb.checked) {
+            _selVersions.add(idx);
+            var anyPeeking = vList.querySelector('.version-entry-ts.version-ts-peeking');
+            var isCbPeek = _cbPeekIdx !== null && _vTsArr[_cbPeekIdx] && _vTsArr[_cbPeekIdx].classList.contains('version-ts-peeking');
+            if (!anyPeeking || isCbPeek) {
+              if (isCbPeek) _vTsArr[_cbPeekIdx].click();
+              if (_vTsArr[idx]) _vTsArr[idx].click();
+              _cbPeekIdx = idx;
+            }
+          } else {
+            _selVersions.delete(idx);
+          }
           _updateVersionCtrl();
         });
         var _origHTML = '';
