@@ -65,7 +65,7 @@ function saveState(state) {
       if (!item.versions) return;
       var seen = [];
       item.versions = item.versions.filter(function (v) {
-        var key = v.text + '\x00' + v.title;
+        var key = (v.text || '') + '\x00' + (v.title || '') + '\x00' + JSON.stringify((v.tags || []).slice().sort());
         if (seen.indexOf(key) !== -1) return false;
         seen.push(key);
         return true;
@@ -177,7 +177,10 @@ function pushItemUndo(item, snapshot) {
 }
 function addItemVersion(item, snapshot) {
   item.versions = item.versions || [];
-  var isDup = item.versions.some(function (v) { return v.text === snapshot.text && v.title === snapshot.title; });
+  var snapKey = (snapshot.text || '') + '\x00' + (snapshot.title || '') + '\x00' + JSON.stringify((snapshot.tags || []).slice().sort());
+  var isDup = item.versions.some(function (v) {
+    return ((v.text || '') + '\x00' + (v.title || '') + '\x00' + JSON.stringify((v.tags || []).slice().sort())) === snapKey;
+  });
   if (!isDup) item.versions.push(snapshot);
 }
 function itemUndo(item) {
