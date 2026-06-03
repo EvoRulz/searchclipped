@@ -239,8 +239,6 @@ button { font-family: var(--font); }
   font-size: 10px;
   color: var(--text-muted);
   white-space: nowrap;
-  margin-left: auto;
-  flex-shrink: 0;
 }
 #sort-select {
   background: var(--surface);

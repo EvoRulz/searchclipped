@@ -391,11 +391,11 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   })();
   tsModRow.appendChild(tsModified);
   tsModRow.appendChild(vDropBtn);
-  tsModRow.appendChild(curNameInput);
-  tsModWrap.appendChild(tsModRow);
+  tsModWrap.appendChild(curNameInput);
   curNameInput.style.display = 'block';
   curNameInput.style.width = '100%';
-  curNameInput.style.marginTop = '2px';
+  curNameInput.style.marginBottom = '2px';
+  tsModWrap.appendChild(tsModRow);
   var vPanel = document.createElement('div');
   vPanel.className = 'version-panel hidden';
   if (_versions.length) {
