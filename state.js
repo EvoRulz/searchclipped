@@ -51,7 +51,7 @@ function loadState() {
       if (item.versionName === undefined)     item.versionName = '';
       var seen = [];
       item.versions = item.versions.filter(function (v) {
-        var key = (v.text || '') + '\x00' + (v.title || '') + '\x00' + JSON.stringify((v.tags || []).slice().sort()) + '\x00' + (v.name || '');
+        var key = _vKey(v);
         if (seen.indexOf(key) !== -1) return false;
         seen.push(key);
         return true;
@@ -67,13 +67,17 @@ function loadState() {
 function cloneDefault() {
   return JSON.parse(JSON.stringify(DEFAULT_STATE));
 }
+function _vKey(v) {
+  var t = (v.title || '').replace(/\s*\(preview\)$/i, '');
+  return (v.text || '').trim() + '\x00' + t.trim() + '\x00' + JSON.stringify((v.tags || []).slice().sort());
+}
 function saveState(state) {
   try {
     state.items.forEach(function (item) {
       if (!item.versions) return;
       var seen = [];
       item.versions = item.versions.filter(function (v) {
-        var key = (v.text || '') + '\x00' + (v.title || '') + '\x00' + JSON.stringify((v.tags || []).slice().sort()) + '\x00' + (v.name || '');
+        var key = _vKey(v);
         if (seen.indexOf(key) !== -1) return false;
         seen.push(key);
         return true;
@@ -183,13 +187,14 @@ function pushItemUndo(item, snapshot) {
   if (item.itemUndoStack.length > 50) item.itemUndoStack.shift();
   item.itemRedoStack = [];
 }
+function _vKey(v) {
+  var t = (v.title || '').replace(/\s*\(preview\)$/i, '');
+  return (v.text || '').trim() + '\x00' + t.trim() + '\x00' + JSON.stringify((v.tags || []).slice().sort());
+}
 function addItemVersion(item, snapshot) {
   item.versions = item.versions || [];
-  var _normT = function(t) { return (t || '').replace(/\s*\(preview\)$/i, ''); };
-  var snapKey = (snapshot.text || '') + '\x00' + _normT(snapshot.title) + '\x00' + JSON.stringify((snapshot.tags || []).slice().sort());
-  var isDup = item.versions.some(function (v) {
-    return ((v.text || '') + '\x00' + _normT(v.title) + '\x00' + JSON.stringify((v.tags || []).slice().sort())) === snapKey;
-  });
+  var snapKey = _vKey(snapshot);
+  var isDup = item.versions.some(function (v) { return _vKey(v) === snapKey; });
   if (!isDup) item.versions.push(snapshot);
 }
 function itemUndo(item) {
