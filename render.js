@@ -393,6 +393,9 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   tsModRow.appendChild(vDropBtn);
   tsModRow.appendChild(curNameInput);
   tsModWrap.appendChild(tsModRow);
+  curNameInput.style.display = 'block';
+  curNameInput.style.width = '100%';
+  curNameInput.style.marginTop = '2px';
   var vPanel = document.createElement('div');
   vPanel.className = 'version-panel hidden';
   if (_versions.length) {
