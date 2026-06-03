@@ -1,6 +1,6 @@
 'use strict';
-// @version 113
-var SC_VERSION = '@version 113';
+// @version 114
+var SC_VERSION = '@version 114';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -429,6 +429,10 @@ document.addEventListener('sc:filter-tag', function (e) {
         if (e.key === 's') {
           e.preventDefault();
           document.dispatchEvent(new CustomEvent('sc:toggle-star', { detail: { id: _focusedItemId } }));
+          requestAnimationFrame(function () {
+            var _starredEl = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
+            if (_starredEl) _starredEl.classList.add('keyboard-focused');
+          });
           return;
         }
         if (e.key === 'd') {
