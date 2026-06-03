@@ -434,6 +434,14 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
         var _origTitle = '';
         vTs.addEventListener('click', function (ev) {
           ev.stopPropagation();
+          // Un-peek any other version button for this item
+          var allVTs = vList.querySelectorAll('.version-entry-ts.version-ts-peeking');
+          allVTs.forEach(function (otherVTs) {
+            if (otherVTs !== vTs) {
+              otherVTs.classList.remove('version-ts-peeking');
+              otherVTs._isPeeking = false;
+            }
+          });
           if (_isPeeking) {
             content.innerHTML = _origHTML;
             content.style.color = '';
@@ -441,12 +449,31 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
             _isPeeking = false;
             vTs.classList.remove('version-ts-peeking');
           } else {
-            _origHTML = content.innerHTML;
-            _origTitle = titleEl.textContent;
+            // Restore from any previous peek's saved originals if needed
+            if (content.style.color === 'var(--yellow)') {
+              // Another peek was active; _origHTML/_origTitle are stale on that closure
+              // Find the one that was peeking and grab its saved originals
+              var peekingTs = vList.querySelector('.version-ts-peeking');
+              if (peekingTs && peekingTs._origHTML !== undefined) {
+                _origHTML = peekingTs._origHTML;
+                _origTitle = peekingTs._origTitle;
+                peekingTs.classList.remove('version-ts-peeking');
+                peekingTs._isPeeking = false;
+              } else {
+                _origHTML = content.innerHTML;
+                _origTitle = titleEl.textContent;
+              }
+            } else {
+              _origHTML = content.innerHTML;
+              _origTitle = titleEl.textContent;
+            }
+            vTs._origHTML = _origHTML;
+            vTs._origTitle = _origTitle;
             content.innerHTML = ver.html || ver.text || '';
             content.style.color = 'var(--yellow)';
             titleEl.textContent = item.title ? item.title + ' (preview)' : '(preview)';
             _isPeeking = true;
+            vTs._isPeeking = true;
             vTs.classList.add('version-ts-peeking');
           }
         });
