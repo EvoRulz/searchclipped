@@ -1,6 +1,6 @@
 'use strict';
-// @version 114
-var SC_VERSION = '@version 114';
+// @version 115
+var SC_VERSION = '@version 115';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -125,6 +125,21 @@ var SC_VERSION = '@version 114';
   var _refocusEntry = false;
   var _altShortcuts = {};
   var _focusedItemId = null;
+  (function () {
+    var _list = document.getElementById('item-list');
+    if (!_list) return;
+    _list.addEventListener('scroll', function () {
+      if (!_focusedItemId) return;
+      var _el = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
+      if (!_el) return;
+      var _rect = _el.getBoundingClientRect();
+      var _listRect = _list.getBoundingClientRect();
+      if (_rect.bottom < _listRect.top || _rect.top > _listRect.bottom) {
+        _el.classList.remove('keyboard-focused');
+        _focusedItemId = null;
+      }
+    }, { passive: true });
+  })();
   document.addEventListener('sc:create-item', function () { _refocusEntry = true; });
   /* ===== INIT ITEMS ===== */
   Items.init(state, refresh);
