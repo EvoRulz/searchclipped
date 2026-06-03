@@ -391,10 +391,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   })();
   tsModRow.appendChild(tsModified);
   tsModRow.appendChild(vDropBtn);
-  tsModWrap.appendChild(curNameInput);
-  curNameInput.style.display = 'block';
-  curNameInput.style.width = '100%';
-  curNameInput.style.marginBottom = '2px';
+  tsModRow.appendChild(curNameInput);
   tsModWrap.appendChild(tsModRow);
   var vPanel = document.createElement('div');
   vPanel.className = 'version-panel hidden';
@@ -613,14 +610,14 @@ function _attachSwipe(el, id) {
 function _fmtDate(iso) {
   if (!iso) return '';
   try {
-    var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    var days = ['Su','M','Tu','W','Th','F','Sa'];
     var d = new Date(iso);
     var h = d.getHours();
     var ampm = h >= 12 ? 'pm' : 'am';
     h = h % 12 || 12;
     var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
     return days[d.getDay()] + ' ' + d.getDate() + '/' + (d.getMonth()+1) + '/' + String(d.getFullYear()).slice(2) +
-    ' ' + h + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()) + ampm;
+    ' ' + h + ':' + pad(d.getMinutes()) + ampm;
   } catch (e) { return iso; }
 }
 window.Render = { init, render };
