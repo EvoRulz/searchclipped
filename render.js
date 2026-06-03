@@ -301,7 +301,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   if (item.imageId) {
     var shareBtn = document.createElement('button');
     shareBtn.className   = 'share-btn';
-    shareBtn.textContent = '⬆';
+    shareBtn.textContent = '⮫';
     shareBtn.title       = 'Share image';
     shareBtn.addEventListener('click', function () {
       document.dispatchEvent(new CustomEvent('sc:share-item', { detail: { id: item.id } }));
