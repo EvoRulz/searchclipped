@@ -30,6 +30,7 @@ function init(state, refreshFn) {
   document.addEventListener('sc:name-version',      _onNameVersion);
   document.addEventListener('sc:version-delete',    _onVersionDelete);
   document.addEventListener('sc:version-undelete',  _onVersionUndelete);
+  document.addEventListener('sc:hard-delete',        _onHardDelete);
 }
 /* ====== CREATE ====== */
 function _onCreate(e) {
@@ -194,6 +195,20 @@ async function _onRestore(e) {
   State.saveState(_state);
   _refresh();
 }
+/* ====== HARD DELETE ====== */
+async function _onHardDelete(e) {
+  var ok = await Modals.confirm('Permanently destroy this item? This cannot be undone.', 'burn');
+  if (!ok) return;
+  var item = State.getItem(_state, e.detail.id);
+  if (!item) return;
+  if (item.imageId) {
+    DB.deleteImage(item.imageId).catch(function (err) { console.warn('deleteImage failed', err); });
+  }
+  _state.items = _state.items.filter(function (i) { return i.id !== item.id; });
+  _selectedIds.delete(item.id);
+  State.saveState(_state);
+  _refresh();
+}
 /* ====== TAGS ====== */
 function _onOpenTags(e) {
   var item = State.getItem(_state, e.detail.id);
@@ -334,7 +349,9 @@ function _onNameVersion(e) {
   }
   State.saveState(_state);
 }
-function _onVersionDelete(e) {
+async function _onVersionDelete(e) {
+  var ok = await Modals.confirm('Delete ' + e.detail.indices.length + ' version(s)? Type "yes" to confirm.');
+  if (!ok) return;
   var item = State.getItem(_state, e.detail.id);
   if (!item) return;
   State.pushUndo(_state);

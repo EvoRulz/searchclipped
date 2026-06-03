@@ -414,6 +414,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   var _versionsRaw = item.versions || [];
   var _vSeen = [];
   var _versions = _versionsRaw.filter(function (v) {
+    if (v.deleted) return false;
     var k = (v.text||'').trim() + '\x00' + (v.title||'').replace(/\s*\(preview\)$/i,'').trim();
     if (_vSeen.indexOf(k) !== -1) return false;
     _vSeen.push(k);
@@ -658,6 +659,13 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
       document.dispatchEvent(new CustomEvent('sc:restore-item', { detail: { id: item.id } }));
     });
     footer.appendChild(restoreBtn);
+    var hardDelBtn = document.createElement('button');
+    hardDelBtn.className   = 'hard-del-btn';
+    hardDelBtn.textContent = 'Burn';
+    hardDelBtn.addEventListener('click', function () {
+      document.dispatchEvent(new CustomEvent('sc:hard-delete', { detail: { id: item.id } }));
+    });
+    footer.appendChild(hardDelBtn);
   }
   footer.appendChild(tsCont);
   // Tags row

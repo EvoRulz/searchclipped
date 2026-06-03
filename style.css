@@ -854,6 +854,18 @@ button { font-family: var(--font); }
   transition: background var(--transition);
 }
 .restore-btn:hover { background: var(--green); color: var(--bg-dark); }
+.hard-del-btn {
+  background: none;
+  border: 1px solid var(--red);
+  border-radius: var(--radius);
+  color: var(--red);
+  font-family: var(--font);
+  font-size: 10px;
+  padding: 2px 8px;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.hard-del-btn:hover { background: var(--red); color: var(--bg-dark); }
 /* ===== PERMISSION TOAST ===== */
 .toast {
   position: fixed;

@@ -11,6 +11,7 @@ var _confirmInput   = null;
 var _confirmOk      = null;
 var _confirmCancel  = null;
 var _confirmResolve = null;
+var _confirmWord    = 'yes';
 function _initConfirm() {
   _confirmModal  = document.getElementById('confirm-modal');
   _confirmMsg    = document.getElementById('confirm-msg');
@@ -18,7 +19,7 @@ function _initConfirm() {
   _confirmOk     = document.getElementById('confirm-ok');
   _confirmCancel = document.getElementById('confirm-cancel');
   _confirmOk.addEventListener('click', function () {
-    if ((_confirmInput.value || '').trim().toLowerCase() !== 'yes') {
+    if ((_confirmInput.value || '').trim().toLowerCase() !== _confirmWord) {
       _confirmInput.classList.add('error');
       setTimeout(function () { _confirmInput.classList.remove('error'); }, 400);
       _confirmInput.focus();
@@ -49,8 +50,10 @@ function _closeConfirm(result) {
 /*
  * confirm(message) → Promise<boolean>
  */
-function confirm(message) {
+function confirm(message, word) {
+  _confirmWord = word || 'yes';
   _confirmMsg.textContent = message;
+  _confirmInput.placeholder = 'Type "' + _confirmWord + '" to confirm';
   _confirmInput.value     = '';
   _confirmModal.classList.remove('hidden');
   setTimeout(function () { _confirmInput.focus(); }, 50);
