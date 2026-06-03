@@ -49,6 +49,13 @@ function loadState() {
       if (!Array.isArray(item.itemUndoStack)) item.itemUndoStack = [];
       if (!Array.isArray(item.itemRedoStack)) item.itemRedoStack = [];
       if (item.versionName === undefined)     item.versionName = '';
+      var seen = [];
+      item.versions = item.versions.filter(function (v) {
+        var key = (v.text || '') + '\x00' + (v.title || '') + '\x00' + JSON.stringify((v.tags || []).slice().sort()) + '\x00' + (v.name || '');
+        if (seen.indexOf(key) !== -1) return false;
+        seen.push(key);
+        return true;
+      });
     });
     return merged;
   } catch (e) {
@@ -65,7 +72,7 @@ function saveState(state) {
       if (!item.versions) return;
       var seen = [];
       item.versions = item.versions.filter(function (v) {
-        var key = (v.text || '') + '\x00' + (v.title || '') + '\x00' + JSON.stringify((v.tags || []).slice().sort());
+        var key = (v.text || '') + '\x00' + (v.title || '') + '\x00' + JSON.stringify((v.tags || []).slice().sort()) + '\x00' + (v.name || '');
         if (seen.indexOf(key) !== -1) return false;
         seen.push(key);
         return true;
@@ -177,7 +184,7 @@ function pushItemUndo(item, snapshot) {
 }
 function addItemVersion(item, snapshot) {
   item.versions = item.versions || [];
-  var snapKey = (snapshot.text || '') + '\x00' + (snapshot.title || '') + '\x00' + JSON.stringify((snapshot.tags || []).slice().sort());
+  var snapKey = (snapshot.text || '') + '\x00' + (snapshot.title || '') + '\x00' + JSON.stringify((snapshot.tags || []).slice().sort()) + '\x00' + (snapshot.name || '');
   var isDup = item.versions.some(function (v) {
     return ((v.text || '') + '\x00' + (v.title || '') + '\x00' + JSON.stringify((v.tags || []).slice().sort())) === snapKey;
   });
