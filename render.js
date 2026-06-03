@@ -461,7 +461,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
             vTs._origTitle = _origTitle;
             content.innerHTML = ver.html || ver.text || '';
             content.style.color = 'var(--yellow)';
-            titleEl.textContent = item.title ? item.title + ' (preview)' : '(preview)';
+            titleEl.textContent = ver.title ? ver.title + ' (preview)' : '(preview)';
             vTs.classList.add('version-ts-peeking');
           }
         });
