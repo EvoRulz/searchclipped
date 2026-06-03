@@ -368,7 +368,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   var _versionsRaw = item.versions || [];
   var _vSeen = [];
   var _versions = _versionsRaw.filter(function (v) {
-    var k = (v.text||'') + '\x00' + (v.title||'').replace(/\s*\(preview\)$/i,'') + '\x00' + JSON.stringify((v.tags||[]).slice().sort());
+    var k = (v.text||'').trim() + '\x00' + (v.title||'').replace(/\s*\(preview\)$/i,'').trim();
     if (_vSeen.indexOf(k) !== -1) return false;
     _vSeen.push(k);
     return true;

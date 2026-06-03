@@ -49,13 +49,12 @@ function loadState() {
       if (!Array.isArray(item.itemUndoStack)) item.itemUndoStack = [];
       if (!Array.isArray(item.itemRedoStack)) item.itemRedoStack = [];
       if (item.versionName === undefined)     item.versionName = '';
-      var _seenK = [], _deduped = [];
-      for (var _vi = item.versions.length - 1; _vi >= 0; _vi--) {
-        var _vk = _vKey(item.versions[_vi]);
-        if (_seenK.indexOf(_vk) === -1) { _seenK.push(_vk); _deduped.unshift(item.versions[_vi]); }
+      var _sk = [], _dv = [];
+      for (var _i = item.versions.length - 1; _i >= 0; _i--) {
+        var _k = _vKey(item.versions[_i]);
+        if (_sk.indexOf(_k) === -1) { _sk.push(_k); _dv.unshift(item.versions[_i]); }
       }
-      item.versions = _deduped;
-    });
+      item.versions = _dv;
     saveState(merged);
     return merged;
   } catch (e) {
@@ -68,18 +67,18 @@ function cloneDefault() {
 }
 function _vKey(v) {
   var t = (v.title || '').replace(/\s*\(preview\)$/i, '');
-  return (v.text || '').trim() + '\x00' + t.trim() + '\x00' + JSON.stringify((v.tags || []).slice().sort());
+  return (v.text || '').trim() + '\x00' + t.trim();
 }
 function saveState(state) {
   try {
     state.items.forEach(function (item) {
       if (!item.versions) return;
-      var _seenK2 = [], _deduped2 = [];
-      for (var _vi2 = item.versions.length - 1; _vi2 >= 0; _vi2--) {
-        var _vk2 = _vKey(item.versions[_vi2]);
-        if (_seenK2.indexOf(_vk2) === -1) { _seenK2.push(_vk2); _deduped2.unshift(item.versions[_vi2]); }
+      var _sk2 = [], _dv2 = [];
+      for (var _i2 = item.versions.length - 1; _i2 >= 0; _i2--) {
+        var _k2 = _vKey(item.versions[_i2]);
+        if (_sk2.indexOf(_k2) === -1) { _sk2.push(_k2); _dv2.unshift(item.versions[_i2]); }
       }
-      item.versions = _deduped2;
+      item.versions = _dv2;
     });
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (e) {
@@ -187,7 +186,7 @@ function pushItemUndo(item, snapshot) {
 }
 function _vKey(v) {
   var t = (v.title || '').replace(/\s*\(preview\)$/i, '');
-  return (v.text || '').trim() + '\x00' + t.trim() + '\x00' + JSON.stringify((v.tags || []).slice().sort());
+  return (v.text || '').trim() + '\x00' + t.trim();
 }
 function addItemVersion(item, snapshot) {
   item.versions = item.versions || [];
