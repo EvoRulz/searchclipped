@@ -561,6 +561,10 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
             }
           } else {
             _selVersions.delete(idx);
+            if (_cbPeekIdx === idx && _vTsArr[idx] && _vTsArr[idx].classList.contains('version-ts-peeking')) {
+              _vTsArr[idx].click();
+              _cbPeekIdx = null;
+            }
           }
           _updateVersionCtrl();
         });
