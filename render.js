@@ -390,8 +390,8 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     curNameInput.addEventListener('click',   function (ev) { ev.stopPropagation(); });
   })();
   tsModRow.appendChild(tsModified);
-  tsModRow.appendChild(curNameInput);
   tsModRow.appendChild(vDropBtn);
+  tsModRow.appendChild(curNameInput);
   tsModWrap.appendChild(tsModRow);
   var vPanel = document.createElement('div');
   vPanel.className = 'version-panel hidden';
