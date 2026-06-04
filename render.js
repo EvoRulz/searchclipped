@@ -4,10 +4,11 @@
  * Builds/patches the item list DOM from a display list.
  * Exported on window.Render
  */
-var _list      = null;
-var _state     = null;
-var _topBumped = null; // Set<id>
-var _blobUrls  = {};   // imageId → objectURL cache
+var _list               = null;
+var _state              = null;
+var _topBumped          = null; // Set<id>
+var _blobUrls           = {};   // imageId → objectURL cache
+var _openVersionPanels  = new Set();
 function _drawSelCanvas(canvas, total, selSet) {
   var ctx = canvas.getContext('2d');
   var w = canvas.width;
@@ -647,13 +648,20 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   }
   tsModWrap.appendChild(vPanel);
   (function () {
-    var _open = false;
+    var _open = _openVersionPanels.has(item.id);
+    if (_open) {
+      vPanel.classList.remove('hidden');
+      vDropBtn.textContent = '\u25b4';
+      vDropBtn.classList.add('active');
+    }
     vDropBtn.addEventListener('click', function (ev) {
       ev.stopPropagation();
       _open = !_open;
       vPanel.classList.toggle('hidden', !_open);
       vDropBtn.textContent = _open ? '\u25b4' : '\u25be';
       vDropBtn.classList.toggle('active', _open);
+      if (_open) _openVersionPanels.add(item.id);
+      else       _openVersionPanels.delete(item.id);
     });
   })();
   iUndoBtn.addEventListener('click', function (ev) {
