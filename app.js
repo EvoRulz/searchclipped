@@ -1,6 +1,6 @@
 'use strict';
-// @version 166
-var SC_VERSION = '@version 166';
+// @version 167
+var SC_VERSION = '@version 167';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -123,17 +123,6 @@ var SC_VERSION = '@version 166';
     cbSelFiltered.checked = result.filtered.length > 0 && result.filtered.every(function (i) { return _selIds.has(i.id); });
   }
   var _lastFiltered = [];
-  function _reapplySelAll() {
-    var result = Search.getDisplayList(state, query, {
-      showDeleted:   showDeleted,
-      hideUndeleted: hideActive,
-      searchItems:   searchItems,
-      searchTitles:  searchTitles,
-      searchTags:    searchTags,
-      starFilter:    state.starFilter
-    });
-    Items.selectAll(result.filtered.concat(result.rest));
-  }
   var _refocusEntry = false;
   var _altShortcuts = {};
   var _focusedItemId = null;
@@ -212,20 +201,38 @@ var SC_VERSION = '@version 166';
       Items.clearSelection();
     }
   });
+  // showDeleted=false by default — button OFF means deleted items are HIDDEN
   btnShowDeleted.addEventListener('click', function () {
     var _wasAll = cbSelectAll.checked;
     showDeleted = !showDeleted;
     btnShowDeleted.classList.toggle('active', showDeleted);
     document.getElementById('app').classList.toggle('show-deleted', showDeleted);
-    refresh();
-    if (_wasAll) { _reapplySelAll(); }
+    if (_wasAll) {
+      var _r = Search.getDisplayList(state, query, {
+        showDeleted: showDeleted, hideUndeleted: hideActive,
+        searchItems: searchItems, searchTitles: searchTitles,
+        searchTags: searchTags, starFilter: state.starFilter
+      });
+      Items.selectAll(_r.filtered.concat(_r.rest));
+    } else {
+      refresh();
+    }
   });
+  // hideActive=false by default — button OFF means undeleted items are VISIBLE
   btnHideActive.addEventListener('click', function () {
     var _wasAll = cbSelectAll.checked;
     hideActive = !hideActive;
     btnHideActive.classList.toggle('active', hideActive);
-    refresh();
-    if (_wasAll) { _reapplySelAll(); }
+    if (_wasAll) {
+      var _r = Search.getDisplayList(state, query, {
+        showDeleted: showDeleted, hideUndeleted: hideActive,
+        searchItems: searchItems, searchTitles: searchTitles,
+        searchTags: searchTags, starFilter: state.starFilter
+      });
+      Items.selectAll(_r.filtered.concat(_r.rest));
+    } else {
+      refresh();
+    }
   });
   btnHideItemContent.addEventListener('click', function () {
     hideItemContent = !hideItemContent;
