@@ -209,15 +209,16 @@ function addItemVersion(item, snapshot) {
 }
 function dedupeVersions(item) {
   if (!item.versions || !item.versions.length) return false;
-  var liveKey = (item.text || '').trim() + '\x00' + (item.title || '').replace(/\s*\(preview\)$/i, '').trim();
-  var reversed = item.versions.slice().reverse();
-  var seen = {};
-  var deduped = [];
-  var changed = false;
+  var liveText  = (item.text  || '').trim();
+  var liveTitle = (item.title || '').replace(/\s*\(preview\)$/i, '').trim();
+  var reversed  = item.versions.slice().reverse();
+  var seen      = {};
+  var deduped   = [];
+  var changed   = false;
   for (var i = 0; i < reversed.length; i++) {
     var v = reversed[i];
-    var k = _vKey(v);
-    if (k === liveKey) { changed = true; continue; }
+    var k = (v.text || '').trim() + '\x00' + (v.title || '').replace(/\s*\(preview\)$/i, '').trim();
+    if (k === liveText + '\x00' + liveTitle) { changed = true; continue; }
     if (seen[k] !== undefined) {
       var _ex = deduped[seen[k]];
       if (_ex.deleted && !v.deleted) {

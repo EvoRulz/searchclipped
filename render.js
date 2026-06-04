@@ -916,7 +916,7 @@ function _fmtDate(iso) {
 }
 function _charDiff(origText, newText) {
   if (origText.length + newText.length > 6000) {
-    return newText.split('').map(function (c) { return { t: c, c: true }; });
+    return newText.split('').map(function (c) { return { t: c, c: 'add' }; });
   }
   var a = origText.split(''), b = newText.split('');
   var m = a.length, n = b.length;
@@ -932,22 +932,27 @@ function _charDiff(origText, newText) {
     if (ri > 0 && rj > 0 && a[ri - 1] === b[rj - 1]) {
       result.unshift({ t: b[rj - 1], c: false }); ri--; rj--;
     } else if (rj > 0 && (ri === 0 || dp[ri][rj - 1] >= dp[ri - 1][rj])) {
-      result.unshift({ t: b[rj - 1], c: true }); rj--;
-    } else { ri--; }
+      result.unshift({ t: b[rj - 1], c: 'add' }); rj--;
+    } else {
+      result.unshift({ t: a[ri - 1], c: 'del' }); ri--;
+    }
   }
   return result;
 }
 function _diffToHTML(parts) {
-  var out = '', inSpan = false;
+  var out = '', inSpan = false, spanType = null;
   for (var i = 0; i < parts.length; i++) {
     var e = parts[i].t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
-    if (parts[i].c) {
-      if (!inSpan) { out += '<span style="color:var(--yellow)">'; inSpan = true; }
-      out += e;
-    } else {
-      if (inSpan) { out += '</span>'; inSpan = false; }
-      out += e;
+    var type = parts[i].c;
+    if (type !== spanType) {
+      if (inSpan) { out += '</span>'; inSpan = false; spanType = null; }
+      if (type === 'add') {
+        out += '<span style="color:var(--yellow)">'; inSpan = true; spanType = 'add';
+      } else if (type === 'del') {
+        out += '<span style="color:var(--red);text-decoration:line-through">'; inSpan = true; spanType = 'del';
+      }
     }
+    out += e;
   }
   if (inSpan) out += '</span>';
   return out;
