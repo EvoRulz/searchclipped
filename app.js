@@ -1,6 +1,6 @@
 'use strict';
-// @version 168
-var SC_VERSION = '@version 168';
+// @version 169
+var SC_VERSION = '@version 169';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -17,7 +17,8 @@ var SC_VERSION = '@version 168';
   if (_verEl) _verEl.textContent = SC_VERSION;
   /* ===== FILTER UI STATE ===== */
   var query       = '';
-  var showDeleted = false;
+  var showDeleted      = false;
+  var _selectAllActive = false;
   var hideActive        = false;
   var hideItemContent   = false;
   var hideTitles        = false;
@@ -180,6 +181,7 @@ var SC_VERSION = '@version 168';
   });
   /* ===== CHECKBOXES ===== */
   cbSelectAll.addEventListener('change', function () {
+    _selectAllActive = cbSelectAll.checked;
     if (cbSelectAll.checked) {
       var result = Search.getDisplayList(state, query, {
         showDeleted:   showDeleted,
@@ -203,8 +205,7 @@ var SC_VERSION = '@version 168';
   });
   // showDeleted=false by default — button OFF means deleted items are HIDDEN
   btnShowDeleted.addEventListener('click', function () {
-    var _wasAll = cbSelectAll.checked;
-    console.log('wasAll:', _wasAll, 'cbChecked:', cbSelectAll.checked);
+    var _wasAll = _selectAllActive;
     showDeleted = !showDeleted;
     btnShowDeleted.classList.toggle('active', showDeleted);
     document.getElementById('app').classList.toggle('show-deleted', showDeleted);
@@ -221,7 +222,7 @@ var SC_VERSION = '@version 168';
   });
   // hideActive=false by default — button OFF means undeleted items are VISIBLE
   btnHideActive.addEventListener('click', function () {
-    var _wasAll = cbSelectAll.checked;
+    var _wasAll = _selectAllActive;
     hideActive = !hideActive;
     btnHideActive.classList.toggle('active', hideActive);
     if (_wasAll) {
