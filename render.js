@@ -469,6 +469,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   {
     var _savedSel = (_versionSelections[item.id] || []).filter(function(i) { return i >= 0 && i < _versions.length; });
     var _selVersions = new Set(_savedSel);
+    var _userSelVersions = new Set(_savedSel);
     var _showDelNow = document.getElementById('app').classList.contains('show-deleted');
     if (_showDelNow) {
         var _nonDelIdxs = [];
@@ -541,7 +542,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     vCtrlBar.appendChild(vRestVerBtn);
     vCtrlBar.appendChild(vBurnVerBtn);
     var _updateVersionCtrl = function () {
-      _versionSelections[item.id] = Array.from(_selVersions);
+      _versionSelections[item.id] = Array.from(_userSelVersions);
       var count = _selVersions.size;
       vSwitchBtn.disabled = count !== 1;
       vDelVerBtn.disabled = count === 0;
@@ -593,8 +594,10 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
       var _allVisSelected = _visIdxs.every(function(i) { return _selVersions.has(i); });
       if (_allVisSelected) {
         _visIdxs.forEach(function(i) { _selVersions.delete(i); });
+        _visIdxs.forEach(function(i) { _userSelVersions.delete(i); });
       } else {
         _visIdxs.forEach(function(i) { _selVersions.add(i); });
+        _visIdxs.forEach(function(i) { _userSelVersions.add(i); });
       }
       vList.querySelectorAll('.version-row-cb').forEach(function (cb, cbIdx) {
         cb.checked = _selVersions.has(_versions.length - 1 - cbIdx);
@@ -632,6 +635,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
         vCb.addEventListener('change', function () {
           if (vCb.checked) {
             _selVersions.add(idx);
+            _userSelVersions.add(idx);
             _cbCheckOrder.push(idx);
             var anyPeeking = vList.querySelector('.version-entry-ts.version-ts-peeking');
             var isCbPeek = _cbPeekIdx !== null && _vTsArr[_cbPeekIdx] && _vTsArr[_cbPeekIdx].classList.contains('version-ts-peeking');
@@ -642,6 +646,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
             }
           } else {
             _selVersions.delete(idx);
+            _userSelVersions.delete(idx);
             _cbCheckOrder = _cbCheckOrder.filter(function (i) { return i !== idx; });
             if (_cbPeekIdx === idx && _vTsArr[idx] && _vTsArr[idx].classList.contains('version-ts-peeking')) {
               _vTsArr[idx].click();
