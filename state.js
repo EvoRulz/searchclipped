@@ -66,10 +66,6 @@ function loadState() {
 function cloneDefault() {
   return JSON.parse(JSON.stringify(DEFAULT_STATE));
 }
-function _vKey(v) {
-  var t = (v.title || '').replace(/\s*\(preview\)$/i, '');
-  return (v.text || '').trim() + '\x00' + t.trim() + '\x00' + (v.deleted ? '1' : '0');
-}
 function saveState(state) {
   try {
     state.items.forEach(function (item) {

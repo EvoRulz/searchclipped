@@ -604,7 +604,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
       var hasDeleted = Array.from(_selVersions).some(function (idx) { return _versions[idx] && _versions[idx].deleted; });
       if (!hasDeleted) return;
       document.dispatchEvent(new CustomEvent('sc:version-undelete', {
-        detail: { id: item.id, indices: Array.from(_selVersions) }
+        detail: { id: item.id, indices: Array.from(_selVersions).map(function (i) { return _rawIdxMap[i]; }) }
       }));
     });
     vSelAllCb.addEventListener('click', function () {
