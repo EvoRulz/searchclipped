@@ -68,7 +68,7 @@ function cloneDefault() {
 }
 function _vKey(v) {
   var t = (v.title || '').replace(/\s*\(preview\)$/i, '');
-  return (v.text || '').trim() + '\x00' + t.trim();
+  return (v.text || '').trim() + '\x00' + t.trim() + '\x00' + (v.deleted ? '1' : '0');
 }
 function saveState(state) {
   try {
@@ -187,7 +187,7 @@ function pushItemUndo(item, snapshot) {
 }
 function _vKey(v) {
   var t = (v.title || '').replace(/\s*\(preview\)$/i, '');
-  return (v.text || '').trim() + '\x00' + t.trim();
+  return (v.text || '').trim() + '\x00' + t.trim() + '\x00' + (v.deleted ? '1' : '0');
 }
 function addItemVersion(item, snapshot) {
   item.versions = item.versions || [];
