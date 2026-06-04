@@ -466,7 +466,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   tsModWrap.appendChild(tsModRow);
   var vPanel = document.createElement('div');
   vPanel.className = 'version-panel hidden';
-  if (_versions.length) {
+  {
     var _savedSel = (_versionSelections[item.id] || []).filter(function(i) { return i >= 0 && i < _versions.length; });
     var _selVersions = new Set(_savedSel);
     var _showDelNow = document.getElementById('app').classList.contains('show-deleted');
@@ -697,7 +697,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     });
     vPanel.appendChild(vCtrlBar);
     vPanel.appendChild(vList);
-  } else {
+  if (!_versions.length) {
     var noVer = document.createElement('div');
     noVer.className = 'version-empty';
     noVer.textContent = 'no history yet';
