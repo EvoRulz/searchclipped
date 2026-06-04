@@ -22,7 +22,7 @@
  * }
  */
 var STORAGE_KEY = 'searchclipped_state';
-var MAX_UNDO    = 50;
+var MAX_UNDO    = 40;
 var DEFAULT_STATE = {
   items:       [],
   sortMode:    'bump',

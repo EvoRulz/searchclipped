@@ -1090,4 +1090,32 @@ button { font-family: var(--font); }
 #app.hide-ts-restored .item:not(.new-placeholder) .item-ts-restored { display: none; }
 .version-entry.version-deleted { display: none; }
 #app.show-deleted .version-entry.version-deleted { display: flex; }
+#storage-wrap {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  align-self: center;
+}
+#storage-label {
+  font-size: 9px;
+  color: var(--text-ph);
+  white-space: nowrap;
+}
+#storage-bar {
+  width: 72px;
+  height: 4px;
+  background: var(--surface);
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid var(--border-lo);
+}
+#storage-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--blue-dim);
+  border-radius: 2px;
+  transition: width 0.3s ease, background 0.3s ease;
+}
 
