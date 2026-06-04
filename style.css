@@ -856,16 +856,43 @@ button { font-family: var(--font); }
 .restore-btn:hover { background: var(--green); color: var(--bg-dark); }
 .hard-del-btn {
   background: none;
-  border: 1px solid var(--red);
+  border: 1px solid var(--orange);
   border-radius: var(--radius);
-  color: var(--red);
+  color: var(--orange);
   font-family: var(--font);
   font-size: 10px;
-  padding: 2px 8px;
+  padding: 2px 6px;
   cursor: pointer;
-  transition: background var(--transition);
+  transition: all var(--transition);
+  display: none;
+  align-items: center;
 }
-.hard-del-btn:hover { background: var(--red); color: var(--bg-dark); }
+.hard-del-btn:hover { background: rgba(249,174,88,0.2); }
+#app.show-deleted .hard-del-btn { display: inline-flex; }
+#btn-bulk-burn {
+  color: var(--orange);
+  border-color: var(--orange);
+  display: none;
+}
+#btn-bulk-burn:hover { background: rgba(249,174,88,0.15); border-color: var(--orange); }
+#app.show-deleted #btn-bulk-burn { display: inline-flex; }
+.version-burn-btn {
+  background: none;
+  border: 1px solid var(--orange);
+  border-radius: 3px;
+  color: var(--orange);
+  font-family: var(--font);
+  font-size: 9px;
+  padding: 1px 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all var(--transition);
+  display: none;
+  align-items: center;
+}
+.version-burn-btn:hover:not(:disabled) { background: rgba(249,174,88,0.2); }
+.version-burn-btn:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+#app.show-deleted .version-burn-btn { display: inline-flex; }
 /* ===== PERMISSION TOAST ===== */
 .toast {
   position: fixed;

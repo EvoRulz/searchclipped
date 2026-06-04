@@ -413,12 +413,15 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   if (State.dedupeVersions(item)) State.saveState(_state);
   var _versionsRaw = item.versions || [];
   var _vSeen = [];
-  var _versions = _versionsRaw.filter(function (v) {
-    if (v.deleted) return false;
+  var _versions = [];
+  var _rawIdxMap = [];
+  _versionsRaw.forEach(function(v, ri) {
+    if (v.deleted) return;
     var k = (v.text||'').trim() + '\x00' + (v.title||'').replace(/\s*\(preview\)$/i,'').trim();
-    if (_vSeen.indexOf(k) !== -1) return false;
+    if (_vSeen.indexOf(k) !== -1) return;
     _vSeen.push(k);
-    return true;
+    _versions.push(v);
+    _rawIdxMap.push(ri);
   });
   var vDropBtn = document.createElement('button');
   vDropBtn.className = 'version-drop-btn';
@@ -477,14 +480,21 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     vRestVerBtn.textContent = 'restore';
     vRestVerBtn.disabled = true;
     vRestVerBtn._noClose = true;
+    var vBurnVerBtn = document.createElement('button');
+    vBurnVerBtn.className = 'version-burn-btn';
+    vBurnVerBtn.title = 'Burn versions (permanent)';
+    vBurnVerBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 13C4.24 13 2 10.76 2 8c0-1.8.8-3.2 2-4.2 0 .9.3 1.7.9 2.2C4.9 4.2 5.8 2.5 7 1.5c0 1.2.7 2 1.5 2.5.2-.7.7-1.2 1.3-1.5 1.3 1 2.2 2.8 2.2 4.5 0 2.76-2.24 5-5 5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><circle cx="7" cy="9.5" r="1" fill="currentColor" opacity="0.6"/></svg>';
+    vBurnVerBtn.disabled = true;
     vCtrlBar.appendChild(vSelAllCb);
     vCtrlBar.appendChild(vSwitchBtn);
     vCtrlBar.appendChild(vDelVerBtn);
     vCtrlBar.appendChild(vRestVerBtn);
+    vCtrlBar.appendChild(vBurnVerBtn);
     var _updateVersionCtrl = function () {
       var count = _selVersions.size;
       vSwitchBtn.disabled = count !== 1;
       vDelVerBtn.disabled = count === 0;
+      vBurnVerBtn.disabled = count === 0;
       var hasDeleted = count > 0 && Array.from(_selVersions).some(function (idx) { return _versions[idx] && _versions[idx].deleted; });
       vRestVerBtn.disabled = !hasDeleted;
       vSelAllCb._checked = _versions.length > 0 && count === _versions.length;
@@ -496,13 +506,19 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
       ev.stopPropagation();
       var idx = Array.from(_selVersions)[0];
       document.dispatchEvent(new CustomEvent('sc:restore-version', {
-        detail: { id: item.id, versionIndex: idx }
+        detail: { id: item.id, versionIndex: _rawIdxMap[idx] }
       }));
     });
     vDelVerBtn.addEventListener('click', function (ev) {
       ev.stopPropagation();
       document.dispatchEvent(new CustomEvent('sc:version-delete', {
-        detail: { id: item.id, indices: Array.from(_selVersions) }
+        detail: { id: item.id, indices: Array.from(_selVersions).map(function(i){ return _rawIdxMap[i]; }) }
+      }));
+    });
+    vBurnVerBtn.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      document.dispatchEvent(new CustomEvent('sc:version-hard-delete', {
+        detail: { id: item.id, indices: Array.from(_selVersions).map(function(i){ return _rawIdxMap[i]; }) }
       }));
     });
     vRestVerBtn.addEventListener('click', function (ev) {
@@ -660,8 +676,9 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     });
     footer.appendChild(restoreBtn);
     var hardDelBtn = document.createElement('button');
-    hardDelBtn.className   = 'hard-del-btn';
-    hardDelBtn.textContent = 'Burn';
+    hardDelBtn.className = 'hard-del-btn';
+    hardDelBtn.title     = 'Burn (permanent)';
+    hardDelBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 13C4.24 13 2 10.76 2 8c0-1.8.8-3.2 2-4.2 0 .9.3 1.7.9 2.2C4.9 4.2 5.8 2.5 7 1.5c0 1.2.7 2 1.5 2.5.2-.7.7-1.2 1.3-1.5 1.3 1 2.2 2.8 2.2 4.5 0 2.76-2.24 5-5 5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><circle cx="7" cy="9.5" r="1" fill="currentColor" opacity="0.6"/></svg>';
     hardDelBtn.addEventListener('click', function () {
       document.dispatchEvent(new CustomEvent('sc:hard-delete', { detail: { id: item.id } }));
     });

@@ -1,6 +1,6 @@
 'use strict';
-// @version 155
-var SC_VERSION = '@version 155';
+// @version 156
+var SC_VERSION = '@version 156';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -74,6 +74,7 @@ var SC_VERSION = '@version 155';
   var btnRedo        = document.getElementById('btn-redo');
   var btnBulkCopy    = document.getElementById('btn-bulk-copy');
   var btnBulkDelete  = document.getElementById('btn-bulk-delete');
+  var btnBulkBurn    = document.getElementById('btn-bulk-burn');
   var btnExport      = document.getElementById('btn-export');DB.openDB().catch(function (e) { console.error('IndexedDB open failed', e); });
   var _verEl = document.getElementById('sc-version');
   if (_verEl) _verEl.textContent = SC_VERSION;
@@ -203,6 +204,7 @@ var SC_VERSION = '@version 155';
   btnShowDeleted.addEventListener('click', function () {
     showDeleted = !showDeleted;
     btnShowDeleted.classList.toggle('active', showDeleted);
+    document.getElementById('app').classList.toggle('show-deleted', showDeleted);
     refresh();
   });
   btnHideActive.addEventListener('click', function () {
@@ -596,6 +598,12 @@ document.addEventListener('sc:filter-tag', function (e) {
     }).filter(Boolean).filter(function (i) { return !i.imageId; });
     if (!selected.length) { alert('No copyable items selected.'); return; }
     Clip.writeBulk(selected);
+  });
+  /* ===== BULK BURN ===== */
+  btnBulkBurn.addEventListener('click', function () {
+    var ids = Items.getSelectedIds();
+    if (!ids.size) { alert('No items selected.'); return; }
+    Items.bulkBurn(ids);
   });
   /* ===== BULK DELETE ===== */
   btnBulkDelete.addEventListener('click', function () {

@@ -29,8 +29,9 @@ function init(state, refreshFn) {
   document.addEventListener('sc:restore-version',   _onRestoreVersion);
   document.addEventListener('sc:name-version',      _onNameVersion);
   document.addEventListener('sc:version-delete',    _onVersionDelete);
-  document.addEventListener('sc:version-undelete',  _onVersionUndelete);
-  document.addEventListener('sc:hard-delete',        _onHardDelete);
+  document.addEventListener('sc:version-undelete',    _onVersionUndelete);
+  document.addEventListener('sc:version-hard-delete', _onVersionHardDelete);
+  document.addEventListener('sc:hard-delete',         _onHardDelete);
 }
 /* ====== CREATE ====== */
 function _onCreate(e) {
@@ -371,6 +372,33 @@ function _onVersionUndelete(e) {
   State.saveState(_state);
   _refresh();
 }
+async function bulkBurn(ids) {
+  if (!ids.size) return;
+  var ok = await Modals.confirm('Permanently destroy ' + ids.size + ' item(s)? This cannot be undone.', 'burn');
+  if (!ok) return;
+  ids.forEach(function(id) {
+    var item = State.getItem(_state, id);
+    if (item && item.imageId) {
+      DB.deleteImage(item.imageId).catch(function(err) { console.warn('deleteImage failed', err); });
+    }
+  });
+  _state.items = _state.items.filter(function(i) { return !ids.has(i.id); });
+  ids.forEach(function(id) { _selectedIds.delete(id); });
+  State.saveState(_state);
+  _refresh();
+}
+async function _onVersionHardDelete(e) {
+  var ok = await Modals.confirm('Permanently destroy ' + e.detail.indices.length + ' version(s)? This cannot be undone.', 'burn');
+  if (!ok) return;
+  var item = State.getItem(_state, e.detail.id);
+  if (!item) return;
+  var sorted = e.detail.indices.slice().sort(function(a, b) { return b - a; });
+  sorted.forEach(function(idx) {
+    if (item.versions[idx] !== undefined) item.versions.splice(idx, 1);
+  });
+  State.saveState(_state);
+  _refresh();
+}
 window.Items = {
   init,
   getSelectedIds,
@@ -378,6 +406,7 @@ window.Items = {
   selectFiltered,
   clearSelection,
   bulkDelete,
+  bulkBurn,
   getTagSelMode,
   getSelectedTags,
   exitTagSelMode,
