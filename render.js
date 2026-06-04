@@ -697,6 +697,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     });
     vPanel.appendChild(vCtrlBar);
     vPanel.appendChild(vList);
+  }
   if (!_versions.length) {
     var noVer = document.createElement('div');
     noVer.className = 'version-empty';
