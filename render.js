@@ -10,7 +10,8 @@ var _topBumped          = null; // Set<id>
 var _blobUrls           = {};   // imageId → objectURL cache
 var _openVersionPanels  = new Set();
 var _versionSelections  = {};
-function _drawSelCanvas(canvas, total, selSet) {
+var _versionSelectAll   = new Set();
+function _drawSelCanvas(canvas, total, selSet, emptySelected) {
   var ctx = canvas.getContext('2d');
   var w = canvas.width;
   var h = canvas.height;
@@ -27,7 +28,22 @@ function _drawSelCanvas(canvas, total, selSet) {
   ctx.roundRect(0.75, 0.75, w - 1.5, h - 1.5, 2);
   ctx.fill();
   ctx.stroke();
-  if (!total || !selSet.size) return;
+  if (!total || !selSet.size) {
+    if (emptySelected) {
+      ctx.fillStyle = colFill;
+      ctx.beginPath();
+      ctx.roundRect(0.75, 0.75, w - 1.5, h - 1.5, 2);
+      ctx.fill();
+      ctx.strokeStyle = '#1a2030';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(3, 6.5);
+      ctx.lineTo(5.5, 9);
+      ctx.lineTo(10, 4);
+      ctx.stroke();
+    }
+    return;
+  }
   if (selSet.size === total) {
     // Full fill with checkmark
     ctx.fillStyle = colFill;
@@ -471,6 +487,9 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     var _selVersions = new Set(_savedSel);
     var _userSelVersions = new Set(_savedSel);
     var _showDelNow = document.getElementById('app').classList.contains('show-deleted');
+    if (_versionSelectAll.has(item.id)) {
+      _versions.forEach(function(v, i) { if (_showDelNow || !v.deleted) { _selVersions.add(i); _userSelVersions.add(i); } });
+    }
     if (_showDelNow) {
         var _nonDelIdxs = [];
         _versions.forEach(function(v, i) { if (!v.deleted) _nonDelIdxs.push(i); });
@@ -555,9 +574,10 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
       var _visTotal = _visIdxs.length;
       var _visSelSet = new Set();
       _visIdxs.forEach(function(origIdx, vi) { if (_selVersions.has(origIdx)) _visSelSet.add(vi); });
-      vSelAllCb._checked = _visTotal > 0 && _visSelSet.size === _visTotal;
-      vSelAllCb._indeterminate = _visSelSet.size > 0 && _visSelSet.size < _visTotal;
-      _drawSelCanvas(vSelAllCb, _visTotal, _visSelSet);
+      var _isSelectAll = _versionSelectAll.has(item.id);
+  vSelAllCb._checked = (_visTotal > 0 && _visSelSet.size === _visTotal) || (_visTotal === 0 && _isSelectAll);
+  vSelAllCb._indeterminate = _visSelSet.size > 0 && _visSelSet.size < _visTotal;
+  _drawSelCanvas(vSelAllCb, _visTotal, _visSelSet, _isSelectAll && _visTotal === 0);
     };
     _updateVersionCtrl();
     vSwitchBtn.addEventListener('click', function (ev) {
@@ -591,13 +611,21 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
       var _showDel = document.getElementById('app').classList.contains('show-deleted');
       var _visIdxs = [];
       _versions.forEach(function(v, i) { if (_showDel || !v.deleted) _visIdxs.push(i); });
+      if (!_visIdxs.length) {
+        if (_versionSelectAll.has(item.id)) _versionSelectAll.delete(item.id);
+        else _versionSelectAll.add(item.id);
+        _updateVersionCtrl();
+        return;
+      }
       var _allVisSelected = _visIdxs.every(function(i) { return _selVersions.has(i); });
       if (_allVisSelected) {
         _visIdxs.forEach(function(i) { _selVersions.delete(i); });
         _visIdxs.forEach(function(i) { _userSelVersions.delete(i); });
+        _versionSelectAll.delete(item.id);
       } else {
         _visIdxs.forEach(function(i) { _selVersions.add(i); });
         _visIdxs.forEach(function(i) { _userSelVersions.add(i); });
+        _versionSelectAll.add(item.id);
       }
       vList.querySelectorAll('.version-row-cb').forEach(function (cb, cbIdx) {
         cb.checked = _selVersions.has(_versions.length - 1 - cbIdx);
