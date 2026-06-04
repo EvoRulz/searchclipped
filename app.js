@@ -1,6 +1,6 @@
 'use strict';
-// @version 167
-var SC_VERSION = '@version 167';
+// @version 168
+var SC_VERSION = '@version 168';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -204,6 +204,7 @@ var SC_VERSION = '@version 167';
   // showDeleted=false by default — button OFF means deleted items are HIDDEN
   btnShowDeleted.addEventListener('click', function () {
     var _wasAll = cbSelectAll.checked;
+    console.log('wasAll:', _wasAll, 'cbChecked:', cbSelectAll.checked);
     showDeleted = !showDeleted;
     btnShowDeleted.classList.toggle('active', showDeleted);
     document.getElementById('app').classList.toggle('show-deleted', showDeleted);
