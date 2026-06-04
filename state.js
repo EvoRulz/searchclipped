@@ -191,10 +191,15 @@ function _vKey(v) {
 }
 function addItemVersion(item, snapshot) {
   item.versions = item.versions || [];
-  var snapKey = _vKey(snapshot);
+  var snapText  = (snapshot.text  || '').trim();
+  var snapTitle = (snapshot.title || '').replace(/\s*\(preview\)$/i, '').trim();
   var existingIdx = -1;
   for (var i = 0; i < item.versions.length; i++) {
-    if (_vKey(item.versions[i]) === snapKey) { existingIdx = i; break; }
+    var v = item.versions[i];
+    if ((v.text || '').trim() === snapText && (v.title || '').replace(/\s*\(preview\)$/i, '').trim() === snapTitle) {
+      existingIdx = i;
+      break;
+    }
   }
   if (existingIdx >= 0) {
     if (!item.versions[existingIdx].deleted) return;
