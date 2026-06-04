@@ -469,6 +469,15 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   if (_versions.length) {
     var _savedSel = (_versionSelections[item.id] || []).filter(function(i) { return i >= 0 && i < _versions.length; });
     var _selVersions = new Set(_savedSel);
+    var _showDelNow = document.getElementById('app').classList.contains('show-deleted');
+    if (_showDelNow) {
+        var _nonDelIdxs = [];
+        _versions.forEach(function(v, i) { if (!v.deleted) _nonDelIdxs.push(i); });
+        var _allNonDelSel = _nonDelIdxs.length > 0 && _nonDelIdxs.every(function(i) { return _selVersions.has(i); });
+        if (_allNonDelSel) {
+            _versions.forEach(function(v, i) { if (v.deleted) _selVersions.add(i); });
+        }
+    }
     var _vTsArr = {};
     var _cbPeekIdx = null;
     var _cbCheckOrder = [];
