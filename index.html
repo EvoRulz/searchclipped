@@ -21,16 +21,14 @@
     <span id="sc-version"></span>
   </div>
   <div id="search-row">
-      <label class="cb-wrap" title="Select all">
-        <input type="checkbox" id="cb-select-all">
-        <span class="cb-mark"></span>
+      <div class="cb-wrap" id="cb-select-all-wrap" title="Select all">
+        <canvas id="cb-select-all" class="version-sel-canvas" width="13" height="13"></canvas>
         <span class="cb-label">all</span>
-      </label>
-      <label class="cb-wrap" title="Select filtered results only">
-        <input type="checkbox" id="cb-select-filtered">
-        <span class="cb-mark"></span>
+      </div>
+      <div class="cb-wrap" id="cb-select-filtered-wrap" title="Select filtered results only">
+        <canvas id="cb-select-filtered" class="version-sel-canvas" width="13" height="13"></canvas>
         <span class="cb-label">filt</span>
-      </label>
+      </div>
       <div class="search-input-wrap">
         <input type="text" id="search-input"
                placeholder="Search items, titles, tags..."

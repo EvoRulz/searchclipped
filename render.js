@@ -990,5 +990,5 @@ function _diffToHTML(parts) {
   if (inSpan) out += '</span>';
   return out;
 }
-window.Render = { init, render };
+window.Render = { init, render, drawSelCanvas: _drawSelCanvas };
 

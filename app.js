@@ -1,6 +1,6 @@
 'use strict';
-// @version 182
-var SC_VERSION = '@version 182';
+// @version 183
+var SC_VERSION = '@version 183';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -131,9 +131,17 @@ var SC_VERSION = '@version 182';
     var _allVisible = result.filtered.concat(result.rest);
     var _selIds = Items.getSelectedIds();
     if (!_allVisible.length) _selectAllActive = false;
-cbSelectAll.checked = _allVisible.length > 0 && _allVisible.every(function (i) { return _selIds.has(i.id); });
+    var _cbAllSelSet = new Set();
+    _allVisible.forEach(function (item, vi) {
+      if (_selIds.has(item.id)) _cbAllSelSet.add(_allVisible.length - 1 - vi);
+    });
+    Render.drawSelCanvas(cbSelectAll, _allVisible.length, _cbAllSelSet, _selectAllActive && !_allVisible.length);
     _updatePlaceholder();
-    cbSelFiltered.checked = result.filtered.length > 0 && result.filtered.every(function (i) { return _selIds.has(i.id); });
+    var _cbFiltSelSet = new Set();
+    result.filtered.forEach(function (item, vi) {
+      if (_selIds.has(item.id)) _cbFiltSelSet.add(result.filtered.length - 1 - vi);
+    });
+    Render.drawSelCanvas(cbSelFiltered, result.filtered.length, _cbFiltSelSet, false);
   }
   var _lastFiltered = [];
   var _refocusEntry = false;
@@ -192,24 +200,31 @@ cbSelectAll.checked = _allVisible.length > 0 && _allVisible.every(function (i) {
     }
   });
   /* ===== CHECKBOXES ===== */
-  cbSelectAll.addEventListener('change', function () {
-    _selectAllActive = cbSelectAll.checked;
-    if (cbSelectAll.checked) {
-      var result = Search.getDisplayList(state, query, {
-        showDeleted:   showDeleted,
-        hideUndeleted: hideActive,
-        searchItems:   searchItems,
-        searchTitles:  searchTitles,
-        searchTags:    searchTags,
-        starFilter:    state.starFilter
-      });
-      Items.selectAll(result.filtered.concat(result.rest));
+  document.getElementById('cb-select-all-wrap').addEventListener('click', function () {
+    var _r = Search.getDisplayList(state, query, {
+      showDeleted:   showDeleted,
+      hideUndeleted: hideActive,
+      searchItems:   searchItems,
+      searchTitles:  searchTitles,
+      searchTags:    searchTags,
+      starFilter:    state.starFilter
+    });
+    var _all = _r.filtered.concat(_r.rest);
+    if (!_all.length) return;
+    var _selIds = Items.getSelectedIds();
+    var _isAllSel = _all.every(function (i) { return _selIds.has(i.id); });
+    _selectAllActive = !_isAllSel;
+    if (!_isAllSel) {
+      Items.selectAll(_all);
     } else {
       Items.clearSelection();
     }
   });
-  cbSelFiltered.addEventListener('change', function () {
-    if (cbSelFiltered.checked) {
+  document.getElementById('cb-select-filtered-wrap').addEventListener('click', function () {
+    if (!_lastFiltered.length) return;
+    var _selIds = Items.getSelectedIds();
+    var _isAllFilSel = _lastFiltered.every(function (i) { return _selIds.has(i.id); });
+    if (!_isAllFilSel) {
       Items.selectFiltered(_lastFiltered);
     } else {
       Items.clearSelection();
