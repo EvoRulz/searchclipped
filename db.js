@@ -8,7 +8,7 @@
  * Exported on window.DB
  */
 const DB_NAME    = 'searchclipped';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE      = 'images';
 let _db = null;
 function openDB() {
@@ -19,6 +19,9 @@ function openDB() {
       const db = e.target.result;
       if (!db.objectStoreNames.contains(STORE)) {
         db.createObjectStore(STORE, { keyPath: 'id' });
+      }
+      if (!db.objectStoreNames.contains('undostacks')) {
+        db.createObjectStore('undostacks', { keyPath: 'id' });
       }
     };
     req.onsuccess = function (e) {
@@ -93,6 +96,25 @@ async function importImages(records) {
     tx.onerror    = function (e) { reject(e.target.error); };
   });
 }
+async function saveUndoStack(type, data) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx    = db.transaction('undostacks', 'readwrite');
+    const store = tx.objectStore('undostacks');
+    const req   = store.put({ id: type, data: data });
+    req.onsuccess = function () { resolve(); };
+    tx.onerror    = function (e) { reject(e.target.error); };
+  });
+}
+async function loadUndoStack(type) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx  = db.transaction('undostacks', 'readonly');
+    const req = tx.objectStore('undostacks').get(type);
+    req.onsuccess = function (e) { resolve(e.target.result ? e.target.result.data : null); };
+    req.onerror   = function (e) { reject(e.target.error); };
+  });
+}
 window.DB = {
   openDB,
   saveImage,
@@ -100,6 +122,8 @@ window.DB = {
   deleteImage,
   getAllImageIds,
   exportAllImages,
-  importImages
+  importImages,
+  saveUndoStack,
+  loadUndoStack
 };
 

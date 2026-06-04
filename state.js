@@ -42,8 +42,8 @@ function loadState() {
       merged[k] = parsed[k];
     });
     // Ensure undoStack / redoStack exist
-    if (!Array.isArray(merged.undoStack)) merged.undoStack = [];
-    if (!Array.isArray(merged.redoStack)) merged.redoStack = [];
+    merged.undoStack = [];
+    merged.redoStack = [];
     merged.items.forEach(function (item) {
       if (!Array.isArray(item.versions))      item.versions = [];
       if (!Array.isArray(item.itemUndoStack)) item.itemUndoStack = [];
@@ -81,7 +81,8 @@ function saveState(state) {
       }
       item.versions = _dv2;
     });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    var _toSave = Object.assign({}, state, { undoStack: [], redoStack: [] });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(_toSave));
   } catch (e) {
     console.error('saveState error', e);
     alert('Storage limit reached — please export and delete old items.');
@@ -95,23 +96,128 @@ function nowISO() {
 }
 /* Snapshot items array (metadata only, no blobs) */
 function snapshotItems(state) {
-  return JSON.parse(JSON.stringify(state.items));
+  return state.items.map(function (item) {
+    var copy = JSON.parse(JSON.stringify(item));
+    delete copy.itemUndoStack;
+    delete copy.itemRedoStack;
+    return copy;
+  });
 }
+/* ===== UNDO DIFF HELPERS ===== */
+function _computeDiff(prevSnap, nextSnap) {
+  var prevMap = {};
+  prevSnap.forEach(function (i) { prevMap[i.id] = i; });
+  var nextMap = {};
+  nextSnap.forEach(function (i) { nextMap[i.id] = i; });
+  var added = [], removed = [], modified = [];
+  nextSnap.forEach(function (item) {
+    if (!prevMap[item.id]) {
+      added.push(item);
+    } else {
+      var prev = prevMap[item.id];
+      var after = {}, before = {};
+      var changed = false;
+      var allKeys = {};
+      Object.keys(item).forEach(function (k) { allKeys[k] = true; });
+      Object.keys(prev).forEach(function (k) { allKeys[k] = true; });
+      Object.keys(allKeys).forEach(function (f) {
+        var a = JSON.stringify(prev[f]);
+        var b = JSON.stringify(item[f]);
+        if (a !== b) { after[f] = item[f]; before[f] = prev[f]; changed = true; }
+      });
+      if (changed) modified.push({ id: item.id, after: after, before: before });
+    }
+  });
+  prevSnap.forEach(function (item) { if (!nextMap[item.id]) removed.push(item); });
+  return { added: added, removed: removed, modified: modified };
+}
+function _applyDiff(snap, diff) {
+  var removedIds = {};
+  diff.removed.forEach(function (i) { removedIds[i.id] = true; });
+  var result = snap.filter(function (i) { return !removedIds[i.id]; });
+  diff.added.forEach(function (item) { result.push(JSON.parse(JSON.stringify(item))); });
+  diff.modified.forEach(function (mod) {
+    var idx = result.findIndex(function (i) { return i.id === mod.id; });
+    if (idx >= 0) result[idx] = Object.assign({}, result[idx], mod.after);
+  });
+  return result;
+}
+function _computeStackDiffs(stack) {
+  if (!stack.length) return { base: [], diffs: [] };
+  var base = stack[0];
+  var diffs = [];
+  for (var i = 1; i < stack.length; i++) { diffs.push(_computeDiff(stack[i - 1], stack[i])); }
+  return { base: base, diffs: diffs };
+}
+function _reconstructStack(stored) {
+  if (!stored || !stored.base) return [];
+  var result = [stored.base];
+  for (var i = 0; i < stored.diffs.length; i++) {
+    result.push(_applyDiff(result[result.length - 1], stored.diffs[i]));
+  }
+  return result;
+}
+function _dedupeStack(stack) {
+  if (stack.length < 2) return stack;
+  var result = [stack[0]];
+  for (var i = 1; i < stack.length; i++) {
+    if (JSON.stringify(stack[i]) !== JSON.stringify(result[result.length - 1])) result.push(stack[i]);
+  }
+  return result;
+}
+function _persistStacks(state) {
+  var undoData = _computeStackDiffs(state.undoStack);
+  var redoData = _computeStackDiffs(state.redoStack);
+  Promise.all([
+    DB.saveUndoStack('undo', undoData),
+    DB.saveUndoStack('redo', redoData)
+  ]).catch(function (e) { console.error('_persistStacks failed', e); });
+}
+async function initUndoFromDB(state) {
+  try {
+    var undoData = await DB.loadUndoStack('undo');
+    var redoData = await DB.loadUndoStack('redo');
+    state.undoStack = undoData ? _reconstructStack(undoData) : [];
+    state.redoStack = redoData ? _reconstructStack(redoData) : [];
+  } catch (e) {
+    console.error('initUndoFromDB failed', e);
+    state.undoStack = [];
+    state.redoStack = [];
+  }
+}
+/* ===== UNDO / REDO ===== */
 function pushUndo(state) {
   state.undoStack.push(snapshotItems(state));
   if (state.undoStack.length > MAX_UNDO) state.undoStack.shift();
   state.redoStack = [];
+  _persistStacks(state);
 }
 function undo(state) {
   if (!state.undoStack.length) return false;
+  var liveStacks = {};
+  state.items.forEach(function (i) {
+    liveStacks[i.id] = { itemUndoStack: i.itemUndoStack || [], itemRedoStack: i.itemRedoStack || [] };
+  });
   state.redoStack.push(snapshotItems(state));
-  state.items = state.undoStack.pop();
+  state.items = state.undoStack.pop().map(function (item) {
+    var stacks = liveStacks[item.id] || { itemUndoStack: [], itemRedoStack: [] };
+    return Object.assign({}, item, stacks);
+  });
+  _persistStacks(state);
   return true;
 }
 function redo(state) {
   if (!state.redoStack.length) return false;
+  var liveStacks = {};
+  state.items.forEach(function (i) {
+    liveStacks[i.id] = { itemUndoStack: i.itemUndoStack || [], itemRedoStack: i.itemRedoStack || [] };
+  });
   state.undoStack.push(snapshotItems(state));
-  state.items = state.redoStack.pop();
+  state.items = state.redoStack.pop().map(function (item) {
+    var stacks = liveStacks[item.id] || { itemUndoStack: [], itemRedoStack: [] };
+    return Object.assign({}, item, stacks);
+  });
+  _persistStacks(state);
   return true;
 }
 function createItem(text, html, imageId) {
@@ -272,6 +378,9 @@ function purgeBurnedItemFromStacks(state, id) {
   }
   purge(state.undoStack);
   purge(state.redoStack);
+  state.undoStack = _dedupeStack(state.undoStack);
+  state.redoStack = _dedupeStack(state.redoStack);
+  _persistStacks(state);
 }
 function purgeVersionsFromStacks(state, itemId, tsList) {
   if (!tsList || !tsList.length) return;
@@ -289,6 +398,9 @@ function purgeVersionsFromStacks(state, itemId, tsList) {
   }
   purge(state.undoStack);
   purge(state.redoStack);
+  state.undoStack = _dedupeStack(state.undoStack);
+  state.redoStack = _dedupeStack(state.redoStack);
+  _persistStacks(state);
 }
 window.State = {
   loadState,
@@ -310,6 +422,7 @@ window.State = {
   itemUndo,
   itemRedo,
   purgeBurnedItemFromStacks,
-  purgeVersionsFromStacks
+  purgeVersionsFromStacks,
+  initUndoFromDB
 };
 

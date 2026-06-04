@@ -1,6 +1,6 @@
 'use strict';
-// @version 185
-var SC_VERSION = '@version 185';
+// @version 187
+var SC_VERSION = '@version 187';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -185,6 +185,10 @@ var SC_VERSION = '@version 185';
   /* Initial render */
   refresh();
   searchInput.focus();
+  /* Load undo/redo stacks from IndexedDB */
+  State.initUndoFromDB(state).then(function () { _updateUndoRedo(); }).catch(function (e) {
+    console.error('Failed to init undo stacks', e);
+  });
   /* ===== PLACEHOLDER ===== */
   function _updatePlaceholder() {
     var parts = [];
