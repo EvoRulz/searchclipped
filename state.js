@@ -264,6 +264,32 @@ function itemRedo(item) {
   item.modifiedAt = nowISO();
   return true;
 }
+function purgeBurnedItemFromStacks(state, id) {
+  function purge(stack) {
+    for (var i = 0; i < stack.length; i++) {
+      stack[i] = stack[i].filter(function (item) { return item.id !== id; });
+    }
+  }
+  purge(state.undoStack);
+  purge(state.redoStack);
+}
+function purgeVersionsFromStacks(state, itemId, tsList) {
+  if (!tsList || !tsList.length) return;
+  var tsSet = {};
+  tsList.forEach(function (ts) { tsSet[ts] = true; });
+  function purge(stack) {
+    for (var i = 0; i < stack.length; i++) {
+      var snapshot = stack[i];
+      for (var j = 0; j < snapshot.length; j++) {
+        if (snapshot[j].id === itemId && snapshot[j].versions) {
+          snapshot[j].versions = snapshot[j].versions.filter(function (v) { return !tsSet[v.ts]; });
+        }
+      }
+    }
+  }
+  purge(state.undoStack);
+  purge(state.redoStack);
+}
 window.State = {
   loadState,
   saveState,
@@ -282,6 +308,8 @@ window.State = {
   addItemVersion,
   dedupeVersions,
   itemUndo,
-  itemRedo
+  itemRedo,
+  purgeBurnedItemFromStacks,
+  purgeVersionsFromStacks
 };
 

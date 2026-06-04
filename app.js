@@ -1,6 +1,6 @@
 'use strict';
-// @version 184
-var SC_VERSION = '@version 184';
+// @version 185
+var SC_VERSION = '@version 185';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -142,6 +142,23 @@ var SC_VERSION = '@version 184';
       if (_selIds.has(item.id)) _cbFiltSelSet.add(result.filtered.length - 1 - vi);
     });
     Render.drawSelCanvas(cbSelFiltered, result.filtered.length, _cbFiltSelSet, false);
+    _updateStorage();
+  }
+  function _updateStorage() {
+    var storageLabel = document.getElementById('storage-label');
+    var storageFill  = document.getElementById('storage-fill');
+    if (!storageLabel || !storageFill) return;
+    try {
+      var raw    = localStorage.getItem('searchclipped_state') || '';
+      var usedKB = Math.round((raw.length * 2) / 1024);
+      var pct    = Math.min(100, usedKB / 51.2); // 5 MB = 5120 KB
+      var usedStr = usedKB >= 1024 ? (usedKB / 1024).toFixed(1) + ' MB' : usedKB + ' KB';
+      storageLabel.textContent     = usedStr + ' / 5 MB';
+      storageFill.style.width      = pct + '%';
+      storageFill.style.background = pct > 80 ? 'var(--red)' : pct > 60 ? 'var(--orange)' : 'var(--blue-dim)';
+    } catch (e) {
+      storageLabel.textContent = 'err';
+    }
   }
   var _lastFiltered = [];
   var _refocusEntry = false;
