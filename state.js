@@ -192,8 +192,15 @@ function _vKey(v) {
 function addItemVersion(item, snapshot) {
   item.versions = item.versions || [];
   var snapKey = _vKey(snapshot);
-  var isDup = item.versions.some(function (v) { return _vKey(v) === snapKey; });
-  if (!isDup) item.versions.push(snapshot);
+  var existingIdx = -1;
+  for (var i = 0; i < item.versions.length; i++) {
+    if (_vKey(item.versions[i]) === snapKey) { existingIdx = i; break; }
+  }
+  if (existingIdx >= 0) {
+    if (!item.versions[existingIdx].deleted) return;
+    item.versions.splice(existingIdx, 1);
+  }
+  item.versions.push(snapshot);
 }
 function dedupeVersions(item) {
   if (!item.versions || !item.versions.length) return false;
@@ -207,7 +214,13 @@ function dedupeVersions(item) {
     var k = _vKey(v);
     if (k === liveKey) { changed = true; continue; }
     if (seen[k] !== undefined) {
-      if (!deduped[seen[k]].name && v.name) deduped[seen[k]] = v;
+      var _ex = deduped[seen[k]];
+      if (_ex.deleted && !v.deleted) {
+        if (_ex.name && !v.name) v = Object.assign({}, v, { name: _ex.name });
+        deduped[seen[k]] = v;
+      } else if (!_ex.deleted && !_ex.name && v.name && !v.deleted) {
+        deduped[seen[k]] = Object.assign({}, _ex, { name: v.name });
+      }
       changed = true;
     } else {
       seen[k] = deduped.length;
