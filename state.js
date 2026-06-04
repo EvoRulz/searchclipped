@@ -371,9 +371,12 @@ function itemRedo(item) {
   return true;
 }
 function purgeBurnedItemFromStacks(state, id) {
+  purgeAllBurnedFromStacks(state, new Set([id]));
+}
+function purgeAllBurnedFromStacks(state, idSet) {
   function purge(stack) {
     for (var i = 0; i < stack.length; i++) {
-      stack[i] = stack[i].filter(function (item) { return item.id !== id; });
+      stack[i] = stack[i].filter(function (item) { return !idSet.has(item.id); });
     }
   }
   purge(state.undoStack);
@@ -422,6 +425,7 @@ window.State = {
   itemUndo,
   itemRedo,
   purgeBurnedItemFromStacks,
+  purgeAllBurnedFromStacks,
   purgeVersionsFromStacks,
   initUndoFromDB
 };

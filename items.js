@@ -205,8 +205,8 @@ async function _onHardDelete(e) {
   if (item.imageId) {
     DB.deleteImage(item.imageId).catch(function (err) { console.warn('deleteImage failed', err); });
   }
-  State.purgeBurnedItemFromStacks(_state, item.id);
   _state.items = _state.items.filter(function (i) { return i.id !== item.id; });
+  State.purgeAllBurnedFromStacks(_state, new Set([item.id]));
   _selectedIds.delete(item.id);
   State.saveState(_state);
   _refresh();
@@ -377,14 +377,15 @@ async function bulkBurn(ids) {
   if (!ids.size) return;
   var ok = await Modals.confirm('Permanently destroy ' + ids.size + ' item(s)? This cannot be undone.', 'burn');
   if (!ok) return;
-  ids.forEach(function (id) {
+  var burnedIds = Array.from(ids);
+  burnedIds.forEach(function (id) {
     var item = State.getItem(_state, id);
     if (item && item.imageId) {
       DB.deleteImage(item.imageId).catch(function (err) { console.warn('deleteImage failed', err); });
     }
-    State.purgeBurnedItemFromStacks(_state, id);
   });
   _state.items = _state.items.filter(function (i) { return !ids.has(i.id); });
+  State.purgeAllBurnedFromStacks(_state, new Set(burnedIds));
   ids.forEach(function (id) { _selectedIds.delete(id); });
   State.saveState(_state);
   _refresh();
@@ -396,7 +397,22 @@ async function _onVersionHardDelete(e) {
   if (!item) return;
   var sorted = e.detail.indices.slice().sort(function (a, b) { return b - a; });
   var burnedTs = sorted.map(function (idx) { return item.versions[idx] ? item.versions[idx].ts : null; }).filter(Boolean);
+  var burnedContent = sorted.map(function (idx) {
+    var ver = item.versions[idx];
+    if (!ver) return null;
+    return {
+      text:  (ver.text  || '').trim(),
+      title: (ver.title || '').replace(/\s*\(preview\)$/i, '').trim()
+    };
+  }).filter(Boolean);
   State.purgeVersionsFromStacks(_state, item.id, burnedTs);
+  function notBurned(snap) {
+    var st = (snap.text  || '').trim();
+    var si = (snap.title || '').replace(/\s*\(preview\)$/i, '').trim();
+    return !burnedContent.some(function (b) { return b.text === st && b.title === si; });
+  }
+  item.itemUndoStack = (item.itemUndoStack || []).filter(notBurned);
+  item.itemRedoStack = (item.itemRedoStack || []).filter(notBurned);
   sorted.forEach(function (idx) {
     if (item.versions[idx] !== undefined) item.versions.splice(idx, 1);
   });
