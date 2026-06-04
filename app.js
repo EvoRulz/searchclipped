@@ -1,6 +1,6 @@
 'use strict';
-// @version 180
-var SC_VERSION = '@version 180';
+// @version 181
+var SC_VERSION = '@version 181';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -130,7 +130,8 @@ var SC_VERSION = '@version 180';
     }
     var _allVisible = result.filtered.concat(result.rest);
     var _selIds = Items.getSelectedIds();
-    cbSelectAll.checked = _allVisible.length > 0 && _allVisible.every(function (i) { return _selIds.has(i.id); });
+    if (!_allVisible.length) _selectAllActive = false;
+cbSelectAll.checked = _allVisible.length > 0 && _allVisible.every(function (i) { return _selIds.has(i.id); });
     _updatePlaceholder();
     cbSelFiltered.checked = result.filtered.length > 0 && result.filtered.every(function (i) { return _selIds.has(i.id); });
   }
