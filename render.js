@@ -416,7 +416,11 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   var _versions = [];
   var _rawIdxMap = [];
   _versionsRaw.forEach(function(v, ri) {
-    if (v.deleted) return;
+    if (v.deleted) {
+        _versions.push(v);
+        _rawIdxMap.push(ri);
+        return;
+    }
     var k = (v.text||'').trim() + '\x00' + (v.title||'').replace(/\s*\(preview\)$/i,'').trim();
     if (_vSeen.indexOf(k) !== -1) return;
     _vSeen.push(k);
