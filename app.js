@@ -1,6 +1,6 @@
 'use strict';
-// @version 169
-var SC_VERSION = '@version 169';
+// @version 170
+var SC_VERSION = '@version 170';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -83,6 +83,7 @@ var SC_VERSION = '@version 169';
   var sortSelect     = document.getElementById('sort-select');
   /* ===== REFRESH ===== */
   function refresh() {
+    _selectAllActive = cbSelectAll.checked;
     if (_focusedItemId) {
       var _prevFocused = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
       if (_prevFocused) _prevFocused.classList.remove('keyboard-focused');
