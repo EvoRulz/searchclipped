@@ -488,7 +488,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     var vBurnVerBtn = document.createElement('button');
     vBurnVerBtn.className = 'version-burn-btn';
     vBurnVerBtn.title = 'Burn versions (permanent)';
-    vBurnVerBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 13C4.24 13 2 10.76 2 8c0-1.8.8-3.2 2-4.2 0 .9.3 1.7.9 2.2C4.9 4.2 5.8 2.5 7 1.5c0 1.2.7 2 1.5 2.5.2-.7.7-1.2 1.3-1.5 1.3 1 2.2 2.8 2.2 4.5 0 2.76-2.24 5-5 5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><circle cx="7" cy="9.5" r="1" fill="currentColor" opacity="0.6"/></svg>';
+    vBurnVerBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 1.5 C9 2.5 10 4.5 9.5 6.5 C10.5 7 12 8 12 9.5 C12 11.8 9.8 13 7 13 C4.2 13 2 11.8 2 9.5 C2 8 3.5 7 4.5 6.5 C4 4.5 5 2.5 7 1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M7 7 C8.5 8.5 8.5 10.5 7 11.5 C5.5 10.5 5.5 8.5 7 7Z" fill="currentColor" opacity="0.6"/></svg>';
     vBurnVerBtn.disabled = true;
     vCtrlBar.appendChild(vSelAllCb);
     vCtrlBar.appendChild(vSwitchBtn);
@@ -690,7 +690,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     var hardDelBtn = document.createElement('button');
     hardDelBtn.className = 'hard-del-btn';
     hardDelBtn.title     = 'Burn (permanent)';
-    hardDelBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 13C4.24 13 2 10.76 2 8c0-1.8.8-3.2 2-4.2 0 .9.3 1.7.9 2.2C4.9 4.2 5.8 2.5 7 1.5c0 1.2.7 2 1.5 2.5.2-.7.7-1.2 1.3-1.5 1.3 1 2.2 2.8 2.2 4.5 0 2.76-2.24 5-5 5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><circle cx="7" cy="9.5" r="1" fill="currentColor" opacity="0.6"/></svg>';
+    hardDelBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 1.5 C9 2.5 10 4.5 9.5 6.5 C10.5 7 12 8 12 9.5 C12 11.8 9.8 13 7 13 C4.2 13 2 11.8 2 9.5 C2 8 3.5 7 4.5 6.5 C4 4.5 5 2.5 7 1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M7 7 C8.5 8.5 8.5 10.5 7 11.5 C5.5 10.5 5.5 8.5 7 7Z" fill="currentColor" opacity="0.6"/></svg>';
     hardDelBtn.addEventListener('click', function () {
       document.dispatchEvent(new CustomEvent('sc:hard-delete', { detail: { id: item.id } }));
     });
