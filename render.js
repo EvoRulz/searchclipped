@@ -144,7 +144,12 @@ function _makePlaceholder() {
   var imgBtn = document.createElement('button');
   imgBtn.className = 'img-pick-btn';
   imgBtn.tabIndex = -1;
-  imgBtn.innerHTML = '<svg width="26" height="26" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="22" height="22" rx="3" fill="currentColor" opacity="0.12"/><rect x="0.75" y="0.75" width="20.5" height="20.5" rx="2.5" stroke="currentColor" stroke-width="1.5"/><circle cx="6.5" cy="6.5" r="2.2" fill="currentColor" opacity="0.65"/><path d="M0 15.5 L6 9 L10.5 13.5 L14.5 10 L22 16.5 L22 22 L0 22 Z" fill="currentColor" opacity="0.5"/></svg>';
+  imgBtn.innerHTML = `<svg width="26" height="26" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="22" height="22" rx="3" fill="currentColor" opacity="0.12"/>
+  <rect x="0.75" y="0.75" width="20.5" height="20.5" rx="2.5" stroke="currentColor" stroke-width="1.5"/>
+  <circle cx="6.5" cy="6.5" r="2.2" fill="currentColor" opacity="0.65"/>
+  <path d="M0 15.5 L6 9 L10.5 13.5 L14.5 10 L22 16.5 L22 22 L0 22 Z" fill="currentColor" opacity="0.5"/>
+</svg>`;
   imgBtn.addEventListener('click', function (e) { e.preventDefault(); imgInput.click(); });
   topRow.appendChild(titleEl);
   var sep = document.createElement('div');
@@ -357,7 +362,10 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     var copyBtn = document.createElement('button');
     copyBtn.className   = 'copy-btn';
     copyBtn.title       = 'Copy';
-    copyBtn.innerHTML   = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3 10H2a1 1 0 01-1-1V2a1 1 0 011-1h7a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>';
+    copyBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="4" y="4" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+  <path d="M3 10H2a1 1 0 01-1-1V2a1 1 0 011-1h7a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+</svg>`;
     copyBtn.addEventListener('click', function () {
       document.dispatchEvent(new CustomEvent('sc:copy-item', { detail: { id: item.id } }));
       el.classList.add('copy-flash');
@@ -488,7 +496,11 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     var vBurnVerBtn = document.createElement('button');
     vBurnVerBtn.className = 'version-burn-btn';
     vBurnVerBtn.title = 'Burn versions (permanent)';
-    vBurnVerBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 1.5 C7.5 2 8.5 3.5 8.5 5 C10 4.5 11.5 6.5 11.5 9 C11.5 11.5 9.5 13 7 13 C4.5 13 2.5 11.5 2.5 9 C2.5 6.5 4 4.5 5.5 5 C5.5 3.5 6.5 2 7 1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M7 7 C8.5 8.5 8.5 10.5 7 11.5 C5.5 10.5 5.5 8.5 7 7Z" fill="currentColor" opacity="0.6"/></svg>';
+    vBurnVerBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M7 1.5 C7.5 2 8.5 3.5 8.5 5 C10 4.5 11.5 6.5 11.5 9 C11.5 11.5 9.5 13 7 13 C4.5 13 2.5 11.5 2.5 9 C2.5 6.5 4 4.5 5.5 5 C5.5 3.5 6.5 2 7 1.5Z"
+        stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="M7 7 C8.5 8.5 8.5 10.5 7 11.5 C5.5 10.5 5.5 8.5 7 7Z" fill="currentColor" opacity="0.6"/>
+</svg>`;
     vBurnVerBtn.disabled = true;
     vCtrlBar.appendChild(vSelAllCb);
     vCtrlBar.appendChild(vSwitchBtn);
@@ -690,7 +702,11 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     var hardDelBtn = document.createElement('button');
     hardDelBtn.className = 'hard-del-btn';
     hardDelBtn.title     = 'Burn (permanent)';
-    hardDelBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 1.5 C7.5 2 8.5 3.5 8.5 5 C10 4.5 11.5 6.5 11.5 9 C11.5 11.5 9.5 13 7 13 C4.5 13 2.5 11.5 2.5 9 C2.5 6.5 4 4.5 5.5 5 C5.5 3.5 6.5 2 7 1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M7 7 C8.5 8.5 8.5 10.5 7 11.5 C5.5 10.5 5.5 8.5 7 7Z" fill="currentColor" opacity="0.6"/></svg>';
+    hardDelBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M7 1.5 C7.5 2 8.5 3.5 8.5 5 C10 4.5 11.5 6.5 11.5 9 C11.5 11.5 9.5 13 7 13 C4.5 13 2.5 11.5 2.5 9 C2.5 6.5 4 4.5 5.5 5 C5.5 3.5 6.5 2 7 1.5Z"
+        stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="M7 7 C8.5 8.5 8.5 10.5 7 11.5 C5.5 10.5 5.5 8.5 7 7Z" fill="currentColor" opacity="0.6"/>
+</svg>`;
     hardDelBtn.addEventListener('click', function () {
       document.dispatchEvent(new CustomEvent('sc:hard-delete', { detail: { id: item.id } }));
     });
@@ -721,7 +737,10 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   var outerTrash = document.createElement('button');
   outerTrash.className = 'item-trash-outer trash-btn';
   outerTrash.title     = 'Delete';
-  outerTrash.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 4h10M5 4V2.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5V4M6 7v3.5M8 7v3.5M3 4l.8 7.2a1 1 0 001 .8h4.4a1 1 0 001-.8L11 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  outerTrash.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M2 4h10M5 4V2.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5V4M6 7v3.5M8 7v3.5M3 4l.8 7.2a1 1 0 001 .8h4.4a1 1 0 001-.8L11 4"
+        stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
   outerTrash.addEventListener('click', function () {
     document.dispatchEvent(new CustomEvent('sc:swipe-delete', { detail: { id: item.id } }));
   });
