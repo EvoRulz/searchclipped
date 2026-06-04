@@ -1,6 +1,6 @@
 'use strict';
-// @version 165
-var SC_VERSION = '@version 165';
+// @version 166
+var SC_VERSION = '@version 166';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -75,7 +75,7 @@ var SC_VERSION = '@version 165';
   var btnBulkCopy    = document.getElementById('btn-bulk-copy');
   var btnBulkDelete  = document.getElementById('btn-bulk-delete');
   var btnBulkBurn    = document.getElementById('btn-bulk-burn');
-  var btnExport      = document.getElementById('btn-export');DB.openDB().catch(function (e) { console.error('IndexedDB open failed', e); });
+  var btnExport      = document.getElementById('btn-export');
   var _verEl = document.getElementById('sc-version');
   if (_verEl) _verEl.textContent = SC_VERSION;
   var importInput    = document.getElementById('import-input');
@@ -123,6 +123,17 @@ var SC_VERSION = '@version 165';
     cbSelFiltered.checked = result.filtered.length > 0 && result.filtered.every(function (i) { return _selIds.has(i.id); });
   }
   var _lastFiltered = [];
+  function _reapplySelAll() {
+    var result = Search.getDisplayList(state, query, {
+      showDeleted:   showDeleted,
+      hideUndeleted: hideActive,
+      searchItems:   searchItems,
+      searchTitles:  searchTitles,
+      searchTags:    searchTags,
+      starFilter:    state.starFilter
+    });
+    Items.selectAll(result.filtered.concat(result.rest));
+  }
   var _refocusEntry = false;
   var _altShortcuts = {};
   var _focusedItemId = null;
@@ -202,15 +213,19 @@ var SC_VERSION = '@version 165';
     }
   });
   btnShowDeleted.addEventListener('click', function () {
+    var _wasAll = cbSelectAll.checked;
     showDeleted = !showDeleted;
     btnShowDeleted.classList.toggle('active', showDeleted);
     document.getElementById('app').classList.toggle('show-deleted', showDeleted);
     refresh();
+    if (_wasAll) { _reapplySelAll(); }
   });
   btnHideActive.addEventListener('click', function () {
+    var _wasAll = cbSelectAll.checked;
     hideActive = !hideActive;
     btnHideActive.classList.toggle('active', hideActive);
     refresh();
+    if (_wasAll) { _reapplySelAll(); }
   });
   btnHideItemContent.addEventListener('click', function () {
     hideItemContent = !hideItemContent;

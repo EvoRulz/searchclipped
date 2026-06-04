@@ -386,6 +386,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   iRedoBtn.disabled = !(item.itemRedoStack && item.itemRedoStack.length);
   iRedoBtn.style.fontSize = '15px';
   iRedoBtn.style.fontSize = '15px';
+  right.appendChild(_outerActionBtn);
   right.appendChild(iUndoBtn);
   right.appendChild(iRedoBtn);
   el.appendChild(right);
@@ -496,10 +497,31 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     var vBurnVerBtn = document.createElement('button');
     vBurnVerBtn.className = 'version-burn-btn';
     vBurnVerBtn.title = 'Burn versions (permanent)';
-    vBurnVerBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M7 1.5 C7.5 2 8.5 3.5 8.5 5 C10 4.5 11.5 6.5 11.5 9 C11.5 11.5 9.5 13 7 13 C4.5 13 2.5 11.5 2.5 9 C2.5 6.5 4 4.5 5.5 5 C5.5 3.5 6.5 2 7 1.5Z"
-        stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
-  <path d="M7 7 C8.5 8.5 8.5 10.5 7 11.5 C5.5 10.5 5.5 8.5 7 7Z" fill="currentColor" opacity="0.6"/>
+    vBurnVerBtn.innerHTML = `<svg
+  width="14"
+  height="14"
+  viewBox="0 0 14 14"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg">
+  <path
+    d="M 7 1.5
+       C 8.5 2.5, 9.5 4.5, 9 6
+       C 9.5 5, 11 3.5, 10.5 3.5
+       C 11.5 4.5, 12 7, 11.5 9
+       C 11.5 11.5, 9.5 13, 7 13
+       C 4.5 13, 2.5 11.5, 2.5 9
+       C 2.5 7.5, 2 5, 3.5 3.5
+       C 3 3, 4 4.5, 5 6
+       C 4.5 4.5, 5.5 2.5, 7 1.5 Z"
+    stroke="currentColor"
+    stroke-width="1.2"
+    stroke-linejoin="round"
+    fill="none"/>
+  <path
+    d="M 7 7.5
+       C 8.5 8.5, 8.5 10.5, 7 11.5
+       C 5.5 10.5, 5.5 8.5, 7 7.5 Z"
+    fill="currentColor"/>
 </svg>`;
     vBurnVerBtn.disabled = true;
     vCtrlBar.appendChild(vSelAllCb);
@@ -702,10 +724,31 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     var hardDelBtn = document.createElement('button');
     hardDelBtn.className = 'hard-del-btn';
     hardDelBtn.title     = 'Burn (permanent)';
-    hardDelBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M7 1.5 C7.5 2 8.5 3.5 8.5 5 C10 4.5 11.5 6.5 11.5 9 C11.5 11.5 9.5 13 7 13 C4.5 13 2.5 11.5 2.5 9 C2.5 6.5 4 4.5 5.5 5 C5.5 3.5 6.5 2 7 1.5Z"
-        stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
-  <path d="M7 7 C8.5 8.5 8.5 10.5 7 11.5 C5.5 10.5 5.5 8.5 7 7Z" fill="currentColor" opacity="0.6"/>
+    hardDelBtn.innerHTML = `<svg
+  width="14"
+  height="14"
+  viewBox="0 0 14 14"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg">
+  <path
+    d="M 7 1.5
+       C 8.5 2.5, 9.5 4.5, 9 6
+       C 9.5 5, 11 3.5, 10.5 3.5
+       C 11.5 4.5, 12 7, 11.5 9
+       C 11.5 11.5, 9.5 13, 7 13
+       C 4.5 13, 2.5 11.5, 2.5 9
+       C 2.5 7.5, 2 5, 3.5 3.5
+       C 3 3, 4 4.5, 5 6
+       C 4.5 4.5, 5.5 2.5, 7 1.5 Z"
+    stroke="currentColor"
+    stroke-width="1.2"
+    stroke-linejoin="round"
+    fill="none"/>
+  <path
+    d="M 7 7.5
+       C 8.5 8.5, 8.5 10.5, 7 11.5
+       C 5.5 10.5, 5.5 8.5, 7 7.5 Z"
+    fill="currentColor"/>
 </svg>`;
     hardDelBtn.addEventListener('click', function () {
       document.dispatchEvent(new CustomEvent('sc:hard-delete', { detail: { id: item.id } }));
@@ -746,7 +789,6 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   });
   rowWrap.appendChild(outerCbWrap);
   rowWrap.appendChild(el);
-  rowWrap.appendChild(_outerActionBtn);
   rowWrap.appendChild(outerTrash);
   return rowWrap;
 }

@@ -326,7 +326,7 @@ button { font-family: var(--font); }
   grid-template-rows: auto auto;
   grid-template-areas:
     "left content right"
-    "left footer  footer";
+    "left footer  right";
   background: var(--bg-panel);
   border: 1px solid var(--border-lo);
   border-radius: var(--radius-lg);
@@ -584,7 +584,9 @@ button { font-family: var(--font); }
   gap: 8px;
   margin-top: 5px;
   padding-top: 4px;
-  }
+  min-width: 0;
+  flex-wrap: wrap;
+}
 .item-timestamps {
   display: flex;
   flex-direction: column;
