@@ -9,6 +9,7 @@ var _state              = null;
 var _topBumped          = null; // Set<id>
 var _blobUrls           = {};   // imageId → objectURL cache
 var _openVersionPanels  = new Set();
+var _versionSelections  = {};
 function _drawSelCanvas(canvas, total, selSet) {
   var ctx = canvas.getContext('2d');
   var w = canvas.width;
@@ -466,7 +467,8 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   var vPanel = document.createElement('div');
   vPanel.className = 'version-panel hidden';
   if (_versions.length) {
-    var _selVersions = new Set();
+    var _savedSel = (_versionSelections[item.id] || []).filter(function(i) { return i >= 0 && i < _versions.length; });
+    var _selVersions = new Set(_savedSel);
     var _vTsArr = {};
     var _cbPeekIdx = null;
     var _cbCheckOrder = [];
@@ -530,15 +532,22 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     vCtrlBar.appendChild(vRestVerBtn);
     vCtrlBar.appendChild(vBurnVerBtn);
     var _updateVersionCtrl = function () {
+      _versionSelections[item.id] = Array.from(_selVersions);
       var count = _selVersions.size;
       vSwitchBtn.disabled = count !== 1;
       vDelVerBtn.disabled = count === 0;
       vBurnVerBtn.disabled = count === 0;
       var hasDeleted = count > 0 && Array.from(_selVersions).some(function (idx) { return _versions[idx] && _versions[idx].deleted; });
       vRestVerBtn.disabled = !hasDeleted;
-      vSelAllCb._checked = _versions.length > 0 && count === _versions.length;
-      vSelAllCb._indeterminate = count > 0 && count < _versions.length;
-      _drawSelCanvas(vSelAllCb, _versions.length, _selVersions);
+      var _showDel = document.getElementById('app').classList.contains('show-deleted');
+      var _visIdxs = [];
+      _versions.forEach(function(v, i) { if (_showDel || !v.deleted) _visIdxs.push(i); });
+      var _visTotal = _visIdxs.length;
+      var _visSelSet = new Set();
+      _visIdxs.forEach(function(origIdx, vi) { if (_selVersions.has(origIdx)) _visSelSet.add(vi); });
+      vSelAllCb._checked = _visTotal > 0 && _visSelSet.size === _visTotal;
+      vSelAllCb._indeterminate = _visSelSet.size > 0 && _visSelSet.size < _visTotal;
+      _drawSelCanvas(vSelAllCb, _visTotal, _visSelSet);
     };
     _updateVersionCtrl();
     vSwitchBtn.addEventListener('click', function (ev) {
@@ -569,10 +578,14 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
       }));
     });
     vSelAllCb.addEventListener('click', function () {
-      var allSelected = _selVersions.size === _versions.length;
-      _selVersions.clear();
-      if (!allSelected) {
-        for (var _vi = 0; _vi < _versions.length; _vi++) { _selVersions.add(_vi); }
+      var _showDel = document.getElementById('app').classList.contains('show-deleted');
+      var _visIdxs = [];
+      _versions.forEach(function(v, i) { if (_showDel || !v.deleted) _visIdxs.push(i); });
+      var _allVisSelected = _visIdxs.every(function(i) { return _selVersions.has(i); });
+      if (_allVisSelected) {
+        _visIdxs.forEach(function(i) { _selVersions.delete(i); });
+      } else {
+        _visIdxs.forEach(function(i) { _selVersions.add(i); });
       }
       vList.querySelectorAll('.version-row-cb').forEach(function (cb, cbIdx) {
         cb.checked = _selVersions.has(_versions.length - 1 - cbIdx);
@@ -605,6 +618,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
         var vCb = document.createElement('input');
         vCb.type = 'checkbox';
         vCb.className = 'version-row-cb';
+        vCb.checked = _selVersions.has(idx);
         _vTsArr[idx] = vTs;
         vCb.addEventListener('change', function () {
           if (vCb.checked) {
