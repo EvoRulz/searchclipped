@@ -698,6 +698,8 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
             content.style.color = '';
             titleEl.textContent = _origTitle;
             vTs.classList.remove('version-ts-peeking');
+            content.contentEditable = item.deleted ? 'false' : 'true';
+            titleEl.contentEditable = item.deleted ? 'false' : 'true';
           } else {
             var activePeek = vList.querySelector('.version-entry-ts.version-ts-peeking');
             if (activePeek && activePeek !== vTs) {
@@ -707,6 +709,8 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
             } else {
               _origHTML = content.innerHTML;
               _origTitle = titleEl.textContent;
+              content.contentEditable = 'false';
+              titleEl.contentEditable = 'false';
             }
             vTs._origHTML = _origHTML;
             vTs._origTitle = _origTitle;
@@ -749,14 +753,18 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
       vDropBtn.classList.add('active');
     }
     vDropBtn.addEventListener('click', function (ev) {
-      ev.stopPropagation();
-      _open = !_open;
-      vPanel.classList.toggle('hidden', !_open);
-      vDropBtn.textContent = _open ? '\u25b4' : '\u25be';
-      vDropBtn.classList.toggle('active', _open);
-      if (_open) _openVersionPanels.add(item.id);
-      else       _openVersionPanels.delete(item.id);
-    });
+        ev.stopPropagation();
+        _open = !_open;
+        if (!_open) {
+          var activePeekOnClose = vPanel.querySelector('.version-entry-ts.version-ts-peeking');
+          if (activePeekOnClose) { activePeekOnClose.click(); }
+        }
+        vPanel.classList.toggle('hidden', !_open);
+        vDropBtn.textContent = _open ? '\u25b4' : '\u25be';
+        vDropBtn.classList.toggle('active', _open);
+        if (_open) _openVersionPanels.add(item.id);
+        else       _openVersionPanels.delete(item.id);
+      });
   })();
   iUndoBtn.addEventListener('click', function (ev) {
     ev.stopPropagation();
