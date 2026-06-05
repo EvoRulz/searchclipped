@@ -415,6 +415,21 @@ function purgeContentFromUndoStacks(state, itemId, burnedContentList) {
   state.redoStack = _dedupeStack(state.redoStack);
   _persistStacks(state);
 }
+function purgeBurnedFromStacks(state, idSet) {
+  function _filt(stack) {
+    for (var i = 0; i < stack.length; i++) {
+      stack[i] = stack[i].filter(function (item) { return !idSet.has(item.id); });
+    }
+    var out = [];
+    for (var j = 0; j < stack.length; j++) {
+      var sig = stack[j].map(function (it) { return it.id + '|' + it.modifiedAt; }).join(',');
+      if (!out.length || sig !== out[out.length - 1]._sig) out.push({ snap: stack[j], _sig: sig });
+    }
+    return out.map(function (d) { return d.snap; });
+  }
+  state.undoStack = _filt(state.undoStack);
+  state.redoStack = _filt(state.redoStack);
+}
 window.State = {
   loadState,
   saveState,

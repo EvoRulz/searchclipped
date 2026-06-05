@@ -1,6 +1,6 @@
 'use strict';
-// @version 190
-var SC_VERSION = '@version 190';
+// @version 191
+var SC_VERSION = '@version 191';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -142,23 +142,8 @@ var SC_VERSION = '@version 190';
       if (_selIds.has(item.id)) _cbFiltSelSet.add(result.filtered.length - 1 - vi);
     });
     Render.drawSelCanvas(cbSelFiltered, result.filtered.length, _cbFiltSelSet, false);
-    _updateStorage();
-  }
-  function _updateStorage() {
-    var storageLabel = document.getElementById('storage-label');
-    var storageFill  = document.getElementById('storage-fill');
-    if (!storageLabel || !storageFill) return;
-    try {
-      var raw    = localStorage.getItem('searchclipped_state') || '';
-      var usedKB = Math.round((raw.length * 2) / 1024);
-      var pct    = Math.min(100, usedKB / 51.2); // 5 MB = 5120 KB
-      var usedStr = usedKB >= 1024 ? (usedKB / 1024).toFixed(1) + ' MB' : usedKB + ' KB';
-      storageLabel.textContent     = usedStr + ' / 5 MB';
-      storageFill.style.width      = pct + '%';
-      storageFill.style.background = pct > 80 ? 'var(--red)' : pct > 60 ? 'var(--orange)' : 'var(--blue-dim)';
-    } catch (e) {
-      storageLabel.textContent = 'err';
-    }
+    var _now = Date.now();
+    if (_now - _lastStorageCheck > 10000) { _lastStorageCheck = _now; _updateStorageDisplay(); }
   }
   var _lastFiltered = [];
   var _refocusEntry = false;
@@ -807,6 +792,35 @@ document.addEventListener('sc:filter-tag', function (e) {
     var arr  = new Uint8Array(bin.length);
     for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
     return Promise.resolve(new Blob([arr], { type: type }));
+  }
+  var _lastStorageCheck = 0;
+  async function _updateStorageDisplay() {
+    try {
+      var lsRaw   = localStorage.getItem('searchclipped_state') || '';
+      var lsBytes = new Blob([lsRaw]).size;
+      var lsLimit = 5 * 1024 * 1024;
+      var lsFill  = document.getElementById('storage-ls-fill');
+      var lsVal   = document.getElementById('storage-ls-val');
+      if (lsFill) lsFill.style.width = Math.min(lsBytes / lsLimit * 100, 100) + '%';
+      if (lsVal)  lsVal.textContent  = _fmtBytes(lsBytes) + ' / 5 MB';
+    } catch (e) {}
+    if (navigator.storage && navigator.storage.estimate) {
+      try {
+        var est    = await navigator.storage.estimate();
+        var usage  = est.usage || 0;
+        var quota  = est.quota || 0;
+        var oFill  = document.getElementById('storage-origin-fill');
+        var oVal   = document.getElementById('storage-origin-val');
+        var pct    = quota ? Math.min(usage / quota * 100, 100) : 0;
+        if (oFill) oFill.style.width = pct + '%';
+        if (oVal)  oVal.textContent  = _fmtBytes(usage) + (quota ? ' / ' + _fmtBytes(quota) : '');
+      } catch (e) {}
+    }
+  }
+  function _fmtBytes(b) {
+    if (b < 1024)          return b + ' B';
+    if (b < 1024 * 1024)   return (b / 1024).toFixed(1) + ' KB';
+    return (b / 1024 / 1024).toFixed(1) + ' MB';
   }
   function _dateStr() {
     var d  = new Date();

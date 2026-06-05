@@ -28,6 +28,48 @@
   --radius-lg:    10px;
   --transition:   0.14s ease;
 }
+/* ===== STORAGE DISPLAY ===== */
+#storage-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 6px;
+}
+.storage-line {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.storage-label {
+  font-size: 9px;
+  color: var(--text-ph);
+  white-space: nowrap;
+  width: 68px;
+  flex-shrink: 0;
+  text-align: right;
+}
+.storage-bar-bg {
+  flex: 1;
+  height: 4px;
+  background: var(--surface);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.storage-bar-fill {
+  height: 100%;
+  background: var(--blue-dim);
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.4s ease;
+}
+.storage-bar-origin { background: var(--green); }
+.storage-val {
+  font-size: 9px;
+  color: var(--text-ph);
+  white-space: nowrap;
+  min-width: 100px;
+  flex-shrink: 0;
+}
 /* ===== RESET ===== */
 *, *::before, *::after {
   box-sizing: border-box;
