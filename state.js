@@ -210,7 +210,12 @@ async function initUndoFromDB(state) {
 }
 /* ===== UNDO / REDO ===== */
 function pushUndo(state) {
-  state.undoStack.push(snapshotItems(state));
+  var _snap = snapshotItems(state);
+  if (state.undoStack.length) {
+    var _top = state.undoStack[state.undoStack.length - 1];
+    if (JSON.stringify(_top) === JSON.stringify(_snap)) return;
+  }
+  state.undoStack.push(_snap);
   if (state.undoStack.length > MAX_UNDO) state.undoStack.shift();
   state.redoStack = [];
   _persistStacks(state);
