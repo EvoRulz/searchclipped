@@ -165,7 +165,7 @@ function _dedupeStack(stack) {
 function _persistStacks(state) {
   var undoData = _computeStackDiffs(state.undoStack);
   var redoData = _computeStackDiffs(state.redoStack);
-  Promise.all([
+  return Promise.all([
     DB.saveUndoStack('undo', undoData),
     DB.saveUndoStack('redo', redoData)
   ]).catch(function (e) { console.error('_persistStacks failed', e); });
@@ -176,6 +176,16 @@ async function initUndoFromDB(state) {
     var redoData = await DB.loadUndoStack('redo');
     state.undoStack = undoData ? _reconstructStack(undoData) : [];
     state.redoStack = redoData ? _reconstructStack(redoData) : [];
+    var liveIds = new Set(state.items.map(function (i) { return i.id; }));
+    function _filterBurned(stack) {
+      for (var i = 0; i < stack.length; i++) {
+        stack[i] = stack[i].filter(function (item) { return liveIds.has(item.id); });
+      }
+      return _dedupeStack(stack);
+    }
+    state.undoStack = _filterBurned(state.undoStack);
+    state.redoStack = _filterBurned(state.redoStack);
+    await _persistStacks(state);
   } catch (e) {
     console.error('initUndoFromDB failed', e);
     state.undoStack = [];
@@ -388,7 +398,7 @@ function purgeOrphanedItemUndoRedo(item) {
 function purgeBurnedItemFromStacks(state, id) {
   purgeAllBurnedFromStacks(state, new Set([id]));
 }
-function purgeAllBurnedFromStacks(state, idSet) {
+async function purgeAllBurnedFromStacks(state, idSet) {
   function purge(stack) {
     for (var i = 0; i < stack.length; i++) {
       stack[i] = stack[i].filter(function (item) { return !idSet.has(item.id); });
@@ -398,7 +408,7 @@ function purgeAllBurnedFromStacks(state, idSet) {
   purge(state.redoStack);
   state.undoStack = _dedupeStack(state.undoStack);
   state.redoStack = _dedupeStack(state.redoStack);
-  _persistStacks(state);
+  return _persistStacks(state);
 }
 function purgeVersionsFromStacks(state, itemId, tsList) {
   if (!tsList || !tsList.length) return;

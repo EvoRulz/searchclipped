@@ -206,7 +206,7 @@ async function _onHardDelete(e) {
     DB.deleteImage(item.imageId).catch(function (err) { console.warn('deleteImage failed', err); });
   }
   _state.items = _state.items.filter(function (i) { return i.id !== item.id; });
-  State.purgeAllBurnedFromStacks(_state, new Set([item.id]));
+  await State.purgeAllBurnedFromStacks(_state, new Set([item.id]));
   _selectedIds.delete(item.id);
   State.saveState(_state);
   _refresh();
@@ -385,7 +385,7 @@ async function bulkBurn(ids) {
     }
   });
   _state.items = _state.items.filter(function (i) { return !ids.has(i.id); });
-  State.purgeAllBurnedFromStacks(_state, new Set(burnedIds));
+  await State.purgeAllBurnedFromStacks(_state, new Set(burnedIds));
   ids.forEach(function (id) { _selectedIds.delete(id); });
   State.saveState(_state);
   _refresh();
