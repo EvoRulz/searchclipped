@@ -107,6 +107,9 @@ function _onToggleSelect(e) {
   else                       _selectedIds.add(id);
   _refresh();
 }
+function selectAllSilent(items) {
+  items.forEach(function (i) { _selectedIds.add(i.id); });
+}
 function selectAll(items) {
   items.forEach(function (i) { _selectedIds.add(i.id); });
   _refresh();
@@ -133,25 +136,30 @@ function _onToggleStar(e) {
 /* ====== BUMP ====== */
 function _onBump(e) {
   var id  = e.detail.id;
-  var dir = e.detail.dir; // -1 = up, 1 = down
-  State.pushUndo(_state);
+  var dir = e.detail.dir;
   if (_state.sortMode === 'bump') {
-    State.bumpItem(_state, id, dir);
-  } else {
-    // In date modes, bump promotes item into top-10 bump list
-    // by assigning it bumpOrder 0 and shifting others down
     State.reindexBumpOrder(_state);
     var active = _state.items
       .filter(function (i) { return !i.deleted; })
       .sort(function (a, b) { return a.bumpOrder - b.bumpOrder; });
-    active.forEach(function (i) { i.bumpOrder += 1; });
+    var idx = active.findIndex(function (i) { return i.id === id; });
+    if (idx < 0) return;
+    var targetIdx = idx + dir;
+    if (targetIdx < 0 || targetIdx >= active.length) return;
+    State.pushUndo(_state);
+    State.bumpItem(_state, id, dir);
+  } else {
+    State.reindexBumpOrder(_state);
     var target = State.getItem(_state, id);
-    if (target) target.bumpOrder = 0;
+    if (!target || target.bumpOrder === 0) return;
+    State.pushUndo(_state);
+    var activeNonBump = _state.items
+      .filter(function (i) { return !i.deleted; })
+      .sort(function (a, b) { return a.bumpOrder - b.bumpOrder; });
+    activeNonBump.forEach(function (i) { i.bumpOrder += 1; });
+    target.bumpOrder = 0;
     State.reindexBumpOrder(_state);
   }
-  _state.items.forEach(function (i) {
-    if (!i.deleted) i.modifiedAt = i.modifiedAt; // no-op; keep timestamps
-  });
   State.saveState(_state);
   _refresh();
 }
@@ -424,6 +432,7 @@ window.Items = {
   init,
   getSelectedIds,
   selectAll,
+  selectAllSilent,
   selectFiltered,
   clearSelection,
   bulkDelete,

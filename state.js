@@ -288,12 +288,13 @@ function bumpItem(state, id, direction) {
     .filter(function (i) { return !i.deleted; })
     .sort(function (a, b) { return a.bumpOrder - b.bumpOrder; });
   var idx = active.findIndex(function (i) { return i.id === id; });
-  if (idx < 0) return;
+  if (idx < 0) return false;
   var targetIdx = idx + direction;
-  if (targetIdx < 0 || targetIdx >= active.length) return;
+  if (targetIdx < 0 || targetIdx >= active.length) return false;
   var tmp = active[idx].bumpOrder;
   active[idx].bumpOrder    = active[targetIdx].bumpOrder;
   active[targetIdx].bumpOrder = tmp;
+  return true;
 }
 /* Returns Set of IDs for the top-N bump-sorted non-deleted items */
 function getTopBumped(state, n) {
