@@ -170,11 +170,21 @@ function _reconstructStack(stored) {
   }
   return result;
 }
+function _snapSig(snap) {
+  return JSON.stringify(snap.map(function(item) {
+    return {
+      id: item.id, text: item.text, html: item.html, title: item.title,
+      tags: item.tags, starred: item.starred, deleted: item.deleted,
+      bumpOrder: item.bumpOrder, imageId: item.imageId,
+      versionName: item.versionName, versions: item.versions
+    };
+  }));
+}
 function _dedupeStack(stack) {
   if (stack.length < 2) return stack;
   var result = [stack[0]];
   for (var i = 1; i < stack.length; i++) {
-    if (JSON.stringify(stack[i]) !== JSON.stringify(result[result.length - 1])) result.push(stack[i]);
+    if (_snapSig(stack[i]) !== _snapSig(result[result.length - 1])) result.push(stack[i]);
   }
   return result;
 }
@@ -213,7 +223,7 @@ function pushUndo(state) {
   var _snap = snapshotItems(state);
   if (state.undoStack.length) {
     var _top = state.undoStack[state.undoStack.length - 1];
-    if (JSON.stringify(_top) === JSON.stringify(_snap)) return;
+    if (_snapSig(_top) === _snapSig(_snap)) return;
   }
   state.undoStack.push(_snap);
   if (state.undoStack.length > MAX_UNDO) state.undoStack.shift();
