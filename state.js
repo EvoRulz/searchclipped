@@ -237,6 +237,11 @@ function undo(state) {
     liveStacks[i.id] = { itemUndoStack: i.itemUndoStack || [], itemRedoStack: i.itemRedoStack || [] };
   });
   var currentSnap = snapshotItems(state);
+  var currentSig  = _snapSig(currentSnap);
+  while (state.undoStack.length && _snapSig(state.undoStack[state.undoStack.length - 1]) === currentSig) {
+    state.undoStack.pop();
+  }
+  if (!state.undoStack.length) { _persistStacks(state); return false; }
   var targetSnap  = state.undoStack.pop();
   state.redoStack.push(currentSnap);
   var seen   = {};
@@ -259,6 +264,11 @@ function redo(state) {
     liveStacks[i.id] = { itemUndoStack: i.itemUndoStack || [], itemRedoStack: i.itemRedoStack || [] };
   });
   var currentSnap = snapshotItems(state);
+  var currentSig  = _snapSig(currentSnap);
+  while (state.redoStack.length && _snapSig(state.redoStack[state.redoStack.length - 1]) === currentSig) {
+    state.redoStack.pop();
+  }
+  if (!state.redoStack.length) { _persistStacks(state); return false; }
   var targetSnap  = state.redoStack.pop();
   state.undoStack.push(currentSnap);
   var seen   = {};
@@ -482,8 +492,12 @@ function purgeVersionsFromStacks(state, itemId, tsList) {
   }
   purge(state.undoStack);
   purge(state.redoStack);
-  state.undoStack = _dedupeStack(state.undoStack);
-  state.redoStack = _dedupeStack(state.redoStack);
+  var liveSig2 = _snapSig(snapshotItems(state));
+  function purgeLiveMatch2(stack) {
+    return stack.filter(function (snap) { return _snapSig(snap) !== liveSig2; });
+  }
+  state.undoStack = _dedupeStack(purgeLiveMatch2(state.undoStack));
+  state.redoStack = _dedupeStack(purgeLiveMatch2(state.redoStack));
   _persistStacks(state);
 }
 function purgeItemContentFromStacks(state, itemId, burnedKeys) {
@@ -497,8 +511,12 @@ function purgeItemContentFromStacks(state, itemId, burnedKeys) {
       });
     });
   }
-  state.undoStack = _dedupeStack(purge(state.undoStack));
-  state.redoStack = _dedupeStack(purge(state.redoStack));
+  var liveSig = _snapSig(snapshotItems(state));
+  function purgeLiveMatch(stack) {
+    return stack.filter(function (snap) { return _snapSig(snap) !== liveSig; });
+  }
+  state.undoStack = _dedupeStack(purgeLiveMatch(purge(state.undoStack)));
+  state.redoStack = _dedupeStack(purgeLiveMatch(purge(state.redoStack)));
   return _persistStacks(state);
 }
 function purgeContentFromUndoStacks(state, itemId, tsList) {
