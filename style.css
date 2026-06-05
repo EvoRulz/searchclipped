@@ -297,6 +297,28 @@ button { font-family: var(--font); }
   min-width: 0;
 }
 #sort-select:focus { border-color: var(--blue-dim); color: var(--text); }
+.peek-thresh-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.peek-thresh-wrap input {
+  width: 46px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-family: var(--font);
+  font-size: 10px;
+  padding: 2px 4px;
+  outline: none;
+  transition: border-color var(--transition);
+}
+.peek-thresh-wrap input:focus { border-color: var(--blue-dim); color: var(--text); }
 /* ===== ACTION BUTTONS ===== */
 .action-btn, .import-label {
   background: var(--surface);

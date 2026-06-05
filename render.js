@@ -9,6 +9,7 @@ var _state              = null;
 var _topBumped          = null; // Set<id>
 var _blobUrls           = {};   // imageId → objectURL cache
 var _openVersionPanels  = new Set();
+var _peekThreshold      = 200;
 var _versionSelections  = {};
 var _versionSelectAll   = new Set();
 function _drawSelCanvas(canvas, total, selSet, emptySelected) {
@@ -74,6 +75,8 @@ function _drawSelCanvas(canvas, total, selSet, emptySelected) {
 function init(state) {
   _state = state;
   _list  = document.getElementById('item-list');
+  var _stored = parseInt(localStorage.getItem('sc_peek_threshold'), 10);
+  if (!isNaN(_stored)) _peekThreshold = _stored;
 }
 /*
  * render(filtered, rest, selectedIds, tagSelMode, selectedTags)
