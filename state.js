@@ -401,6 +401,20 @@ function purgeVersionsFromStacks(state, itemId, tsList) {
   state.redoStack = _dedupeStack(state.redoStack);
   _persistStacks(state);
 }
+function purgeContentFromUndoStacks(state, itemId, burnedContentList) {
+  if (!burnedContentList || !burnedContentList.length) return;
+  function isBurned(snapItem) {
+    if (snapItem.id !== itemId) return false;
+    var t  = (snapItem.text  || '').trim();
+    var ti = (snapItem.title || '').replace(/\s*\(preview\)$/i, '').trim();
+    return burnedContentList.some(function (b) { return b.text === t && b.title === ti; });
+  }
+  state.undoStack = state.undoStack.filter(function (snapshot) { return !snapshot.some(isBurned); });
+  state.redoStack = state.redoStack.filter(function (snapshot) { return !snapshot.some(isBurned); });
+  state.undoStack = _dedupeStack(state.undoStack);
+  state.redoStack = _dedupeStack(state.redoStack);
+  _persistStacks(state);
+}
 window.State = {
   loadState,
   saveState,
@@ -423,6 +437,7 @@ window.State = {
   purgeBurnedItemFromStacks,
   purgeAllBurnedFromStacks,
   purgeVersionsFromStacks,
+  purgeContentFromUndoStacks,
   initUndoFromDB
 };
 

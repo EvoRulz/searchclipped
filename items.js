@@ -406,16 +406,22 @@ async function _onVersionHardDelete(e) {
     };
   }).filter(Boolean);
   State.purgeVersionsFromStacks(_state, item.id, burnedTs);
-  function notBurned(snap) {
-    var st = (snap.text  || '').trim();
-    var si = (snap.title || '').replace(/\s*\(preview\)$/i, '').trim();
-    return !burnedContent.some(function (b) { return b.text === st && b.title === si; });
-  }
-  item.itemUndoStack = (item.itemUndoStack || []).filter(notBurned);
-  item.itemRedoStack = (item.itemRedoStack || []).filter(notBurned);
+  State.purgeContentFromUndoStacks(_state, item.id, burnedContent);
   sorted.forEach(function (idx) {
     if (item.versions[idx] !== undefined) item.versions.splice(idx, 1);
   });
+  var liveKeys = new Set();
+  (item.versions || []).forEach(function (v) {
+    if (!v.deleted) {
+      liveKeys.add((v.text || '').trim() + '\x00' + (v.title || '').replace(/\s*\(preview\)$/i, '').trim());
+    }
+  });
+  function inHistory(snap) {
+    var k = (snap.text || '').trim() + '\x00' + (snap.title || '').replace(/\s*\(preview\)$/i, '').trim();
+    return liveKeys.has(k);
+  }
+  item.itemUndoStack = (item.itemUndoStack || []).filter(inHistory);
+  item.itemRedoStack = (item.itemRedoStack || []).filter(inHistory);
   State.saveState(_state);
   _refresh();
 }
