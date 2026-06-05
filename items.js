@@ -55,7 +55,7 @@ function _onEdit(e) {
   if (!item || item.deleted) return;
   var oldSnap = {
     ts: item.modifiedAt, text: item.text, html: item.html,
-    title: item.title, tags: (item.tags || []).slice(), name: item.versionName || ''
+    title: item.title, tags: (item.tags || []).slice(), name: item.versionName || '', deleted: item.deleted || false
   };
   State.pushUndo(_state);
   item.text        = e.detail.text || '';
@@ -63,8 +63,7 @@ function _onEdit(e) {
   item.modifiedAt  = State.nowISO();
   item.versionName = '';
   State.pushItemUndo(item, oldSnap);
-  var _isDup = item.versions && item.versions.some(function (v) { return !v.deleted && v.text === oldSnap.text && v.title === oldSnap.title; });
-  if (!_isDup) State.addItemVersion(item, oldSnap);
+  State.addItemVersion(item, oldSnap);
   State.saveState(_state);
   _refresh();
 }
@@ -74,15 +73,14 @@ function _onEditTitle(e) {
   if (!item || item.deleted) return;
   var oldSnap = {
     ts: item.modifiedAt, text: item.text, html: item.html,
-    title: item.title, tags: (item.tags || []).slice(), name: item.versionName || ''
+    title: item.title, tags: (item.tags || []).slice(), name: item.versionName || '', deleted: item.deleted || false
   };
   State.pushUndo(_state);
   item.title       = e.detail.title || '';
   item.modifiedAt  = State.nowISO();
   item.versionName = '';
   State.pushItemUndo(item, oldSnap);
-  var _isDupTi = item.versions && item.versions.some(function (v) { return !v.deleted && v.text === oldSnap.text && v.title === oldSnap.title; });
-  if (!_isDupTi) State.addItemVersion(item, oldSnap);
+  State.addItemVersion(item, oldSnap);
   State.saveState(_state);
   _refresh();
 }
@@ -180,6 +178,10 @@ async function _doDelete(ids, message) {
   ids.forEach(function (id) {
     var item = State.getItem(_state, id);
     if (item) {
+      State.pushItemUndo(item, {
+        ts: item.modifiedAt, text: item.text, html: item.html,
+        title: item.title, tags: (item.tags || []).slice(), name: item.versionName || '', deleted: false
+      });
       item.deleted    = true;
       item.starred    = false;
       item.bumpOrder  = item.bumpOrder + 0.5;
@@ -196,6 +198,10 @@ async function _onRestore(e) {
   if (!ok) return;
   var item = State.getItem(_state, e.detail.id);
   if (!item) return;
+  State.pushItemUndo(item, {
+    ts: item.modifiedAt, text: item.text, html: item.html,
+    title: item.title, tags: (item.tags || []).slice(), name: item.versionName || '', deleted: true
+  });
   State.pushUndo(_state);
   item.deleted    = false;
   item.bumpOrder  = Math.floor(item.bumpOrder);
@@ -225,7 +231,7 @@ function _onOpenTags(e) {
   if (!item) return;
   var oldSnap = {
     ts: item.modifiedAt, text: item.text, html: item.html,
-    title: item.title, tags: (item.tags || []).slice(), name: item.versionName || ''
+    title: item.title, tags: (item.tags || []).slice(), name: item.versionName || '', deleted: item.deleted || false
   };
   Modals.openTagEditor(_state, e.detail.id, function (changedItem) {
     var tagsChanged = JSON.stringify(oldSnap.tags) !== JSON.stringify(changedItem.tags);
@@ -234,8 +240,7 @@ function _onOpenTags(e) {
       changedItem.versionName = '';
       State.pushUndo(_state);
       State.pushItemUndo(changedItem, oldSnap);
-      var _isDupT = changedItem.versions && changedItem.versions.some(function (v) { return !v.deleted && v.text === oldSnap.text && v.title === oldSnap.title; });
-      if (!_isDupT) State.addItemVersion(changedItem, oldSnap);
+      State.addItemVersion(changedItem, oldSnap);
     }
     State.saveState(_state);
     _refresh();
@@ -321,12 +326,11 @@ function _onItemRedo(e) {
   if (!item || !(item.itemRedoStack && item.itemRedoStack.length)) return;
   var oldSnap = {
     ts: item.modifiedAt, text: item.text, html: item.html,
-    title: item.title, tags: (item.tags || []).slice(), name: item.versionName || ''
+    title: item.title, tags: (item.tags || []).slice(), name: item.versionName || '', deleted: item.deleted || false
   };
   State.pushUndo(_state);
   State.itemRedo(item);
-  var _isDup = item.versions && item.versions.some(function (v) { return !v.deleted && v.text === oldSnap.text && v.title === oldSnap.title; });
-  if (!_isDup) State.addItemVersion(item, oldSnap);
+  State.addItemVersion(item, oldSnap);
   State.saveState(_state);
   _refresh();
 }
