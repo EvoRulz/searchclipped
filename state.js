@@ -401,16 +401,15 @@ function purgeVersionsFromStacks(state, itemId, tsList) {
   state.redoStack = _dedupeStack(state.redoStack);
   _persistStacks(state);
 }
-function purgeContentFromUndoStacks(state, itemId, burnedContentList) {
-  if (!burnedContentList || !burnedContentList.length) return;
-  function isBurned(snapItem) {
-    if (snapItem.id !== itemId) return false;
-    var t  = (snapItem.text  || '').trim();
-    var ti = (snapItem.title || '').replace(/\s*\(preview\)$/i, '').trim();
-    return burnedContentList.some(function (b) { return b.text === t && b.title === ti; });
-  }
-  state.undoStack = state.undoStack.filter(function (snapshot) { return !snapshot.some(isBurned); });
-  state.redoStack = state.redoStack.filter(function (snapshot) { return !snapshot.some(isBurned); });
+function purgeContentFromUndoStacks(state, itemId, tsList) {
+  if (!tsList || !tsList.length) return;
+  var tsSet = new Set(tsList);
+  state.undoStack = state.undoStack.filter(function (snapshot) {
+    return !snapshot.some(function (i) { return i.id === itemId && tsSet.has(i.modifiedAt); });
+  });
+  state.redoStack = state.redoStack.filter(function (snapshot) {
+    return !snapshot.some(function (i) { return i.id === itemId && tsSet.has(i.modifiedAt); });
+  });
   state.undoStack = _dedupeStack(state.undoStack);
   state.redoStack = _dedupeStack(state.redoStack);
   _persistStacks(state);

@@ -397,31 +397,22 @@ async function _onVersionHardDelete(e) {
   if (!item) return;
   var sorted = e.detail.indices.slice().sort(function (a, b) { return b - a; });
   var burnedTs = sorted.map(function (idx) { return item.versions[idx] ? item.versions[idx].ts : null; }).filter(Boolean);
-  var burnedContent = sorted.map(function (idx) {
+  var burnedKeys = new Set(sorted.map(function (idx) {
     var ver = item.versions[idx];
     if (!ver) return null;
-    return {
-      text:  (ver.text  || '').trim(),
-      title: (ver.title || '').replace(/\s*\(preview\)$/i, '').trim()
-    };
-  }).filter(Boolean);
+    return (ver.text || '').trim() + '\x00' + (ver.title || '').replace(/\s*\(preview\)$/i, '').trim();
+  }).filter(Boolean));
   State.purgeVersionsFromStacks(_state, item.id, burnedTs);
-  State.purgeContentFromUndoStacks(_state, item.id, burnedContent);
+  State.purgeContentFromUndoStacks(_state, item.id, burnedTs);
   sorted.forEach(function (idx) {
     if (item.versions[idx] !== undefined) item.versions.splice(idx, 1);
   });
-  var liveKeys = new Set();
-  (item.versions || []).forEach(function (v) {
-    if (!v.deleted) {
-      liveKeys.add((v.text || '').trim() + '\x00' + (v.title || '').replace(/\s*\(preview\)$/i, '').trim());
-    }
+  item.itemUndoStack = (item.itemUndoStack || []).filter(function (snap) {
+    return !burnedKeys.has((snap.text || '').trim() + '\x00' + (snap.title || '').replace(/\s*\(preview\)$/i, '').trim());
   });
-  function inHistory(snap) {
-    var k = (snap.text || '').trim() + '\x00' + (snap.title || '').replace(/\s*\(preview\)$/i, '').trim();
-    return liveKeys.has(k);
-  }
-  item.itemUndoStack = (item.itemUndoStack || []).filter(inHistory);
-  item.itemRedoStack = (item.itemRedoStack || []).filter(inHistory);
+  item.itemRedoStack = (item.itemRedoStack || []).filter(function (snap) {
+    return !burnedKeys.has((snap.text || '').trim() + '\x00' + (snap.title || '').replace(/\s*\(preview\)$/i, '').trim());
+  });
   State.saveState(_state);
   _refresh();
 }
