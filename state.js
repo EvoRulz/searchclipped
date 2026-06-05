@@ -147,7 +147,7 @@ function _computeStackDiffs(stack) {
   return { base: base, diffs: diffs };
 }
 function _reconstructStack(stored) {
-  if (!stored || !stored.base) return [];
+  if (!stored || !stored.base || !stored.base.length) return [];
   var result = [stored.base];
   for (var i = 0; i < stored.diffs.length; i++) {
     result.push(_applyDiff(result[result.length - 1], stored.diffs[i]));
