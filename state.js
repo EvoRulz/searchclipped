@@ -447,6 +447,21 @@ function purgeVersionsFromStacks(state, itemId, tsList) {
   state.redoStack = _dedupeStack(state.redoStack);
   _persistStacks(state);
 }
+function purgeItemContentFromStacks(state, itemId, burnedKeys) {
+  if (!burnedKeys || !burnedKeys.size) return Promise.resolve();
+  function purge(stack) {
+    return stack.filter(function (snapshot) {
+      return !snapshot.some(function (item) {
+        if (item.id !== itemId) return false;
+        var key = (item.text || '').trim() + '\x00' + (item.title || '').replace(/\s*\(preview\)$/i, '').trim();
+        return burnedKeys.has(key);
+      });
+    });
+  }
+  state.undoStack = _dedupeStack(purge(state.undoStack));
+  state.redoStack = _dedupeStack(purge(state.redoStack));
+  return _persistStacks(state);
+}
 function purgeContentFromUndoStacks(state, itemId, tsList) {
   if (!tsList || !tsList.length) return;
   var tsSet = new Set(tsList);
@@ -498,6 +513,7 @@ window.State = {
   purgeBurnedItemFromStacks,
   purgeAllBurnedFromStacks,
   purgeVersionsFromStacks,
+  purgeItemContentFromStacks,
   purgeContentFromUndoStacks,
   initUndoFromDB
 };

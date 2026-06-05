@@ -425,6 +425,7 @@ async function _onVersionHardDelete(e) {
     return !burnedKeys.has((snap.text || '').trim() + '\x00' + (snap.title || '').replace(/\s*\(preview\)$/i, '').trim());
   });
   State.purgeOrphanedItemUndoRedo(item);
+  State.purgeItemContentFromStacks(_state, item.id, burnedKeys);
   State.saveState(_state);
   _refresh();
 }
