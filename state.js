@@ -56,6 +56,22 @@ function loadState() {
       }
       item.versions = _dv;
     purgeOrphanedItemUndoRedo(item);
+    function _dedupStack(stack) {
+      if (!stack || stack.length < 2) return stack || [];
+      var out = [stack[0]];
+      for (var _di = 1; _di < stack.length; _di++) {
+        var _prev = out[out.length - 1];
+        var _cur  = stack[_di];
+        if (_prev.text  === _cur.text  &&
+            _prev.html  === _cur.html  &&
+            _prev.title === _cur.title &&
+            JSON.stringify(_prev.tags) === JSON.stringify(_cur.tags)) continue;
+        out.push(_cur);
+      }
+      return out;
+    }
+    item.itemUndoStack = _dedupStack(item.itemUndoStack);
+    item.itemRedoStack = _dedupStack(item.itemRedoStack);
   });
   saveState(merged);
     return merged;
@@ -311,6 +327,14 @@ function getTopBumped(state, n) {
 /* Per-item version history helpers */
 function pushItemUndo(item, snapshot) {
   item.itemUndoStack = item.itemUndoStack || [];
+  var _last = item.itemUndoStack.length ? item.itemUndoStack[item.itemUndoStack.length - 1] : null;
+  if (_last &&
+      _last.text  === snapshot.text  &&
+      _last.html  === snapshot.html  &&
+      _last.title === snapshot.title &&
+      JSON.stringify(_last.tags) === JSON.stringify(snapshot.tags)) {
+    return;
+  }
   item.itemUndoStack.push(snapshot);
   if (item.itemUndoStack.length > 50) item.itemUndoStack.shift();
   item.itemRedoStack = [];
