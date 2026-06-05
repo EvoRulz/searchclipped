@@ -302,13 +302,17 @@ async function bulkDeleteTags() {
 /* ====== ITEM UNDO / REDO ====== */
 function _onItemUndo(e) {
   var item = State.getItem(_state, e.detail.id);
-  if (!item || !State.itemUndo(item)) return;
+  if (!item || !(item.itemUndoStack && item.itemUndoStack.length)) return;
+  State.pushUndo(_state);
+  State.itemUndo(item);
   State.saveState(_state);
   _refresh();
 }
 function _onItemRedo(e) {
   var item = State.getItem(_state, e.detail.id);
-  if (!item || !State.itemRedo(item)) return;
+  if (!item || !(item.itemRedoStack && item.itemRedoStack.length)) return;
+  State.pushUndo(_state);
+  State.itemRedo(item);
   State.saveState(_state);
   _refresh();
 }
@@ -403,7 +407,6 @@ async function _onVersionHardDelete(e) {
     return (ver.text || '').trim() + '\x00' + (ver.title || '').replace(/\s*\(preview\)$/i, '').trim();
   }).filter(Boolean));
   State.purgeVersionsFromStacks(_state, item.id, burnedTs);
-  State.purgeContentFromUndoStacks(_state, item.id, burnedTs);
   sorted.forEach(function (idx) {
     if (item.versions[idx] !== undefined) item.versions.splice(idx, 1);
   });
