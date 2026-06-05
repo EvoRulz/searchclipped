@@ -361,16 +361,17 @@ function pushItemUndo(item, snapshot) {
 }
 function _vKey(v) {
   var t = (v.title || '').replace(/\s*\(preview\)$/i, '');
-  return (v.text || '').trim() + '\x00' + t.trim() + '\x00' + (v.deleted ? '1' : '0');
+  return (v.text || '').trim() + '\x00' + t.trim() + '\x00' + JSON.stringify((v.tags || []).slice().sort()) + '\x00' + (v.deleted ? '1' : '0');
 }
 function addItemVersion(item, snapshot) {
   item.versions = item.versions || [];
   var snapText  = (snapshot.text  || '').trim();
   var snapTitle = (snapshot.title || '').replace(/\s*\(preview\)$/i, '').trim();
+  var snapTags  = JSON.stringify((snapshot.tags || []).slice().sort());
   var existingIdx = -1;
   for (var i = 0; i < item.versions.length; i++) {
     var v = item.versions[i];
-    if ((v.text || '').trim() === snapText && (v.title || '').replace(/\s*\(preview\)$/i, '').trim() === snapTitle) {
+    if ((v.text || '').trim() === snapText && (v.title || '').replace(/\s*\(preview\)$/i, '').trim() === snapTitle && JSON.stringify((v.tags || []).slice().sort()) === snapTags) {
       existingIdx = i;
       break;
     }
@@ -385,14 +386,15 @@ function dedupeVersions(item) {
   if (!item.versions || !item.versions.length) return false;
   var liveText  = (item.text  || '').trim();
   var liveTitle = (item.title || '').replace(/\s*\(preview\)$/i, '').trim();
+  var liveTags  = JSON.stringify((item.tags || []).slice().sort());
   var reversed  = item.versions.slice().reverse();
   var seen      = {};
   var deduped   = [];
   var changed   = false;
   for (var i = 0; i < reversed.length; i++) {
     var v = reversed[i];
-    var k = (v.text || '').trim() + '\x00' + (v.title || '').replace(/\s*\(preview\)$/i, '').trim();
-    if (k === liveText + '\x00' + liveTitle) { changed = true; continue; }
+    var k = (v.text || '').trim() + '\x00' + (v.title || '').replace(/\s*\(preview\)$/i, '').trim() + '\x00' + JSON.stringify((v.tags || []).slice().sort());
+    if (k === liveText + '\x00' + liveTitle + '\x00' + JSON.stringify((item.tags || []).slice().sort())) { changed = true; continue; }
     if (seen[k] !== undefined) {
       var _ex = deduped[seen[k]];
       if (_ex.deleted && !v.deleted) {
