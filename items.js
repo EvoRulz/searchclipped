@@ -316,8 +316,13 @@ async function bulkDeleteTags() {
 function _onItemUndo(e) {
   var item = State.getItem(_state, e.detail.id);
   if (!item || !(item.itemUndoStack && item.itemUndoStack.length)) return;
+  var oldSnap = {
+    ts: item.modifiedAt, text: item.text, html: item.html,
+    title: item.title, tags: (item.tags || []).slice(), name: item.versionName || '', deleted: item.deleted || false
+  };
   State.pushUndo(_state);
   State.itemUndo(item);
+  State.addItemVersion(item, oldSnap);
   State.saveState(_state);
   _refresh();
 }
