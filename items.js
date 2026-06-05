@@ -319,8 +319,14 @@ function _onItemUndo(e) {
 function _onItemRedo(e) {
   var item = State.getItem(_state, e.detail.id);
   if (!item || !(item.itemRedoStack && item.itemRedoStack.length)) return;
+  var oldSnap = {
+    ts: item.modifiedAt, text: item.text, html: item.html,
+    title: item.title, tags: (item.tags || []).slice(), name: item.versionName || ''
+  };
   State.pushUndo(_state);
   State.itemRedo(item);
+  var _isDup = item.versions && item.versions.some(function (v) { return !v.deleted && v.text === oldSnap.text && v.title === oldSnap.title; });
+  if (!_isDup) State.addItemVersion(item, oldSnap);
   State.saveState(_state);
   _refresh();
 }
