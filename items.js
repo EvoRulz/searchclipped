@@ -413,6 +413,7 @@ async function _onVersionHardDelete(e) {
   item.itemRedoStack = (item.itemRedoStack || []).filter(function (snap) {
     return !burnedKeys.has((snap.text || '').trim() + '\x00' + (snap.title || '').replace(/\s*\(preview\)$/i, '').trim());
   });
+  State.purgeOrphanedItemUndoRedo(item);
   State.saveState(_state);
   _refresh();
 }

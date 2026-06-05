@@ -55,8 +55,9 @@ function loadState() {
         if (_sk.indexOf(_k) === -1) { _sk.push(_k); _dv.unshift(item.versions[_i]); }
       }
       item.versions = _dv;
-    });
-    saveState(merged);
+    purgeOrphanedItemUndoRedo(item);
+  });
+  saveState(merged);
     return merged;
   } catch (e) {
     console.error('loadState error', e);
@@ -366,6 +367,24 @@ function itemRedo(item) {
   item.modifiedAt = nowISO();
   return true;
 }
+function purgeOrphanedItemUndoRedo(item) {
+  var versions = item.versions || [];
+  var validKeys = new Set();
+  versions.forEach(function (v) {
+    validKeys.add((v.text || '').trim() + '\x00' + (v.title || '').replace(/\s*\(preview\)$/i, '').trim());
+  });
+  validKeys.add((item.text || '').trim() + '\x00' + (item.title || '').replace(/\s*\(preview\)$/i, '').trim());
+  function filterStack(stack) {
+    return (stack || []).filter(function (snap) {
+      return validKeys.has((snap.text || '').trim() + '\x00' + (snap.title || '').replace(/\s*\(preview\)$/i, '').trim());
+    });
+  }
+  var origUndoLen = (item.itemUndoStack || []).length;
+  var origRedoLen = (item.itemRedoStack || []).length;
+  item.itemUndoStack = filterStack(item.itemUndoStack);
+  item.itemRedoStack = filterStack(item.itemRedoStack);
+  return item.itemUndoStack.length !== origUndoLen || item.itemRedoStack.length !== origRedoLen;
+}
 function purgeBurnedItemFromStacks(state, id) {
   purgeAllBurnedFromStacks(state, new Set([id]));
 }
@@ -448,6 +467,7 @@ window.State = {
   dedupeVersions,
   itemUndo,
   itemRedo,
+  purgeOrphanedItemUndoRedo,
   purgeBurnedItemFromStacks,
   purgeAllBurnedFromStacks,
   purgeVersionsFromStacks,
