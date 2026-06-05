@@ -205,11 +205,19 @@ function undo(state) {
   state.items.forEach(function (i) {
     liveStacks[i.id] = { itemUndoStack: i.itemUndoStack || [], itemRedoStack: i.itemRedoStack || [] };
   });
-  state.redoStack.push(snapshotItems(state));
-  state.items = state.undoStack.pop().map(function (item) {
+  var currentSnap = snapshotItems(state);
+  var targetSnap  = state.undoStack.pop();
+  state.redoStack.push(currentSnap);
+  var seen   = {};
+  var result = targetSnap.map(function (item) {
+    seen[item.id] = true;
     var stacks = liveStacks[item.id] || { itemUndoStack: [], itemRedoStack: [] };
     return Object.assign({}, item, stacks);
   });
+  state.items.forEach(function (item) {
+    if (!seen[item.id]) result.push(Object.assign({}, item, { deleted: true, starred: false }));
+  });
+  state.items = result;
   _persistStacks(state);
   return true;
 }
@@ -219,11 +227,19 @@ function redo(state) {
   state.items.forEach(function (i) {
     liveStacks[i.id] = { itemUndoStack: i.itemUndoStack || [], itemRedoStack: i.itemRedoStack || [] };
   });
-  state.undoStack.push(snapshotItems(state));
-  state.items = state.redoStack.pop().map(function (item) {
+  var currentSnap = snapshotItems(state);
+  var targetSnap  = state.redoStack.pop();
+  state.undoStack.push(currentSnap);
+  var seen   = {};
+  var result = targetSnap.map(function (item) {
+    seen[item.id] = true;
     var stacks = liveStacks[item.id] || { itemUndoStack: [], itemRedoStack: [] };
     return Object.assign({}, item, stacks);
   });
+  state.items.forEach(function (item) {
+    if (!seen[item.id]) result.push(Object.assign({}, item, { deleted: true, starred: false }));
+  });
+  state.items = result;
   _persistStacks(state);
   return true;
 }

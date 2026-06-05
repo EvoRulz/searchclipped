@@ -1,6 +1,6 @@
 'use strict';
-// @version 195
-var SC_VERSION = '@version 195';
+// @version 196
+var SC_VERSION = '@version 196';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -723,6 +723,7 @@ document.addEventListener('sc:filter-tag', function (e) {
         }));
         await DB.importImages(records);
       }
+      State.pushUndo(state);
       // Restore metadata — merge items, prefer imported for conflicts
       var imported = payload.metadata;
       var existingIds = new Set(state.items.map(function (i) { return i.id; }));
