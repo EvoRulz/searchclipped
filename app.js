@@ -1,6 +1,6 @@
 'use strict';
-// @version 212
-var SC_VERSION = '@version 212';
+// @version 213
+var SC_VERSION = '@version 213';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -386,13 +386,32 @@ var SC_VERSION = '@version 212';
       btnStarFilter.textContent = '☆';
     }
   }
-document.addEventListener('sc:filter-tag', function (e) {
+var _savedSearchItems  = true;
+  var _savedSearchTitles = true;
+  var _tagFilterActive   = false;
+  document.addEventListener('sc:filter-tag', function (e) {
     if (searchInput.value === e.detail.tag) {
       searchInput.value = '';
       query             = '';
+      if (_tagFilterActive) {
+        searchItems            = _savedSearchItems;
+        searchTitles           = _savedSearchTitles;
+        cbSearchItems.checked  = searchItems;
+        cbSearchTitles.checked = searchTitles;
+        _tagFilterActive       = false;
+      }
     } else {
-      searchInput.value = e.detail.tag;
-      query             = e.detail.tag;
+      if (!_tagFilterActive) {
+        _savedSearchItems  = searchItems;
+        _savedSearchTitles = searchTitles;
+        _tagFilterActive   = true;
+      }
+      searchInput.value      = e.detail.tag;
+      query                  = e.detail.tag;
+      searchItems            = false;
+      searchTitles           = false;
+      cbSearchItems.checked  = false;
+      cbSearchTitles.checked = false;
     }
     refresh();
   });
