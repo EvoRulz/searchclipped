@@ -1,6 +1,6 @@
 'use strict';
-// @version 213
-var SC_VERSION = '@version 213';
+// @version 214
+var SC_VERSION = '@version 214';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -194,7 +194,16 @@ var SC_VERSION = '@version 213';
     searchInput.placeholder = base + del + '...';
   }
   /* ===== SEARCH ===== */
+  function _revertTagFilter() {
+    if (!_tagFilterActive) return;
+    searchItems            = _savedSearchItems;
+    searchTitles           = _savedSearchTitles;
+    cbSearchItems.checked  = searchItems;
+    cbSearchTitles.checked = searchTitles;
+    _tagFilterActive       = false;
+  }
   searchInput.addEventListener('input', function () {
+    _revertTagFilter();
     query = searchInput.value;
     refresh();
   });
@@ -511,6 +520,7 @@ var _savedSearchItems  = true;
       if (document.activeElement === searchInput && !searchInput.value) {
         searchInput.blur();
       } else {
+        _revertTagFilter();
         searchInput.value = '';
         query = '';
         refresh();
