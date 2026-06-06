@@ -726,9 +726,9 @@ _versions.slice().reverse().forEach(function (ver, rIdx) {
           content.innerHTML = _diffToHTML(_charDiff(_diffCurText, _diffVerText));
           titleEl.innerHTML = _diffToHTML(_charDiff(_diffCurTitle, _diffVerTitle)) + '<span style="color:var(--text-ph)"> (preview)</span>';
         } else {
-          content.textContent = _diffVerText;
-          titleEl.textContent = _diffVerTitle || '';
-          titleEl.innerHTML += '<span style="color:var(--text-ph)"> (preview)</span>';
+          content.innerHTML = '<span style="color:var(--yellow)">' + _diffVerText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>') + '</span>';
+      titleEl.textContent = _diffVerTitle || '';
+      titleEl.innerHTML += '<span style="color:var(--text-ph)"> (preview)</span>';
         }
         vTs.classList.add('version-ts-peeking');
       }

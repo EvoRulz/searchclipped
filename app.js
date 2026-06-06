@@ -1,6 +1,6 @@
 'use strict';
-// @version 210
-var SC_VERSION = '@version 210';
+// @version 211
+var SC_VERSION = '@version 211';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -430,6 +430,8 @@ document.addEventListener('sc:filter-tag', function (e) {
       peekThreshInput.value = v;
       localStorage.setItem('sc_peek_threshold', v);
       Render.setPeekThreshold(v);
+      var _peeking = document.querySelector('.version-entry-ts.version-ts-peeking');
+      if (_peeking) { _peeking.click(); _peeking.click(); }
     });
   }
   /* ===== ALT SHORTCUTS ===== */
