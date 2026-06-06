@@ -1,6 +1,6 @@
 'use strict';
-// @version 217
-var SC_VERSION = '@version 217';
+// @version 218
+var SC_VERSION = '@version 218';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -424,6 +424,7 @@ var _savedSearchItems  = true;
       cbSearchTitles.checked = false;
     }
     refresh();
+    _saveUiState();
   });
   btnStarFilter.addEventListener('click', function () {
     state.starFilter = !state.starFilter;
