@@ -1,6 +1,6 @@
 'use strict';
-// @version 221
-var SC_VERSION = '@version 221';
+// @version 222
+var SC_VERSION = '@version 222';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -38,7 +38,7 @@ var SC_VERSION = '@version 221';
   var hideTitleEntry   = false;
   var hideItemEntry    = false;
   var hideImgEntry     = false;
-  var hideFilterRow    = false;
+  var hideFilterRow    = true;
   var searchItems        = true;
   var searchTitles       = true;
   var searchTags         = true;
@@ -170,6 +170,8 @@ var SC_VERSION = '@version 221';
   document.addEventListener('sc:create-item', function () { _refocusEntry = true; });
   /* ===== INIT ITEMS ===== */
   _loadUiState();
+  document.getElementById('filter-row').style.display = hideFilterRow ? 'none' : '';
+  btnToggleFilterRow.textContent = hideFilterRow ? 'show list' : 'hide list';
   Items.init(state, refresh);
   /* Initial render */
   refresh();

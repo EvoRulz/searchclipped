@@ -1157,3 +1157,4 @@ button { font-family: var(--font); }
 #app.hide-ts-restored .item:not(.new-placeholder) .item-ts-restored { display: none; }
 .version-entry.version-deleted { display: none; }
 #app.show-deleted .version-entry.version-deleted { display: flex; }
+
