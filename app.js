@@ -1,6 +1,6 @@
 'use strict';
-// @version 218
-var SC_VERSION = '@version 218';
+// @version 219
+var SC_VERSION = '@version 219';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -39,9 +39,12 @@ var SC_VERSION = '@version 218';
   var hideItemEntry    = false;
   var hideImgEntry     = false;
   var hideFilterRow    = false;
-  var searchItems  = true;
-  var searchTitles = true;
-  var searchTags   = true;
+  var searchItems        = true;
+  var searchTitles       = true;
+  var searchTags         = true;
+  var _savedSearchItems  = true;
+  var _savedSearchTitles = true;
+  var _tagFilterActive   = false;
   /* ===== HEADER ELEMENTS ===== */
   var searchInput    = document.getElementById('search-input');
   var cbSelectAll    = document.getElementById('cb-select-all');
@@ -396,10 +399,7 @@ var SC_VERSION = '@version 218';
       btnStarFilter.textContent = '☆';
     }
   }
-var _savedSearchItems  = true;
-  var _savedSearchTitles = true;
-  var _tagFilterActive   = false;
-  document.addEventListener('sc:filter-tag', function (e) {
+document.addEventListener('sc:filter-tag', function (e) {
     if (searchInput.value === e.detail.tag) {
       searchInput.value = '';
       query             = '';
