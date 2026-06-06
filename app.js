@@ -1,6 +1,6 @@
 'use strict';
-// @version 216
-var SC_VERSION = '@version 216';
+// @version 217
+var SC_VERSION = '@version 217';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -885,7 +885,8 @@ var _savedSearchItems  = true;
         hideCheckboxes: hideCheckboxes, hideDelete: hideDelete,
         hideTitleEntry: hideTitleEntry, hideItemEntry: hideItemEntry,
         hideImgEntry: hideImgEntry, hideFilterRow: hideFilterRow,
-        searchItems: searchItems, searchTitles: searchTitles, searchTags: searchTags
+        searchItems: searchItems, searchTitles: searchTitles, searchTags: searchTags,
+        tagFilterActive: _tagFilterActive, savedSearchItems: _savedSearchItems, savedSearchTitles: _savedSearchTitles
       }));
     } catch(e) {}
   }
@@ -960,6 +961,9 @@ var _savedSearchItems  = true;
       if (p.searchItems !== undefined)    { searchItems = p.searchItems; cbSearchItems.checked = searchItems; }
       if (p.searchTitles !== undefined)   { searchTitles = p.searchTitles; cbSearchTitles.checked = searchTitles; }
       if (p.searchTags !== undefined)     { searchTags = p.searchTags; cbSearchTags.checked = searchTags; }
+      if (p.tagFilterActive !== undefined) { _tagFilterActive = p.tagFilterActive; }
+      if (p.savedSearchItems !== undefined) { _savedSearchItems = p.savedSearchItems; }
+      if (p.savedSearchTitles !== undefined) { _savedSearchTitles = p.savedSearchTitles; }
     } catch(e) {}
   }
   (function () {

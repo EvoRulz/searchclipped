@@ -1,6 +1,6 @@
 /* sw.js — SearchClipped Service Worker */
 'use strict';
-var CACHE_NAME = 'searchclipped-v216';
+var CACHE_NAME = 'searchclipped-v217';
 var PRECACHE = [
   './',
   './index.html',
