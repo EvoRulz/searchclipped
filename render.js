@@ -457,11 +457,16 @@ _versionsRaw.forEach(function(v, ri) {
   _versions.push(v);
   _rawIdxMap.push(ri);
 });
+var _vDropShowDel = document.getElementById('app').classList.contains('show-deleted');
+var _vDropVisCount = _versions.filter(function(v) { return _vDropShowDel || !v.deleted; }).length;
 var vDropBtn = document.createElement('button');
 vDropBtn.className = 'version-drop-btn';
-vDropBtn.title = 'Version history (' + _versions.length + ')';
-vDropBtn.textContent = '\u25be';
-if (!_versions.length) vDropBtn.classList.add('no-versions');
+vDropBtn.title = 'Version history (' + _vDropVisCount + ')';
+if (_vDropVisCount === 0) {
+  vDropBtn.style.display = 'none';
+} else {
+  vDropBtn.textContent = '\u25be ' + _vDropVisCount;
+}
 var curNameInput = document.createElement('input');
 curNameInput.type = 'text';
 curNameInput.className = 'version-name-input';
