@@ -37,6 +37,10 @@
   border-top: 1px solid var(--border-lo);
   background: var(--bg-dark);
   flex-shrink: 0;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 .storage-line {
   display: flex;
