@@ -1,6 +1,6 @@
 'use strict';
-// @version 238
-var SC_VERSION = '@version 238';
+// @version 239
+var SC_VERSION = '@version 239';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -405,7 +405,7 @@ var _savedQuery        = '';
     }
   }
 document.addEventListener('sc:filter-tag', function (e) {
-    if (searchInput.value === e.detail.tag) {
+    if (searchInput.value === e.detail.tag && _tagFilterActive) {
       searchInput.value = _savedQuery;
       query             = _savedQuery;
       if (_tagFilterActive) {
