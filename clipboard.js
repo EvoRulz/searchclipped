@@ -16,7 +16,12 @@ async function writeItem(item) {
   if (item.imageId) {
     return shareImage(item);
   }
-  return writeText(item.text, item.html);
+  var _plain = item.text;
+  if (item.html) {
+    var _stripped = item.html.replace(/<br\s*\/?>/gi, '');
+    if (/<[a-z][^>]*>/i.test(_stripped)) { _plain = item.html; }
+  }
+  return writeText(_plain, item.html);
 }
 async function writeText(plain, html) {
   var allowed = await Perms.request(

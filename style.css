@@ -1177,11 +1177,18 @@ mark.sc-highlight {
   padding: 6px 8px;
   font-family: var(--font);
   font-size: 11px;
-  color: var(--green);
   white-space: pre-wrap;
   word-break: break-all;
   overflow-x: auto;
   margin: 2px 0;
   cursor: text;
 }
-
+.html-preview-iframe {
+  width: 100%;
+  height: 80px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-top: 4px;
+  background: var(--bg-dark);
+  display: block;
+}

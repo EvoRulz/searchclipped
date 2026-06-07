@@ -305,8 +305,20 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   if (_hasHtml && !_currentQuery) {
     var _pre = document.createElement('pre');
     _pre.className = 'html-code-block';
-    _pre.textContent = item.html || '';
+    _pre.innerHTML = _syntaxHighlightHTML(item.html || '');
+    var _previewIframe = document.createElement('iframe');
+    _previewIframe.className = 'html-preview-iframe';
+    _previewIframe.setAttribute('sandbox', 'allow-same-origin');
+    var _iframeStyle = 'body{margin:8px;font-family:sans-serif;font-size:13px;background:#303841;color:#d8dee9;word-break:break-word;}';
+    _previewIframe.setAttribute('srcdoc', '<!DOCTYPE html><html><head><style>' + _iframeStyle + '</style></head><body>' + (item.html || '') + '</body></html>');
+    _previewIframe.addEventListener('load', function () {
+      try {
+        var _h = _previewIframe.contentDocument.body.scrollHeight;
+        _previewIframe.style.height = Math.min(_h + 20, 280) + 'px';
+      } catch (e) {}
+    });
     content.appendChild(_pre);
+    content.appendChild(_previewIframe);
   } else {
     content.innerHTML = _currentQuery ? _highlightText(item.text || '', _currentQuery) : (item.html || item.text || '');
   }
@@ -1084,5 +1096,86 @@ function _charDiff(origText, newText) {
     return out;
   }
   function setPeekThreshold(v) { _peekThreshold = v; }
+function _escHTML(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function _syntaxHighlightHTML(src) {
+  var out = '', i = 0, len = src.length;
+  while (i < len) {
+    if (src.slice(i, i + 4) === '<!--') {
+      var cEnd = src.indexOf('-->', i + 4);
+      if (cEnd === -1) cEnd = len - 3;
+      out += '<span style="color:var(--text-ph)">' + _escHTML(src.slice(i, cEnd + 3)) + '</span>';
+      i = cEnd + 3;
+      continue;
+    }
+    if (src.slice(i, i + 9).toLowerCase() === '<!doctype') {
+      var dEnd = src.indexOf('>', i);
+      if (dEnd === -1) dEnd = len - 1;
+      out += '<span style="color:var(--text-ph)">' + _escHTML(src.slice(i, dEnd + 1)) + '</span>';
+      i = dEnd + 1;
+      continue;
+    }
+    if (src[i] === '<') {
+      var tEnd = src.indexOf('>', i);
+      if (tEnd === -1) { out += _escHTML(src.slice(i)); break; }
+      out += _hlTag(src.slice(i, tEnd + 1));
+      i = tEnd + 1;
+      continue;
+    }
+    var nxt = src.indexOf('<', i);
+    if (nxt === -1) nxt = len;
+    out += '<span style="color:var(--text)">' + _escHTML(src.slice(i, nxt)) + '</span>';
+    i = nxt;
+  }
+  return out;
+}
+function _hlTag(raw) {
+  var inner = raw.slice(1, -1);
+  var selfClose = inner.slice(-1) === '/';
+  if (selfClose) inner = inner.slice(0, -1);
+  var closing = inner[0] === '/';
+  if (closing) inner = inner.slice(1);
+  var nm = inner.match(/^([a-zA-Z][a-zA-Z0-9\-:]*)/);
+  var out = '<span style="color:var(--text-muted)">&lt;' + (closing ? '/' : '') + '</span>';
+  if (!nm) {
+    return out + '<span style="color:var(--text-muted)">' + _escHTML(inner) + '&gt;</span>';
+  }
+  out += '<span style="color:var(--blue-dim)">' + nm[1] + '</span>';
+  out += _hlAttrs(inner.slice(nm[1].length));
+  out += '<span style="color:var(--text-muted)">' + (selfClose ? '/' : '') + '&gt;</span>';
+  return out;
+}
+function _hlAttrs(s) {
+  var out = '', i = 0;
+  while (i < s.length) {
+    var c = s[i];
+    if (/\s/.test(c)) { out += c; i++; continue; }
+    if (c === '/') { i++; continue; }
+    var ae = s.slice(i).search(/[\s=\/]/);
+    if (ae === -1) ae = s.length - i;
+    out += '<span style="color:var(--green)">' + _escHTML(s.slice(i, i + ae)) + '</span>';
+    i += ae;
+    while (i < s.length && /\s/.test(s[i])) { out += s[i]; i++; }
+    if (i < s.length && s[i] === '=') {
+      out += '<span style="color:var(--text-muted)">=</span>';
+      i++;
+      while (i < s.length && /\s/.test(s[i])) { out += s[i]; i++; }
+      if (i < s.length && (s[i] === '"' || s[i] === "'")) {
+        var q = s[i];
+        var ve = s.indexOf(q, i + 1);
+        if (ve === -1) ve = s.length - 1;
+        out += '<span style="color:var(--yellow)">' + _escHTML(s.slice(i, ve + 1)) + '</span>';
+        i = ve + 1;
+      } else {
+        var ve2 = s.slice(i).search(/[\s>]/);
+        if (ve2 === -1) ve2 = s.length - i;
+        out += '<span style="color:var(--yellow)">' + _escHTML(s.slice(i, i + ve2)) + '</span>';
+        i += ve2;
+      }
+    }
+  }
+  return out;
+}
 window.Render = { init, render, drawSelCanvas: _drawSelCanvas, setPeekThreshold };
 
