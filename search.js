@@ -67,45 +67,66 @@ function _matches(item, q, opts) {
   var sg = opts.searchTags   !== false;
   if (!si && !st && !sg) return 0;
   var hasTitle = (item.title || '').trim().length > 0;
-  var INF = 999999;
-  function _wbBonus(text, idx) {
-    if (idx === -1) return 0;
+  function _wb(text, idx) {
+    if (idx === -1) return null;
     var before = idx === 0 || /\W/.test(text[idx - 1]);
     var after  = (idx + q.length) >= text.length || /\W/.test(text[idx + q.length]);
-    if (before && after) return -0.8 * INF;
-    if (before || after) return -0.5 * INF;
-    return 0;
+    if (before && after) return 'whole';
+    if (before || after) return 'startend';
+    return 'mid';
   }
-  var titleIdx = (st && hasTitle) ? (item.title || '').toLowerCase().indexOf(q) : -1;
-  var textIdx  = si               ? (item.text  || '').toLowerCase().indexOf(q) : -1;
-  var textWordBonus  = _wbBonus(item.text  || '', textIdx);
-  var titleWordBonus = _wbBonus(item.title || '', titleIdx);
-  var tagIdx = sg ? (function () {
-    var best = -1;
-    (item.tags || []).forEach(function (t) {
-      var i = t.toLowerCase().indexOf(q);
-      if (i !== -1 && (best === -1 || i < best)) best = i;
+  function _findBest(text, qLower) {
+    var lowerIdx = text.toLowerCase().indexOf(qLower);
+    if (lowerIdx === -1) return null;
+    var exactIdx = text.indexOf(q);
+    var wb = _wb(text, lowerIdx);
+    var isExact = exactIdx === lowerIdx;
+    return { idx: lowerIdx, wb: wb, exact: isExact };
+  }
+  function _findBestTag(tags) {
+    var result = null;
+    tags.forEach(function (t) {
+      var lowerIdx = t.toLowerCase().indexOf(q);
+      if (lowerIdx === -1) return;
+      var exactIdx = t.indexOf(q);
+      var wb = _wb(t, lowerIdx);
+      var isExact = exactIdx === lowerIdx;
+      var candidate = { idx: lowerIdx, wb: wb, exact: isExact };
+      if (result === null || _slotOf(candidate, 'tag') < _slotOf(result, 'tag') ||
+          (_slotOf(candidate, 'tag') === _slotOf(result, 'tag') && candidate.idx < result.idx)) {
+        result = candidate;
+      }
     });
-    return best;
-  })() : -1;
+    return result;
+  }
+  // slot: lower = higher priority
+  // whole word tier: 0-7, startend tier: 8-15 (title/text/tag), mid tier: 16-23
+  // within each boundary tier: title=0, textNoTitle=1, textHasTitle=2, tag=3, then *2 for inexact
+  function _slotOf(m, field) {
+    if (!m) return 999999;
+    var wbBase = m.wb === 'whole' ? 0 : m.wb === 'startend' ? 8 : 16;
+    var fieldBase;
+    if (field === 'title')       fieldBase = 0;
+    else if (field === 'textNT') fieldBase = 2;
+    else if (field === 'textHT') fieldBase = 4;
+    else                         fieldBase = 6; // tag
+    var exactBonus = m.exact ? 0 : 1;
+    return wbBase + fieldBase + exactBonus;
+  }
+  var titleM = (st && hasTitle) ? _findBest(item.title || '', q) : null;
+  var textM  = si               ? _findBest(item.text  || '', q) : null;
+  var tagM   = sg               ? _findBestTag(item.tags || [])  : null;
+  var textField = hasTitle ? 'textHT' : 'textNT';
   var best = null;
-  if (titleIdx !== -1) {
-    var score = 1 * INF + titleIdx + titleWordBonus;
+  function _consider(m, field) {
+    if (!m) return;
+    var slot = _slotOf(m, field);
+    var score = slot * 100000 + m.idx;
     if (best === null || score < best) best = score;
   }
-  if (textIdx !== -1) {
-    var base  = hasTitle ? 2 : 1;
-    var score = base * INF + textIdx + textWordBonus;
-    if (best === null || score < best) best = score;
-  }
-  if (!hasTitle && titleIdx !== -1) {
-    var score = 2 * INF + titleIdx + titleWordBonus;
-    if (best === null || score < best) best = score;
-  }
-  if (tagIdx !== -1) {
-    var score = 3 * INF + tagIdx;
-    if (best === null || score < best) best = score;
-  }
+  _consider(titleM, 'title');
+  _consider(textM,  textField);
+  _consider(tagM,   'tag');
   return best === null ? 0 : best;
 }
 function _sort(items, mode) {
