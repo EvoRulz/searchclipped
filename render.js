@@ -126,8 +126,10 @@ function render(filtered, rest, selectedIds, tagSelMode, selectedTags) {
     }
     frag.appendChild(rowEl);
   });
+  var _storageRow = document.getElementById('storage-row');
   _list.innerHTML = '';
   _list.appendChild(frag);
+  if (_storageRow) _list.appendChild(_storageRow);
 }
 /* ====== PLACEHOLDER ====== */
 function _makePlaceholder() {
