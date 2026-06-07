@@ -1,6 +1,6 @@
 'use strict';
-// @version 223
-var SC_VERSION = '@version 223';
+// @version 224
+var SC_VERSION = '@version 224';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -956,11 +956,6 @@ document.addEventListener('sc:filter-tag', function (e) {
         _a.classList.toggle('hide-item-entry', hideItemEntry);
       }
       if (p.hideImgEntry !== undefined)   { hideImgEntry = p.hideImgEntry; btnHideImgEntry.classList.toggle('active', hideImgEntry); _a.classList.toggle('hide-img-entry', hideImgEntry); }
-      if (p.hideFilterRow !== undefined) {
-        hideFilterRow = p.hideFilterRow;
-        document.getElementById('filter-row').style.display = hideFilterRow ? 'none' : '';
-        btnToggleFilterRow.textContent = hideFilterRow ? 'show list' : 'hide list';
-      }
       if (p.searchItems !== undefined)    { searchItems = p.searchItems; cbSearchItems.checked = searchItems; }
       if (p.searchTitles !== undefined)   { searchTitles = p.searchTitles; cbSearchTitles.checked = searchTitles; }
       if (p.searchTags !== undefined)     { searchTags = p.searchTags; cbSearchTags.checked = searchTags; }
