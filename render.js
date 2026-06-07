@@ -208,6 +208,11 @@ content.addEventListener('blur', function () {
     titleEl.textContent = '';
   }
 });
+content.addEventListener('paste', function (e) {
+  e.preventDefault();
+  var plain = e.clipboardData.getData('text/plain');
+  document.execCommand('insertHTML', false, plain);
+});
 content.addEventListener('keydown', function (e) {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
@@ -315,6 +320,11 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   });
   content.addEventListener('focus', function () {
     if (_currentQuery) { content.innerHTML = item.html || item.text || ''; }
+  });
+  content.addEventListener('paste', function (e) {
+    e.preventDefault();
+    var plain = e.clipboardData.getData('text/plain');
+    document.execCommand('insertHTML', false, plain);
   });
   content.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); content.blur(); }
