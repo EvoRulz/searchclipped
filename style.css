@@ -460,6 +460,13 @@ button { font-family: var(--font); }
   pointer-events: none;
 }
 .item.copy-flash         { border-color: var(--blue); background: var(--surface); }
+mark.sc-highlight {
+  background: var(--yellow);
+  color: var(--bg-dark);
+  border-radius: 2px;
+  padding: 0 1px;
+  font-style: normal;
+}
 .item.keyboard-focused.copy-flash { border-color: var(--blue); outline-color: var(--blue); background: var(--surface); }
 .item.keyboard-focused   { border-color: var(--orange); background: var(--surface); outline: 2px solid var(--orange); outline-offset: 1px; }
 .item.has-image {
