@@ -1,6 +1,6 @@
 'use strict';
-// @version 240
-var SC_VERSION = '@version 240';
+// @version 241
+var SC_VERSION = '@version 241';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -44,8 +44,9 @@ var SC_VERSION = '@version 240';
   var searchTags         = true;
   var _savedSearchItems  = true;
   var _savedSearchTitles = true;
+  var _savedSearchTags   = true;
   var _tagFilterActive   = false;
-var _savedQuery        = '';
+  var _savedQuery        = '';
   /* ===== HEADER ELEMENTS ===== */
   var searchInput    = document.getElementById('search-input');
   var cbSelectAll    = document.getElementById('cb-select-all');
@@ -411,8 +412,10 @@ document.addEventListener('sc:filter-tag', function (e) {
       if (_tagFilterActive) {
         searchItems            = _savedSearchItems;
         searchTitles           = _savedSearchTitles;
+        searchTags             = _savedSearchTags;
         cbSearchItems.checked  = searchItems;
         cbSearchTitles.checked = searchTitles;
+        cbSearchTags.checked   = searchTags;
         _tagFilterActive       = false;
         _savedQuery            = '';
       }
@@ -420,6 +423,7 @@ document.addEventListener('sc:filter-tag', function (e) {
       if (!_tagFilterActive) {
         _savedSearchItems  = searchItems;
         _savedSearchTitles = searchTitles;
+        _savedSearchTags   = searchTags;
         _savedQuery        = query;
         _tagFilterActive   = true;
       }
@@ -427,8 +431,10 @@ document.addEventListener('sc:filter-tag', function (e) {
       query                  = e.detail.tag;
       searchItems            = false;
       searchTitles           = false;
+      searchTags             = true;
       cbSearchItems.checked  = false;
       cbSearchTitles.checked = false;
+      cbSearchTags.checked   = true;
     }
     refresh();
     _saveUiState();
@@ -894,7 +900,7 @@ document.addEventListener('sc:filter-tag', function (e) {
         hideTitleEntry: hideTitleEntry, hideItemEntry: hideItemEntry,
         hideImgEntry: hideImgEntry, hideFilterRow: hideFilterRow,
         searchItems: searchItems, searchTitles: searchTitles, searchTags: searchTags,
-        tagFilterActive: _tagFilterActive, savedSearchItems: _savedSearchItems, savedSearchTitles: _savedSearchTitles, savedQuery: _savedQuery
+        tagFilterActive: _tagFilterActive, savedSearchItems: _savedSearchItems, savedSearchTitles: _savedSearchTitles, savedSearchTags: _savedSearchTags, savedQuery: _savedQuery
       }));
     } catch(e) {}
   }
@@ -967,6 +973,7 @@ document.addEventListener('sc:filter-tag', function (e) {
       if (p.tagFilterActive !== undefined) { _tagFilterActive = p.tagFilterActive; }
       if (p.savedSearchItems !== undefined) { _savedSearchItems = p.savedSearchItems; }
       if (p.savedSearchTitles !== undefined) { _savedSearchTitles = p.savedSearchTitles; }
+      if (p.savedSearchTags !== undefined)   { _savedSearchTags = p.savedSearchTags; }
       if (p.savedQuery !== undefined)        { _savedQuery = p.savedQuery; }
     } catch(e) {}
   }
