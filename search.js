@@ -67,11 +67,36 @@ function _matches(item, q, opts) {
   var sg = opts.searchTags   !== false;
   if (!si && !st && !sg) return 0;
   var hasTitle = (item.title || '').trim().length > 0;
-  if (st && hasTitle && (item.title || '').toLowerCase().includes(q)) return 1;
-  if (si && (item.text  || '').toLowerCase().includes(q)) return hasTitle ? 2 : 1;
-  if (st && !hasTitle && (item.title || '').toLowerCase().includes(q)) return 2;
-  if (sg && item.tags.some(function (t) { return t.toLowerCase().includes(q); })) return 3;
-  return 0;
+  var INF = 999999;
+  var titleIdx = (st && hasTitle) ? (item.title || '').toLowerCase().indexOf(q) : -1;
+  var textIdx  = si               ? (item.text  || '').toLowerCase().indexOf(q) : -1;
+  var tagIdx   = sg               ? (function () {
+    var best = -1;
+    (item.tags || []).forEach(function (t) {
+      var i = t.toLowerCase().indexOf(q);
+      if (i !== -1 && (best === -1 || i < best)) best = i;
+    });
+    return best;
+  })() : -1;
+  var best = null;
+  if (titleIdx !== -1) {
+    var score = 1 * INF + titleIdx;
+    if (best === null || score < best) best = score;
+  }
+  if (textIdx !== -1) {
+    var base  = hasTitle ? 2 : 1;
+    var score = base * INF + textIdx;
+    if (best === null || score < best) best = score;
+  }
+  if (!hasTitle && titleIdx !== -1) {
+    var score = 2 * INF + titleIdx;
+    if (best === null || score < best) best = score;
+  }
+  if (tagIdx !== -1) {
+    var score = 3 * INF + tagIdx;
+    if (best === null || score < best) best = score;
+  }
+  return best === null ? 0 : best;
 }
 function _sort(items, mode) {
   if (mode === 'created' || mode === 'created-desc') {
