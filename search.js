@@ -72,7 +72,8 @@ function _matches(item, q, opts) {
     var before = idx === 0 || /\W/.test(text[idx - 1]);
     var after  = (idx + q.length) >= text.length || /\W/.test(text[idx + q.length]);
     if (before && after) return 'whole';
-    if (before || after) return 'startend';
+    if (before) return 'start';
+    if (after)  return 'end';
     return 'mid';
   }
   function _findBest(text, qLower) {
@@ -100,11 +101,11 @@ function _matches(item, q, opts) {
     return result;
   }
   // slot: lower = higher priority
-  // whole word tier: 0-7, startend tier: 8-15 (title/text/tag), mid tier: 16-23
-  // within each boundary tier: title=0, textNoTitle=1, textHasTitle=2, tag=3, then *2 for inexact
+  // whole word tier: 0-7, start tier: 8-15, end tier: 16-23, mid tier: 24-31
+  // within each boundary tier: title=0, textNoTitle=2, textHasTitle=4, tag=6, then +1 for inexact
   function _slotOf(m, field) {
     if (!m) return 999999;
-    var wbBase = m.wb === 'whole' ? 0 : m.wb === 'startend' ? 8 : 16;
+    var wbBase = m.wb === 'whole' ? 0 : m.wb === 'start' ? 8 : m.wb === 'end' ? 16 : 24;
     var fieldBase;
     if (field === 'title')       fieldBase = 0;
     else if (field === 'textNT') fieldBase = 2;
