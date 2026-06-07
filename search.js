@@ -68,11 +68,19 @@ function _matches(item, q, opts) {
   if (!si && !st && !sg) return 0;
   var hasTitle = (item.title || '').trim().length > 0;
   var INF = 999999;
+  function _wbBonus(text, idx) {
+    if (idx === -1) return 0;
+    var before = idx === 0 || /\W/.test(text[idx - 1]);
+    var after  = (idx + q.length) >= text.length || /\W/.test(text[idx + q.length]);
+    if (before && after) return -0.8 * INF;
+    if (before || after) return -0.5 * INF;
+    return 0;
+  }
   var titleIdx = (st && hasTitle) ? (item.title || '').toLowerCase().indexOf(q) : -1;
   var textIdx  = si               ? (item.text  || '').toLowerCase().indexOf(q) : -1;
-  var textWordBonus  = (textIdx  !== -1 && (textIdx  === 0 || /\s/.test((item.text  || '')[textIdx  - 1]))) ? -0.5 * INF : 0;
-  var titleWordBonus = (titleIdx !== -1 && (titleIdx === 0 || /\s/.test((item.title || '')[titleIdx - 1]))) ? -0.5 * INF : 0;
-  var tagIdx   = sg               ? (function () {
+  var textWordBonus  = _wbBonus(item.text  || '', textIdx);
+  var titleWordBonus = _wbBonus(item.title || '', titleIdx);
+  var tagIdx = sg ? (function () {
     var best = -1;
     (item.tags || []).forEach(function (t) {
       var i = t.toLowerCase().indexOf(q);
