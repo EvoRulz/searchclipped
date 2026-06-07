@@ -70,6 +70,8 @@ function _matches(item, q, opts) {
   var INF = 999999;
   var titleIdx = (st && hasTitle) ? (item.title || '').toLowerCase().indexOf(q) : -1;
   var textIdx  = si               ? (item.text  || '').toLowerCase().indexOf(q) : -1;
+  var textWordBonus  = (textIdx  !== -1 && (textIdx  === 0 || /\s/.test((item.text  || '')[textIdx  - 1]))) ? -0.5 * INF : 0;
+  var titleWordBonus = (titleIdx !== -1 && (titleIdx === 0 || /\s/.test((item.title || '')[titleIdx - 1]))) ? -0.5 * INF : 0;
   var tagIdx   = sg               ? (function () {
     var best = -1;
     (item.tags || []).forEach(function (t) {
@@ -80,16 +82,16 @@ function _matches(item, q, opts) {
   })() : -1;
   var best = null;
   if (titleIdx !== -1) {
-    var score = 1 * INF + titleIdx;
+    var score = 1 * INF + titleIdx + titleWordBonus;
     if (best === null || score < best) best = score;
   }
   if (textIdx !== -1) {
     var base  = hasTitle ? 2 : 1;
-    var score = base * INF + textIdx;
+    var score = base * INF + textIdx + textWordBonus;
     if (best === null || score < best) best = score;
   }
   if (!hasTitle && titleIdx !== -1) {
-    var score = 2 * INF + titleIdx;
+    var score = 2 * INF + titleIdx + titleWordBonus;
     if (best === null || score < best) best = score;
   }
   if (tagIdx !== -1) {
