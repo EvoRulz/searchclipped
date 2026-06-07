@@ -481,13 +481,18 @@ _versionsRaw.forEach(function(v, ri) {
 });
 var _vDropShowDel = document.getElementById('app').classList.contains('show-deleted');
 var _vDropVisCount = _versions.filter(function(v) { return _vDropShowDel || !v.deleted; }).length;
+var _vDropTotalCount = _versions.length;
 var vDropBtn = document.createElement('button');
 vDropBtn.className = 'version-drop-btn';
 vDropBtn.title = 'Version history (' + _vDropVisCount + ')';
-if (_vDropVisCount === 0) {
-  vDropBtn.style.display = 'none';
+if (_vDropTotalCount === 0) {
+    vDropBtn.style.display = 'none';
+} else if (_vDropVisCount === 0) {
+    vDropBtn.style.display = '';
+    vDropBtn.textContent = '\u25be \u2205';
 } else {
-  vDropBtn.textContent = '\u25be ' + _vDropVisCount;
+    vDropBtn.style.display = '';
+    vDropBtn.textContent = '\u25be ' + _vDropVisCount;
 }
 var curNameInput = document.createElement('input');
 curNameInput.type = 'text';
