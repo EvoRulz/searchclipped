@@ -301,7 +301,15 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   var content = document.createElement('div');
   content.className       = 'item-content';
   content.contentEditable = item.deleted ? 'false' : 'true';
-  content.innerHTML = _currentQuery ? _highlightText(item.text || '', _currentQuery) : (item.html || item.text || '');
+  var _hasHtml = _isHtmlContent(item.html);
+  if (_hasHtml && !_currentQuery) {
+    var _pre = document.createElement('pre');
+    _pre.className = 'html-code-block';
+    _pre.textContent = item.html || '';
+    content.appendChild(_pre);
+  } else {
+    content.innerHTML = _currentQuery ? _highlightText(item.text || '', _currentQuery) : (item.html || item.text || '');
+  }
   content.setAttribute('data-id', item.id);
   content.addEventListener('blur', function () {
     var newText = content.innerHTML
@@ -319,7 +327,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     }
   });
   content.addEventListener('focus', function () {
-    if (_currentQuery) { content.innerHTML = item.html || item.text || ''; }
+    if (_currentQuery || _isHtmlContent(item.html)) { content.innerHTML = item.html || item.text || ''; }
   });
   content.addEventListener('paste', function (e) {
     e.preventDefault();
@@ -1006,6 +1014,11 @@ function _attachSwipe(el, id) {
   });
 }
 /* ====== HELPERS ====== */
+function _isHtmlContent(html) {
+  if (!html) return false;
+  var stripped = html.replace(/<br\s*\/?>/gi, '');
+  return /<[a-z][^>]*>/i.test(stripped);
+}
 function _highlightText(plainText, query) {
   if (!query || !plainText) {
     return (plainText || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
