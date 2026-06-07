@@ -420,6 +420,7 @@ async function bulkBurn(ids) {
 async function _onVersionHardDelete(e) {
   var ok = await Modals.confirm('Permanently destroy ' + e.detail.indices.length + ' version(s)? This cannot be undone.', 'burn');
   if (!ok) return;
+  var closePanel = e.detail.closePanel || false;
   var item = State.getItem(_state, e.detail.id);
   if (!item) return;
   var sorted = e.detail.indices.slice().sort(function (a, b) { return b - a; });
@@ -442,6 +443,9 @@ async function _onVersionHardDelete(e) {
   State.purgeOrphanedItemUndoRedo(item);
   State.purgeItemContentFromStacks(_state, item.id, burnedKeys);
   State.saveState(_state);
+  if (closePanel) {
+    document.dispatchEvent(new CustomEvent('sc:close-version-panel', { detail: { id: item.id } }));
+  }
   _refresh();
 }
 window.Items = {

@@ -79,6 +79,9 @@ function init(state) {
   _list  = document.getElementById('item-list');
   var _stored = parseInt(localStorage.getItem('sc_peek_threshold'), 10);
   if (!isNaN(_stored)) _peekThreshold = _stored;
+  document.addEventListener('sc:close-version-panel', function (e) {
+    _openVersionPanels.delete(e.detail.id);
+  });
 }
 /*
  * render(filtered, rest, selectedIds, tagSelMode, selectedTags)
@@ -630,8 +633,9 @@ vDelVerBtn.addEventListener('click', function (ev) {
 });
 vBurnVerBtn.addEventListener('click', function (ev) {
   ev.stopPropagation();
+  var burningAll = Array.from(_selVersions).length === _versions.length;
   document.dispatchEvent(new CustomEvent('sc:version-hard-delete', {
-    detail: { id: item.id, indices: Array.from(_selVersions).map(function(i){ return _rawIdxMap[i]; }) }
+    detail: { id: item.id, indices: Array.from(_selVersions).map(function(i){ return _rawIdxMap[i]; }), closePanel: burningAll }
   }));
 });
 vRestVerBtn.addEventListener('click', function (ev) {
