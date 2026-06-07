@@ -1,6 +1,6 @@
 'use strict';
-// @version 241
-var SC_VERSION = '@version 241';
+// @version 242
+var SC_VERSION = '@version 242';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -75,6 +75,7 @@ var SC_VERSION = '@version 241';
   var cbSearchItems  = document.getElementById('cb-search-items');
   var cbSearchTitles = document.getElementById('cb-search-titles');
   var cbSearchTags   = document.getElementById('cb-search-tags');
+  var btnClearSearch = document.getElementById('btn-clear-search');
   var btnStarFilter  = document.getElementById('btn-star-filter');
   var btnUndo        = document.getElementById('btn-undo');
   var btnRedo        = document.getElementById('btn-redo');
@@ -211,11 +212,21 @@ var SC_VERSION = '@version 241';
     cbSearchItems.checked  = searchItems;
     cbSearchTitles.checked = searchTitles;
     _tagFilterActive       = false;
+    btnClearSearch.style.display = searchInput.value ? '' : 'none';
   }
   searchInput.addEventListener('input', function () {
     _revertTagFilter();
     query = searchInput.value;
+    btnClearSearch.style.display = query ? '' : 'none';
     refresh();
+  });
+  btnClearSearch.addEventListener('click', function () {
+    _revertTagFilter();
+    searchInput.value = '';
+    query = '';
+    btnClearSearch.style.display = 'none';
+    refresh();
+    searchInput.focus();
   });
   searchInput.addEventListener('keydown', function (e) {
     if (e.key === 'Tab') {
@@ -429,6 +440,7 @@ document.addEventListener('sc:filter-tag', function (e) {
       }
       searchInput.value      = e.detail.tag;
       query                  = e.detail.tag;
+      btnClearSearch.style.display = '';
       searchItems            = false;
       searchTitles           = false;
       searchTags             = true;
@@ -538,6 +550,7 @@ document.addEventListener('sc:filter-tag', function (e) {
         _revertTagFilter();
         searchInput.value = '';
         query = '';
+        btnClearSearch.style.display = 'none';
         refresh();
         searchInput.focus();
       }
