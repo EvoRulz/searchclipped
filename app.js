@@ -1,6 +1,6 @@
 'use strict';
-// @version 237
-var SC_VERSION = '@version 237';
+// @version 238
+var SC_VERSION = '@version 238';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -45,6 +45,7 @@ var SC_VERSION = '@version 237';
   var _savedSearchItems  = true;
   var _savedSearchTitles = true;
   var _tagFilterActive   = false;
+var _savedQuery        = '';
   /* ===== HEADER ELEMENTS ===== */
   var searchInput    = document.getElementById('search-input');
   var cbSelectAll    = document.getElementById('cb-select-all');
@@ -405,19 +406,21 @@ var SC_VERSION = '@version 237';
   }
 document.addEventListener('sc:filter-tag', function (e) {
     if (searchInput.value === e.detail.tag) {
-      searchInput.value = '';
-      query             = '';
+      searchInput.value = _savedQuery;
+      query             = _savedQuery;
       if (_tagFilterActive) {
         searchItems            = _savedSearchItems;
         searchTitles           = _savedSearchTitles;
         cbSearchItems.checked  = searchItems;
         cbSearchTitles.checked = searchTitles;
         _tagFilterActive       = false;
+        _savedQuery            = '';
       }
     } else {
       if (!_tagFilterActive) {
         _savedSearchItems  = searchItems;
         _savedSearchTitles = searchTitles;
+        _savedQuery        = query;
         _tagFilterActive   = true;
       }
       searchInput.value      = e.detail.tag;
@@ -891,7 +894,7 @@ document.addEventListener('sc:filter-tag', function (e) {
         hideTitleEntry: hideTitleEntry, hideItemEntry: hideItemEntry,
         hideImgEntry: hideImgEntry, hideFilterRow: hideFilterRow,
         searchItems: searchItems, searchTitles: searchTitles, searchTags: searchTags,
-        tagFilterActive: _tagFilterActive, savedSearchItems: _savedSearchItems, savedSearchTitles: _savedSearchTitles
+        tagFilterActive: _tagFilterActive, savedSearchItems: _savedSearchItems, savedSearchTitles: _savedSearchTitles, savedQuery: _savedQuery
       }));
     } catch(e) {}
   }
@@ -964,6 +967,7 @@ document.addEventListener('sc:filter-tag', function (e) {
       if (p.tagFilterActive !== undefined) { _tagFilterActive = p.tagFilterActive; }
       if (p.savedSearchItems !== undefined) { _savedSearchItems = p.savedSearchItems; }
       if (p.savedSearchTitles !== undefined) { _savedSearchTitles = p.savedSearchTitles; }
+      if (p.savedQuery !== undefined)        { _savedQuery = p.savedQuery; }
     } catch(e) {}
   }
   (function () {
