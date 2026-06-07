@@ -294,7 +294,14 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   content.innerHTML = _currentQuery ? _highlightText(item.text || '', _currentQuery) : (item.html || item.text || '');
   content.setAttribute('data-id', item.id);
   content.addEventListener('blur', function () {
-    var newText = (content.textContent || '').trim();
+    var newText = content.innerHTML
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/<[^>]+>/g, '')
+        .trim();
     if (newText !== (item.text || '').trim()) {
       document.dispatchEvent(new CustomEvent('sc:edit-item', {
         detail: { id: item.id, text: newText, html: content.innerHTML }
