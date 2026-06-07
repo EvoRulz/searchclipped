@@ -46,13 +46,17 @@ function getDisplayList(state, query, opts) {
   var filteredStarred = [], restStarred   = [];
   var filteredNormal  = [], restNormal    = [];
   starred.forEach(function (item) {
-    if (_matches(item, q, opts)) filteredStarred.push(item);
-    else                         restStarred.push(item);
+    var p = _matches(item, q, opts);
+    if (p) { item._matchPriority = p; filteredStarred.push(item); }
+    else   restStarred.push(item);
   });
   normal.forEach(function (item) {
-    if (_matches(item, q, opts)) filteredNormal.push(item);
-    else                         restNormal.push(item);
+    var p = _matches(item, q, opts);
+    if (p) { item._matchPriority = p; filteredNormal.push(item); }
+    else   restNormal.push(item);
   });
+  filteredStarred.sort(function (a, b) { return a._matchPriority - b._matchPriority; });
+  filteredNormal.sort(function (a, b)  { return a._matchPriority - b._matchPriority; });
   var filtered = filteredStarred.concat(filteredNormal);
   var rest     = restStarred.concat(restNormal);
   return { filtered: filtered, rest: rest };
@@ -61,11 +65,13 @@ function _matches(item, q, opts) {
   var si = opts.searchItems  !== false;
   var st = opts.searchTitles !== false;
   var sg = opts.searchTags   !== false;
-  if (!si && !st && !sg) return false;
-  if (si && (item.text  || '').toLowerCase().includes(q)) return true;
-  if (st && (item.title || '').toLowerCase().includes(q)) return true;
-  if (sg && item.tags.some(function (t) { return t.toLowerCase().includes(q); })) return true;
-  return false;
+  if (!si && !st && !sg) return 0;
+  var hasTitle = (item.title || '').trim().length > 0;
+  if (st && hasTitle && (item.title || '').toLowerCase().includes(q)) return 1;
+  if (si && (item.text  || '').toLowerCase().includes(q)) return hasTitle ? 2 : 1;
+  if (st && !hasTitle && (item.title || '').toLowerCase().includes(q)) return 2;
+  if (sg && item.tags.some(function (t) { return t.toLowerCase().includes(q); })) return 3;
+  return 0;
 }
 function _sort(items, mode) {
   if (mode === 'created' || mode === 'created-desc') {
