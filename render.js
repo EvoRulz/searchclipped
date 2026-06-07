@@ -13,6 +13,7 @@ var _peekThreshold      = 200;
 var _versionSelections  = {};
 var _versionSelectAll   = new Set();
 var _currentQuery       = '';
+var _tagFilterActive    = false;
 function _drawSelCanvas(canvas, total, selSet, emptySelected) {
   var ctx = canvas.getContext('2d');
   var w = canvas.width;
@@ -82,8 +83,9 @@ function init(state) {
 /*
  * render(filtered, rest, selectedIds, tagSelMode, selectedTags)
  */
-function render(filtered, rest, selectedIds, tagSelMode, selectedTags, query) {
+function render(filtered, rest, selectedIds, tagSelMode, selectedTags, query, tagFilterActive) {
   _currentQuery = (query || '').trim();
+  _tagFilterActive = tagFilterActive || false;
   _topBumped = State.getTopBumped(_state, 10);
   var frag   = document.createDocumentFragment();
   // New-item placeholder always first
@@ -860,7 +862,7 @@ footer.appendChild(hardDelBtn);
 }
 footer.appendChild(tsCont);
   // Tags row
-var tagsRow = _makeTagsRow(item, tagSelMode, selectedTags);
+var tagsRow = _makeTagsRow(item, tagSelMode, selectedTags, isFiltered);
 footer.appendChild(tagsRow);
 el.appendChild(footer);
   // --- Swipe-to-delete ---
@@ -896,15 +898,22 @@ rowWrap.appendChild(outerTrash);
 return rowWrap;
 }
 /* ====== TAGS ROW ====== */
-function _makeTagsRow(item, tagSelMode, selectedTags) {
+function _makeTagsRow(item, tagSelMode, selectedTags, isFiltered) {
   var row = document.createElement('div');
   row.className = 'tags-row' + (tagSelMode ? ' tag-sel-mode' : '');
   if (item.tags && item.tags.length > 0) {
     item.tags.forEach(function (tag) {
       var pill = document.createElement('span');
       pill.className   = 'tag-pill' + ((selectedTags && selectedTags.has(tag + '|' + item.id)) ? ' selected' : '');
-      if (_currentQuery) { pill.innerHTML = _highlightText(tag, _currentQuery); }
-      else { pill.textContent = tag; }
+      var tagMatches = _currentQuery && tag.toLowerCase().indexOf(_currentQuery.toLowerCase()) !== -1;
+      if (_tagFilterActive && isFiltered && tagMatches) {
+        pill.textContent = tag;
+        pill.classList.add('tag-match');
+      } else if (_currentQuery) {
+        pill.innerHTML = _highlightText(tag, _currentQuery);
+      } else {
+        pill.textContent = tag;
+      }
       if (tagSelMode) {
         pill.addEventListener('click', function () {
           document.dispatchEvent(new CustomEvent('sc:toggle-tag-sel', {

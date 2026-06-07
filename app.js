@@ -1,6 +1,6 @@
 'use strict';
-// @version 234
-var SC_VERSION = '@version 234';
+// @version 235
+var SC_VERSION = '@version 235';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -115,7 +115,8 @@ var SC_VERSION = '@version 234';
       Items.getSelectedIds(),
       Items.getTagSelMode(),
       Items.getSelectedTags(),
-      query
+      query,
+      _tagFilterActive
     );
     _updateUndoRedo();
     _updateStarBtn();

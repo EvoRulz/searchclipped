@@ -887,6 +887,7 @@ mark.sc-highlight {
 }
 .tag-sel-mode .tag-pill { cursor: pointer; }
 .tag-pill.selected      { background: var(--purple); color: var(--bg-dark); border-color: var(--purple); }
+.tag-pill.tag-match     { border-color: var(--purple); box-shadow: 0 0 0 1px var(--purple), 0 0 8px 1px rgba(197,148,197,0.55); color: var(--purple); }
 .tags-edit-btn {
   background: none;
   border: 1px dashed var(--border);
