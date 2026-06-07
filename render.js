@@ -914,7 +914,7 @@ function _makeTagsRow(item, tagSelMode, selectedTags, isFiltered) {
     item.tags.forEach(function (tag) {
       var pill = document.createElement('span');
       pill.className   = 'tag-pill' + ((selectedTags && selectedTags.has(tag + '|' + item.id)) ? ' selected' : '');
-      var tagMatches = _currentQuery && tag.toLowerCase().indexOf(_currentQuery.toLowerCase()) !== -1;
+      var tagMatches = _currentQuery && tag.toLowerCase() === _currentQuery.toLowerCase();
       if (_tagFilterActive && isFiltered && tagMatches) {
         pill.textContent = tag;
         pill.classList.add('tag-match');
