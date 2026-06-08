@@ -399,7 +399,7 @@ button { font-family: var(--font); }
   grid-template-rows: auto auto;
   grid-template-areas:
     "left content right"
-    "left footer  right";
+    "left footer  tags";
   background: var(--bg-panel);
   border: 1px solid var(--border-lo);
   border-radius: var(--radius-lg);
@@ -477,7 +477,7 @@ mark.sc-highlight {
   grid-template-areas:
     "left content right"
     "left image   image"
-    "left footer  footer";
+    "left footer  tags";
 }
 .item-image {
   grid-area: image;
@@ -899,12 +899,14 @@ mark.sc-highlight {
 }
 /* ===== TAGS ===== */
 .tags-row {
+  grid-area: tags;
   display: flex;
   flex-wrap: wrap;
   gap: 3px;
-  align-items: center;
-  margin-left: auto;
+  align-items: flex-start;
   justify-content: flex-end;
+  align-self: start;
+  padding-left: 3px;
 }
 .tag-pill {
   background: var(--surface);

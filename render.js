@@ -1059,8 +1059,8 @@ footer.appendChild(hardDelBtn);
 footer.appendChild(tsCont);
   // Tags row
 var tagsRow = _makeTagsRow(item, tagSelMode, selectedTags, isFiltered);
-footer.appendChild(tagsRow);
-el.appendChild(footer);
+  el.appendChild(footer);
+  el.appendChild(tagsRow);
   // --- Swipe-to-delete ---
 _attachSwipe(el, item.id);
   // --- Outer row wrapper ---
@@ -1392,4 +1392,3 @@ function _updateCopyBtnPositions() {
   });
 }
 window.Render = { init, render, drawSelCanvas: _drawSelCanvas, setPeekThreshold };
-
