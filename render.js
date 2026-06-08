@@ -1362,21 +1362,21 @@ function _updateCopyBtnPositions() {
     var btn = itemRight && itemRight.querySelector('.copy-btn, .share-btn');
     if (!btn || !itemRight) return;
     var itemRect = itemEl.getBoundingClientRect();
-    var visibleTop = Math.max(itemRect.top, listTop);
-    var visibleBottom = Math.min(itemRect.bottom, listBottom);
-    if (visibleTop >= visibleBottom) return;
-    var visibleCenterY = (visibleTop + visibleBottom) / 2;
-    var itemRightTop = itemRight.getBoundingClientRect().top;
+    if (itemRect.bottom < listTop || itemRect.top > listBottom) return;
+    var itemRightRect = itemRight.getBoundingClientRect();
     var btnH = btn.offsetHeight;
-    var topOffset = visibleCenterY - itemRightTop - btnH / 2;
+    var trueCenterY = (itemRect.top + itemRect.bottom) / 2;
+    var topOffset = trueCenterY - itemRightRect.top - btnH / 2;
     var undoRedoRow = itemRight.querySelector('.item-undo-redo-row');
     var minTop = 0;
     if (undoRedoRow) {
       var undoRect = undoRedoRow.getBoundingClientRect();
-      var iRightRect = itemRight.getBoundingClientRect();
-      minTop = undoRect.bottom - iRightRect.top;
+      minTop = undoRect.bottom - itemRightRect.top;
     }
     var maxTop = itemRight.offsetHeight - btnH;
+    var btnTopInViewport = itemRightRect.top + topOffset;
+    if (btnTopInViewport < listTop) topOffset = listTop - itemRightRect.top;
+    if (btnTopInViewport + btnH > listBottom) topOffset = listBottom - itemRightRect.top - btnH;
     topOffset = Math.max(minTop, Math.min(topOffset, maxTop));
     btn.style.top = topOffset + 'px';
   });
