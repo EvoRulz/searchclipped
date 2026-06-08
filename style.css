@@ -1128,26 +1128,48 @@ mark.sc-highlight {
   gap: 6px;
   width: 100%;
 }
+.html-src-wrap {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+}
+.line-numbers {
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-right: none;
+  border-radius: var(--radius) 0 0 var(--radius);
+  padding: 6px 4px 6px 6px;
+  font-family: var(--font);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-ph);
+  text-align: right;
+  user-select: none;
+  -webkit-user-select: none;
+  white-space: pre;
+  flex-shrink: 0;
+  min-width: 24px;
+}
 .html-source-ta {
   flex: 1;
   min-width: 0;
   background: var(--bg-dark);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-left: none;
+  border-radius: 0 var(--radius) var(--radius) 0;
   color: var(--text);
   font-family: var(--font);
   font-size: 11px;
   line-height: 1.5;
   padding: 6px 8px;
-  resize: vertical;
-  min-height: 80px;
-  max-height: 280px;
+  resize: none;
   outline: none;
   white-space: pre;
-  overflow-x: auto;
+  overflow: hidden;
   overflow-wrap: normal;
 }
-.html-source-ta:focus { border-color: var(--blue-dim); }
+.html-src-wrap:focus-within .html-source-ta { border-color: var(--blue-dim); }
+.html-src-wrap:focus-within .line-numbers { border-color: var(--blue-dim); }
 .html-source-ta:disabled { opacity: 0.4; pointer-events: none; }
 .html-preview-editable {
   flex: 1;
@@ -1161,9 +1183,7 @@ mark.sc-highlight {
   color: var(--text);
   word-break: break-word;
   overflow-wrap: break-word;
-  min-height: 80px;
-  max-height: 280px;
-  overflow-y: auto;
+  overflow: hidden;
   outline: none;
   cursor: text;
 }
