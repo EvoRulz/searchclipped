@@ -679,8 +679,8 @@ mark.sc-highlight {
   flex-direction: row;
   align-items: flex-end;
   gap: 8px;
-  margin-top: 2px;
-  padding-top: 4px;
+  margin-top: 1px;
+  padding-top: 2px;
   min-width: 0;
   flex-wrap: wrap;
 }
