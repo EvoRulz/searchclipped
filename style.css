@@ -520,7 +520,6 @@ mark.sc-highlight {
   flex-direction: column;
   align-items: center;
   align-self: stretch;
-  padding-top: 3px;
 }
 .item-controls {
   display: flex;
@@ -603,7 +602,7 @@ mark.sc-highlight {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 2px;
   padding-left: 3px;
   flex-shrink: 0;
@@ -617,7 +616,8 @@ mark.sc-highlight {
 .item-right .copy-btn,
 .item-right .share-btn {
   position: sticky;
-  top: calc(50vh + var(--header-h) / 2 - 10px);
+  top: calc((100dvh - var(--header-h) - 14px) / 2);
+  bottom: calc((100dvh - var(--header-h) - 14px) / 2);
 }
 .star-btn {
   position: absolute;
