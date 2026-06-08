@@ -618,12 +618,26 @@ mark.sc-highlight {
   gap: 4px;
   margin-bottom: 8px;
 }
-.item-right .copy-btn,
-.item-right .share-btn {
+.copy-hit-area .copy-btn,
+.copy-hit-area .share-btn {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  top: 50%;
+  top: 0;
+}
+.copy-hit-area {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  min-height: 0;
+  cursor: pointer;
+  border-radius: 12px;
+  border: 1px solid var(--border-lo);
+  transition: border-color var(--transition), background var(--transition);
+}
+.copy-hit-area:hover {
+  border-color: var(--blue-dim);
+  background: rgba(92, 158, 219, 0.08);
 }
 .star-btn {
   position: absolute;

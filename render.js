@@ -583,8 +583,21 @@ var undoRedoRow = document.createElement('div');
 undoRedoRow.className = 'item-undo-redo-row';
 undoRedoRow.appendChild(iUndoBtn);
 undoRedoRow.appendChild(iRedoBtn);
+var copyHitArea = document.createElement('div');
+copyHitArea.className = 'copy-hit-area';
+copyHitArea.addEventListener('click', function (ev) {
+  if (ev.target === _outerActionBtn || _outerActionBtn.contains(ev.target)) return;
+  if (item.imageId) {
+    document.dispatchEvent(new CustomEvent('sc:share-item', { detail: { id: item.id } }));
+  } else {
+    document.dispatchEvent(new CustomEvent('sc:copy-item', { detail: { id: item.id } }));
+    el.classList.add('copy-flash');
+    setTimeout(function () { el.classList.remove('copy-flash'); }, 500);
+  }
+});
+copyHitArea.appendChild(_outerActionBtn);
 right.appendChild(undoRedoRow);
-right.appendChild(_outerActionBtn);
+right.appendChild(copyHitArea);
 el.appendChild(right);
   // --- Image ---
 if (item.imageId) {
@@ -1359,25 +1372,21 @@ function _updateCopyBtnPositions() {
   var items = _list.querySelectorAll('.item-row .item:not(.new-placeholder)');
   items.forEach(function (itemEl) {
     var itemRight = itemEl.querySelector('.item-right');
-    var btn = itemRight && itemRight.querySelector('.copy-btn, .share-btn');
-    if (!btn || !itemRight) return;
+    var hitArea = itemRight && itemRight.querySelector('.copy-hit-area');
+    var btn = hitArea && hitArea.querySelector('.copy-btn, .share-btn');
+    if (!btn || !hitArea) return;
     var itemRect = itemEl.getBoundingClientRect();
     if (itemRect.bottom < listTop || itemRect.top > listBottom) return;
-    var itemRightRect = itemRight.getBoundingClientRect();
+    var hitAreaRect = hitArea.getBoundingClientRect();
     var btnH = btn.offsetHeight;
     var trueCenterY = (itemRect.top + itemRect.bottom) / 2;
-    var topOffset = trueCenterY - itemRightRect.top - btnH / 2;
-    var undoRedoRow = itemRight.querySelector('.item-undo-redo-row');
+    var topOffset = trueCenterY - hitAreaRect.top - btnH / 2;
     var minTop = 0;
-    if (undoRedoRow) {
-      var undoRect = undoRedoRow.getBoundingClientRect();
-      minTop = undoRect.bottom - itemRightRect.top;
-    }
-    var maxTop = itemRight.offsetHeight - btnH;
-    var btnTopInViewport = itemRightRect.top + topOffset;
+    var maxTop = hitArea.offsetHeight - btnH;
+    var btnTopInViewport = hitAreaRect.top + topOffset;
     var _btnMargin = btnH / 2;
-    if (btnTopInViewport < listTop + _btnMargin) topOffset = listTop + _btnMargin - itemRightRect.top;
-    if (btnTopInViewport + btnH > listBottom - _btnMargin) topOffset = listBottom - _btnMargin - itemRightRect.top - btnH;
+    if (btnTopInViewport < listTop + _btnMargin) topOffset = listTop + _btnMargin - hitAreaRect.top;
+    if (btnTopInViewport + btnH > listBottom - _btnMargin) topOffset = listBottom - _btnMargin - hitAreaRect.top - btnH;
     topOffset = Math.max(minTop, Math.min(topOffset, maxTop + btnH));
     btn.style.top = topOffset + 'px';
   });
