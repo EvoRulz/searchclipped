@@ -1378,7 +1378,7 @@ function _updateCopyBtnPositions() {
     var _btnMargin = btnH / 2;
     if (btnTopInViewport < listTop + _btnMargin) topOffset = listTop + _btnMargin - itemRightRect.top;
     if (btnTopInViewport + btnH > listBottom - _btnMargin) topOffset = listBottom - _btnMargin - itemRightRect.top - btnH;
-    topOffset = Math.max(minTop, Math.min(topOffset, maxTop));
+    topOffset = Math.max(minTop, topOffset);
     btn.style.top = topOffset + 'px';
   });
 }
