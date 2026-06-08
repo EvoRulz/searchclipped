@@ -189,29 +189,49 @@ content.contentEditable     = 'true';
 content.dataset.placeholder = 'create new clipboard item…';
 content.setAttribute('aria-label', 'Create new item');
 content.addEventListener('focus', function () {
-  if (content.classList.contains('placeholder')) {
+  if (_phRawHtml !== null) {
+    content.textContent = _phRawHtml;
+    _phRawHtml = null;
+  } else if (content.classList.contains('placeholder')) {
     content.textContent = '';
     content.classList.remove('placeholder');
   }
 });
 content.addEventListener('blur', function () {
-  var text = (content.textContent || '').trim();
-  if (!text) {
-    content.classList.add('placeholder');
+  var text, html, title;
+  if (_phRawHtml !== null) {
+    text = _phRawHtml;
+    html = _phRawHtml;
+    _phRawHtml = null;
   } else {
-    var title = (titleEl.textContent || '').trim();
-    document.dispatchEvent(new CustomEvent('sc:create-item', {
-      detail: { text: text, html: content.innerHTML, title: title }
-    }));
-    content.textContent = '';
-    content.classList.add('placeholder');
-    titleEl.textContent = '';
+    text = (content.textContent || '').trim();
+    html = _isHtmlContent(text) ? text : content.innerHTML;
   }
+  if (!text) {
+    content.innerHTML = '';
+    content.classList.add('placeholder');
+    return;
+  }
+  title = (titleEl.textContent || '').trim();
+  document.dispatchEvent(new CustomEvent('sc:create-item', {
+    detail: { text: text, html: html, title: title }
+  }));
+  content.innerHTML = '';
+  content.classList.add('placeholder');
+  titleEl.textContent = '';
 });
+var _phRawHtml = null;
 content.addEventListener('paste', function (e) {
   e.preventDefault();
   var plain = e.clipboardData.getData('text/plain');
-  document.execCommand('insertHTML', false, plain);
+  if (_isHtmlContent(plain)) {
+    _phRawHtml = plain;
+    content.innerHTML = `<pre class="html-code-block">${_syntaxHighlightHTML(plain)}</pre>`;
+    content.classList.remove('placeholder');
+  } else {
+    _phRawHtml = null;
+    document.execCommand('insertHTML', false, plain);
+  }
 });
 content.addEventListener('keydown', function (e) {
   if (e.key === 'Enter' && !e.shiftKey) {
