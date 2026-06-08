@@ -1120,9 +1120,57 @@ mark.sc-highlight {
   transition: background var(--transition);
 }
 #tag-add-btn:hover { background: var(--blue); }
+/* ===== HTML LIVE EDITOR ===== */
+.html-editor-wrap {
+  position: relative;
+  display: flex;
+  gap: 6px;
+  width: 100%;
+}
+.html-source-ta {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 11px;
+  line-height: 1.5;
+  padding: 6px 8px;
+  resize: vertical;
+  min-height: 80px;
+  max-height: 280px;
+  outline: none;
+  white-space: pre;
+  overflow-x: auto;
+  overflow-wrap: normal;
+}
+.html-source-ta:focus { border-color: var(--blue-dim); }
+.html-source-ta:disabled { opacity: 0.4; pointer-events: none; }
+.html-preview-editable {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 6px 8px;
+  font-family: sans-serif;
+  font-size: 13px;
+  background: var(--bg-dark);
+  color: var(--text);
+  word-break: break-word;
+  overflow-wrap: break-word;
+  min-height: 80px;
+  max-height: 280px;
+  overflow-y: auto;
+  outline: none;
+  cursor: text;
+}
+.html-preview-editable:focus { border-color: var(--green); }
 /* ===== SCROLLBAR MOBILE ===== */
 @media (max-width: 480px) {
   #item-list::-webkit-scrollbar { width: 0; }
+  .html-editor-wrap { flex-direction: column; }
 }
 /* ===== ALT SHORTCUT BADGES ===== */
 .item[data-shortcut]::after {
