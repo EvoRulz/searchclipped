@@ -1392,3 +1392,4 @@ function _updateCopyBtnPositions() {
   });
 }
 window.Render = { init, render, drawSelCanvas: _drawSelCanvas, setPeekThreshold };
+
