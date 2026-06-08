@@ -1124,6 +1124,7 @@ mark.sc-highlight {
 .html-editor-wrap {
   position: relative;
   display: flex;
+  flex-direction: column;
   gap: 6px;
   width: 100%;
 }
