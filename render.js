@@ -570,9 +570,12 @@ iRedoBtn.textContent = '\u21b7';
 iRedoBtn.disabled = !(item.itemRedoStack && item.itemRedoStack.length);
 iRedoBtn.style.fontSize = '15px';
 iRedoBtn.style.fontSize = '15px';
+var undoRedoRow = document.createElement('div');
+undoRedoRow.className = 'item-undo-redo-row';
+undoRedoRow.appendChild(iUndoBtn);
+undoRedoRow.appendChild(iRedoBtn);
+right.appendChild(undoRedoRow);
 right.appendChild(_outerActionBtn);
-right.appendChild(iUndoBtn);
-right.appendChild(iRedoBtn);
 el.appendChild(right);
   // --- Image ---
 if (item.imageId) {

@@ -600,12 +600,23 @@ mark.sc-highlight {
   grid-area: right;
   grid-row: 1 / -1;
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-end;
-  gap: 4px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2px;
   padding-left: 3px;
   flex-shrink: 0;
+}
+.item-undo-redo-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+}
+.item-right .copy-btn,
+.item-right .share-btn {
+  margin-top: auto;
+  margin-bottom: auto;
 }
 .star-btn {
   position: absolute;
