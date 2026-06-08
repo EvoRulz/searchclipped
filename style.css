@@ -27,6 +27,7 @@
   --radius:       5px;
   --radius-lg:    10px;
   --transition:   0.14s ease;
+  --header-h:     120px;
 }
 /* ===== STORAGE DISPLAY ===== */
 #storage-row {
@@ -615,8 +616,8 @@ mark.sc-highlight {
 }
 .item-right .copy-btn,
 .item-right .share-btn {
-  margin-top: auto;
-  margin-bottom: auto;
+  position: sticky;
+  top: calc(50vh + var(--header-h) / 2 - 10px);
 }
 .star-btn {
   position: absolute;

@@ -1,6 +1,6 @@
 'use strict';
-// @version 256
-var SC_VERSION = '@version 256';
+// @version 257
+var SC_VERSION = '@version 257';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -856,6 +856,18 @@ document.addEventListener('sc:filter-tag', function (e) {
       console.warn('SW registration failed', e);
     });
   }
+  (function () {
+    var _hdr = document.getElementById('header');
+    function _setHeaderH() {
+      if (_hdr) document.documentElement.style.setProperty('--header-h', _hdr.offsetHeight + 'px');
+    }
+    _setHeaderH();
+    if (window.ResizeObserver) {
+      new ResizeObserver(_setHeaderH).observe(_hdr);
+    } else {
+      window.addEventListener('resize', _setHeaderH);
+    }
+  })();
   /* ===== HELPERS ===== */
   function _blobToBase64(blob) {
     return new Promise(function (resolve, reject) {
