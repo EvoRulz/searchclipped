@@ -346,6 +346,12 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     document.dispatchEvent(new CustomEvent('sc:bump', { detail: { id: item.id, dir: 1 } }));
   });
   if (isBumpMode) controls.appendChild(dnBtn);
+  else {
+    var _phantomBtn = upBtn.cloneNode(true);
+    _phantomBtn.style.visibility = 'hidden';
+    _phantomBtn.style.pointerEvents = 'none';
+    controls.appendChild(_phantomBtn);
+  }
   left.appendChild(controls);
   el.appendChild(left);
   // --- Content ---

@@ -428,11 +428,13 @@ button { font-family: var(--font); }
   display: flex;
   align-items: center;
   flex-shrink: 0;
+  align-self: center;
 }
 .item-trash-outer {
   display: flex;
   align-items: center;
   flex-shrink: 0;
+  align-self: center;
   background: none;
   border: none;
   cursor: pointer;
@@ -522,6 +524,7 @@ mark.sc-highlight {
   align-self: stretch;
 }
 .item-controls {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -597,12 +600,13 @@ mark.sc-highlight {
 .item-title:focus { color: var(--text); }
 /* Item right */
 .item-right {
+  position: relative;
   grid-area: right;
   grid-row: 1 / -1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 2px;
   padding-left: 3px;
   flex-shrink: 0;
