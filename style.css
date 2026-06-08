@@ -396,9 +396,10 @@ button { font-family: var(--font); }
 .item {
   display: grid;
   grid-template-columns: 28px 1fr auto;
-  grid-template-rows: auto auto;
+  grid-template-rows: auto auto auto;
   grid-template-areas:
     "left content right"
+    "left footer  right"
     "left footer  tags";
   background: var(--bg-panel);
   border: 1px solid var(--border-lo);
@@ -473,10 +474,11 @@ mark.sc-highlight {
 .item.keyboard-focused.copy-flash { border-color: var(--blue); outline-color: var(--blue); background: var(--surface); }
 .item.keyboard-focused   { border-color: var(--orange); background: var(--surface); outline: 2px solid var(--orange); outline-offset: 1px; }
 .item.has-image {
-  grid-template-rows: auto auto auto;
+  grid-template-rows: auto auto auto auto;
   grid-template-areas:
     "left content right"
-    "left image   image"
+    "left image   right"
+    "left footer  right"
     "left footer  tags";
 }
 .item-image {
