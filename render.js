@@ -957,7 +957,7 @@ tsModWrap.appendChild(vPanel);
       if (activePeekOnClose) { activePeekOnClose.click(); }
     }
     vPanel.classList.toggle('hidden', !_open);
-    vDropBtn.textContent = _open ? '\u25b4' : '\u25be';
+    vDropBtn.textContent = _open ? ('\u25b4 ' + _vDropVisCount) : ('\u25be ' + _vDropVisCount);
     vDropBtn.classList.toggle('active', _open);
     if (_open) _openVersionPanels.add(item.id);
     else       _openVersionPanels.delete(item.id);
