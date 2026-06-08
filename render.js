@@ -883,8 +883,16 @@ _versions.slice().reverse().forEach(function (ver, rIdx) {
     vTs.addEventListener('click', function (ev) {
       ev.stopPropagation();
       var currentlyPeeking = vTs.classList.contains('version-ts-peeking');
+      var _srcTA = content.querySelector('.html-source-ta');
+      var _prevDiv = content.querySelector('.html-preview-editable');
+      var _isHtmlPeek = _hasHtml && !_currentQuery && !!_srcTA && !!_prevDiv;
       if (currentlyPeeking) {
-        content.innerHTML = _origHTML;
+        if (_isHtmlPeek) {
+          _srcTA.value = vTs._origSrcValue || '';
+          _prevDiv.innerHTML = vTs._origPrevHTML || '';
+        } else {
+          content.innerHTML = _origHTML;
+        }
         content.style.color = '';
         titleEl.textContent = _origTitle;
         vTs.classList.remove('version-ts-peeking');
@@ -896,26 +904,41 @@ _versions.slice().reverse().forEach(function (ver, rIdx) {
           activePeek.classList.remove('version-ts-peeking');
           _origHTML = activePeek._origHTML;
           _origTitle = activePeek._origTitle;
+          if (_isHtmlPeek) {
+            vTs._origSrcValue = activePeek._origSrcValue;
+            vTs._origPrevHTML = activePeek._origPrevHTML;
+          }
         } else {
           _origHTML = content.innerHTML;
           _origTitle = titleEl.textContent;
+          if (_isHtmlPeek) {
+            vTs._origSrcValue = _srcTA.value;
+            vTs._origPrevHTML = _prevDiv.innerHTML;
+          }
           content.contentEditable = 'false';
           titleEl.contentEditable = 'false';
         }
         vTs._origHTML = _origHTML;
         vTs._origTitle = _origTitle;
-        var _diffCurText   = (item.text || '');
-        var _diffVerText   = (ver.text  || '');
-        var _diffCurTitle  = (_origTitle || '').replace(/\s*\(preview\)$/i, '');
-        var _diffVerTitle  = (ver.title  || '');
+        var _diffCurText = (item.text || '');
+        var _diffVerText = (ver.text || '');
+        var _diffCurTitle = (_origTitle || '').replace(/\s*\(preview\)$/i, '');
+        var _diffVerTitle = (ver.title || '');
         var _useDiff = (Math.max(_diffCurText.length, _diffVerText.length) > _peekThreshold);
-        if (_useDiff) {
+        if (_isHtmlPeek) {
+          var _verHtml = ver.html || ver.text || '';
+          _srcTA.value = _verHtml;
+          _prevDiv.innerHTML = _verHtml;
+        } else if (_useDiff) {
           content.innerHTML = _diffToHTML(_charDiff(_diffCurText, _diffVerText));
+        } else {
+          content.innerHTML = '<span style="color:var(--yellow)">' + _diffVerText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>') + '</span>';
+        }
+        if (_useDiff) {
           titleEl.innerHTML = _diffToHTML(_charDiff(_diffCurTitle, _diffVerTitle)) + '<span style="color:var(--text-ph)"> (preview)</span>';
         } else {
-          content.innerHTML = '<span style="color:var(--yellow)">' + _diffVerText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>') + '</span>';
-      titleEl.textContent = _diffVerTitle || '';
-      titleEl.innerHTML += '<span style="color:var(--text-ph)"> (preview)</span>';
+          titleEl.textContent = _diffVerTitle || '';
+          titleEl.innerHTML += '<span style="color:var(--text-ph)"> (preview)</span>';
         }
         vTs.classList.add('version-ts-peeking');
       }
