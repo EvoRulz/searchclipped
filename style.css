@@ -1170,6 +1170,25 @@ mark.sc-highlight {
 #app.hide-ts-restored .item:not(.new-placeholder) .item-ts-restored { display: none; }
 .version-entry.version-deleted { display: none; }
 #app.show-deleted .version-entry.version-deleted { display: flex; }
+.html-code-block-wrap {
+  position: relative;
+}
+.html-copy-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text-ph);
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  transition: color var(--transition), border-color var(--transition);
+}
+.html-copy-btn:hover { color: var(--blue); border-color: var(--blue-dim); }
 .html-code-block {
   background: var(--bg-dark);
   border: 1px solid var(--border);

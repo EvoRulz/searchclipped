@@ -226,7 +226,20 @@ content.addEventListener('paste', function (e) {
   var plain = e.clipboardData.getData('text/plain');
   if (_isHtmlContent(plain)) {
     _phRawHtml = plain;
-    content.innerHTML = `<pre class="html-code-block">${_syntaxHighlightHTML(plain)}</pre>`;
+    var _phPre = document.createElement('pre');
+    _phPre.className = 'html-code-block';
+    _phPre.innerHTML = _syntaxHighlightHTML(plain);
+    var _phIframe = document.createElement('iframe');
+    _phIframe.className = 'html-preview-iframe';
+    _phIframe.setAttribute('sandbox', 'allow-same-origin');
+    var _phStyle = 'body{margin:8px;font-family:sans-serif;font-size:13px;background:#303841;color:#d8dee9;word-break:break-word;}';
+    _phIframe.setAttribute('srcdoc', '<!DOCTYPE html><html><head><style>' + _phStyle + '</style></head><body>' + plain + '</body></html>');
+    _phIframe.addEventListener('load', function () {
+      try { _phIframe.style.height = Math.min(_phIframe.contentDocument.body.scrollHeight + 20, 280) + 'px'; } catch (ex) {}
+    });
+    content.innerHTML = '';
+    content.appendChild(_phPre);
+    content.appendChild(_phIframe);
     content.classList.remove('placeholder');
   } else {
     _phRawHtml = null;
@@ -323,9 +336,26 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   content.contentEditable = item.deleted ? 'false' : 'true';
   var _hasHtml = _isHtmlContent(item.html);
   if (_hasHtml && !_currentQuery) {
+    var _preWrap = document.createElement('div');
+    _preWrap.className = 'html-code-block-wrap';
     var _pre = document.createElement('pre');
     _pre.className = 'html-code-block';
     _pre.innerHTML = _syntaxHighlightHTML(item.html || '');
+    var _htmlCopyBtn = document.createElement('button');
+    _htmlCopyBtn.className = 'html-copy-btn';
+    _htmlCopyBtn.title = 'Copy HTML';
+    _htmlCopyBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="4" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+      <path d="M3 10H2a1 1 0 01-1-1V2a1 1 0 011-1h7a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+    </svg>`;
+    _htmlCopyBtn.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      Clip.writeText(item.html || '', item.html || '');
+      _htmlCopyBtn.style.color = 'var(--green)';
+      setTimeout(function () { _htmlCopyBtn.style.color = ''; }, 600);
+    });
+    _preWrap.appendChild(_pre);
+    _preWrap.appendChild(_htmlCopyBtn);
     var _previewIframe = document.createElement('iframe');
     _previewIframe.className = 'html-preview-iframe';
     _previewIframe.setAttribute('sandbox', 'allow-same-origin');
@@ -337,7 +367,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
         _previewIframe.style.height = Math.min(_h + 20, 280) + 'px';
       } catch (e) {}
     });
-    content.appendChild(_pre);
+    content.appendChild(_preWrap);
     content.appendChild(_previewIframe);
   } else {
     content.innerHTML = _currentQuery ? _highlightText(item.text || '', _currentQuery) : (item.html || item.text || '');
