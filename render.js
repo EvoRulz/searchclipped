@@ -251,6 +251,9 @@ content.addEventListener('paste', function (e) {
       _phRawHtml = _phPrevDiv.innerHTML;
       _phSrcTA.value = _phPrevDiv.innerHTML;
     });
+    _phPrevDiv.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); _phPrevDiv.blur(); }
+    });
     var _phResetEditor = function () {
       _inHtmlEditMode = false;
       _phRawHtml = null;
@@ -395,6 +398,9 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     });
     _htmlPrevDiv.addEventListener('input', function () {
       _htmlSrcTA.value = _htmlPrevDiv.innerHTML;
+    });
+    _htmlPrevDiv.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); _htmlPrevDiv.blur(); }
     });
     _htmlEditorWrap.addEventListener('focusout', function (ev) {
       if (_htmlEditorWrap.contains(ev.relatedTarget)) return;
