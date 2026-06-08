@@ -355,7 +355,6 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
       setTimeout(function () { _htmlCopyBtn.style.color = ''; }, 600);
     });
     _preWrap.appendChild(_pre);
-    _preWrap.appendChild(_htmlCopyBtn);
     var _previewIframe = document.createElement('iframe');
     _previewIframe.className = 'html-preview-iframe';
     _previewIframe.setAttribute('sandbox', 'allow-same-origin');
@@ -367,8 +366,12 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
         _previewIframe.style.height = Math.min(_h + 20, 280) + 'px';
       } catch (e) {}
     });
+    var _iframeWrap = document.createElement('div');
+    _iframeWrap.className = 'html-code-block-wrap';
+    _iframeWrap.appendChild(_previewIframe);
+    _iframeWrap.appendChild(_htmlCopyBtn);
     content.appendChild(_preWrap);
-    content.appendChild(_previewIframe);
+    content.appendChild(_iframeWrap);
   } else {
     content.innerHTML = _currentQuery ? _highlightText(item.text || '', _currentQuery) : (item.html || item.text || '');
   }
