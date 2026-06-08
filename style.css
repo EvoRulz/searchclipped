@@ -399,7 +399,7 @@ button { font-family: var(--font); }
   grid-template-rows: auto auto;
   grid-template-areas:
     "left content right"
-    "left footer  right";
+    "left footer  footer";
   background: var(--bg-panel);
   border: 1px solid var(--border-lo);
   border-radius: var(--radius-lg);
@@ -602,7 +602,6 @@ mark.sc-highlight {
 .item-right {
   position: relative;
   grid-area: right;
-  grid-row: 1 / -1;
   display: flex;
   flex-direction: column;
   align-items: center;

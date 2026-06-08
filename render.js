@@ -1346,8 +1346,15 @@ function _updateCopyBtnPositions() {
     var itemRightTop = itemRight.getBoundingClientRect().top;
     var btnH = btn.offsetHeight;
     var topOffset = visibleCenterY - itemRightTop - btnH / 2;
+    var undoRedoRow = itemRight.querySelector('.item-undo-redo-row');
+    var minTop = 0;
+    if (undoRedoRow) {
+      var undoRect = undoRedoRow.getBoundingClientRect();
+      var iRightRect = itemRight.getBoundingClientRect();
+      minTop = undoRect.bottom - iRightRect.top;
+    }
     var maxTop = itemRight.offsetHeight - btnH;
-    topOffset = Math.max(0, Math.min(topOffset, maxTop));
+    topOffset = Math.max(minTop, Math.min(topOffset, maxTop));
     btn.style.top = topOffset + 'px';
   });
 }
