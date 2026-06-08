@@ -616,6 +616,7 @@ mark.sc-highlight {
   flex-direction: row;
   align-items: center;
   gap: 4px;
+  margin-bottom: 8px;
 }
 .item-right .copy-btn,
 .item-right .share-btn {
