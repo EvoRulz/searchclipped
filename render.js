@@ -587,6 +587,10 @@ var copyHitArea = document.createElement('div');
 copyHitArea.className = 'copy-hit-area';
 copyHitArea.addEventListener('click', function (ev) {
   if (ev.target === _outerActionBtn || _outerActionBtn.contains(ev.target)) return;
+  var _clipTop = parseFloat(copyHitArea.dataset.clipTop) || 0;
+  var _clipBottom = parseFloat(copyHitArea.dataset.clipBottom) || 0;
+  var _haRect = copyHitArea.getBoundingClientRect();
+  if (ev.clientY < _haRect.top + _clipTop || ev.clientY > _haRect.bottom - _clipBottom) return;
   if (item.imageId) {
     document.dispatchEvent(new CustomEvent('sc:share-item', { detail: { id: item.id } }));
   } else {
@@ -1384,9 +1388,12 @@ function _updateCopyBtnPositions() {
     var minTop = 0;
     var maxTop = hitArea.offsetHeight - btnH;
     var btnTopInViewport = hitAreaRect.top + topOffset;
-    var _btnMargin = btnH / 2;
-    if (btnTopInViewport < listTop + _btnMargin) topOffset = listTop + _btnMargin - hitAreaRect.top;
-    if (btnTopInViewport + btnH > listBottom - _btnMargin) topOffset = listBottom - _btnMargin - hitAreaRect.top - btnH;
+    var _btnMarginTop = btnH * 1.0;
+    var _btnMarginBottom = btnH * 1.5;
+    if (btnTopInViewport < listTop + _btnMarginTop) topOffset = listTop + _btnMarginTop - hitAreaRect.top;
+    if (btnTopInViewport + btnH > listBottom - _btnMarginBottom) topOffset = listBottom - _btnMarginBottom - hitAreaRect.top - btnH;
+    hitArea.dataset.clipTop = Math.max(0, listTop + btnH * 1.5 - hitAreaRect.top);
+    hitArea.dataset.clipBottom = Math.max(0, hitAreaRect.bottom - (listBottom - btnH * 1.0));
     topOffset = Math.max(minTop, Math.min(topOffset, maxTop));
     btn.style.top = topOffset + 'px';
   });
