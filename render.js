@@ -82,6 +82,8 @@ function init(state) {
   document.addEventListener('sc:close-version-panel', function (e) {
     _openVersionPanels.delete(e.detail.id);
   });
+  _list.addEventListener('scroll', _rafUpdateCopyBtns, { passive: true });
+  window.addEventListener('resize', _rafUpdateCopyBtns);
 }
 /*
  * render(filtered, rest, selectedIds, tagSelMode, selectedTags)
@@ -137,6 +139,7 @@ function render(filtered, rest, selectedIds, tagSelMode, selectedTags, query, ta
   _list.innerHTML = '';
   _list.appendChild(frag);
   if (_storageRow) _list.appendChild(_storageRow);
+  requestAnimationFrame(_updateCopyBtnPositions);
 }
 /* ====== PLACEHOLDER ====== */
 function _makePlaceholder() {
@@ -1314,6 +1317,39 @@ function _hlAttrs(s) {
     }
   }
   return out;
+}
+var _rafUpdateCopyBtns = (function () {
+  var raf = null;
+  return function () {
+    if (raf) return;
+    raf = requestAnimationFrame(function () {
+      raf = null;
+      _updateCopyBtnPositions();
+    });
+  };
+})();
+function _updateCopyBtnPositions() {
+  if (!_list) return;
+  var listRect = _list.getBoundingClientRect();
+  var listTop = listRect.top;
+  var listBottom = listRect.bottom;
+  var items = _list.querySelectorAll('.item-row .item:not(.new-placeholder)');
+  items.forEach(function (itemEl) {
+    var itemRight = itemEl.querySelector('.item-right');
+    var btn = itemRight && itemRight.querySelector('.copy-btn, .share-btn');
+    if (!btn || !itemRight) return;
+    var itemRect = itemEl.getBoundingClientRect();
+    var visibleTop = Math.max(itemRect.top, listTop);
+    var visibleBottom = Math.min(itemRect.bottom, listBottom);
+    if (visibleTop >= visibleBottom) return;
+    var visibleCenterY = (visibleTop + visibleBottom) / 2;
+    var itemRightTop = itemRight.getBoundingClientRect().top;
+    var btnH = btn.offsetHeight;
+    var topOffset = visibleCenterY - itemRightTop - btnH / 2;
+    var maxTop = itemRight.offsetHeight - btnH;
+    topOffset = Math.max(0, Math.min(topOffset, maxTop));
+    btn.style.top = topOffset + 'px';
+  });
 }
 window.Render = { init, render, drawSelCanvas: _drawSelCanvas, setPeekThreshold };
 

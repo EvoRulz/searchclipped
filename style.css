@@ -610,6 +610,7 @@ mark.sc-highlight {
   gap: 2px;
   padding-left: 3px;
   flex-shrink: 0;
+  min-width: 24px;
 }
 .item-undo-redo-row {
   display: flex;
@@ -619,9 +620,10 @@ mark.sc-highlight {
 }
 .item-right .copy-btn,
 .item-right .share-btn {
-  position: sticky;
-  top: calc((100dvh - var(--header-h) - 14px) / 2);
-  bottom: calc((100dvh - var(--header-h) - 14px) / 2);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 50%;
 }
 .star-btn {
   position: absolute;
