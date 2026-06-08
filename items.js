@@ -163,17 +163,14 @@ function _onBump(e) {
 }
 /* ====== DELETE (swipe) ====== */
 function _onSwipeDelete(e) {
-  _doDelete([e.detail.id], 'Delete this item? Type "yes" to confirm.');
+  _doDelete([e.detail.id]);
 }
 /* ====== BULK DELETE ====== */
 function bulkDelete(ids) {
   if (!ids.size) return;
-  _doDelete(Array.from(ids),
-    'Delete ' + ids.size + ' item(s)?\nType "yes" to confirm.');
+  _doDelete(Array.from(ids));
 }
-async function _doDelete(ids, message) {
-  var ok = await Modals.confirm(message);
-  if (!ok) return;
+async function _doDelete(ids) {
   State.pushUndo(_state);
   ids.forEach(function (id) {
     var item = State.getItem(_state, id);
