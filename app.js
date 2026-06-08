@@ -1,6 +1,6 @@
 'use strict';
-// @version 254
-var SC_VERSION = '@version 254';
+// @version 255
+var SC_VERSION = '@version 255';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -178,6 +178,7 @@ var SC_VERSION = '@version 254';
   document.getElementById('filter-row').style.display = hideFilterRow ? 'none' : '';
   btnToggleFilterRow.textContent = hideFilterRow ? 'show list' : 'hide list';
   Items.init(state, refresh);
+  document.addEventListener('sc:toggle-select', function () { _selectAllActive = false; });
   /* Initial render */
   refresh();
   searchInput.focus();
