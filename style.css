@@ -1164,9 +1164,9 @@ mark.sc-highlight {
   padding: 6px 8px;
   resize: none;
   outline: none;
-  white-space: pre;
+  white-space: pre-wrap;
   overflow: hidden;
-  overflow-wrap: normal;
+  overflow-wrap: break-word;
 }
 .html-src-wrap:focus-within .html-source-ta { border-color: var(--blue-dim); }
 .html-src-wrap:focus-within .line-numbers { border-color: var(--blue-dim); }

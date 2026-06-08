@@ -1207,7 +1207,7 @@ function _charDiff(origText, newText) {
   function _update() {
     var lines = ta.value.split('\n').length;
     var out = '';
-    for (var i = 1; i <= lines; i++) out += i + '\n';
+    for (var i = 1; i <= lines; i++) out += i < lines ? i + '\n' : i;
     lnDiv.textContent = out;
     ta.style.height = '1px';
     ta.style.height = ta.scrollHeight + 'px';
