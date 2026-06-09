@@ -625,6 +625,8 @@ mark.sc-highlight {
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: flex-start;
+  align-self: stretch;
   gap: 4px;
   margin-bottom: 8px;
 }
