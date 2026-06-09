@@ -899,12 +899,13 @@ mark.sc-highlight {
 /* ===== TAGS ===== */
 .tags-row {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
-  width: 100%;
-  align-self: stretch;
-  padding: 2px 0;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+  max-width: 58%;
 }
 .tag-pill {
   background: var(--surface);
@@ -932,13 +933,6 @@ mark.sc-highlight {
   transition: all var(--transition);
 }
 .tags-edit-btn:hover { border-color: var(--purple); color: var(--purple); }
-.item-right .tags-row .tag-pill {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  display: block;
-}
 .tag-sel-banner {
   display: flex;
   align-items: center;

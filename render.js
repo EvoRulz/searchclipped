@@ -1062,8 +1062,8 @@ footer.appendChild(hardDelBtn);
 footer.appendChild(tsCont);
   // Tags row
 var tagsRow = _makeTagsRow(item, tagSelMode, selectedTags, isFiltered);
+  footer.appendChild(tagsRow);
   el.appendChild(footer);
-  right.appendChild(tagsRow);
   // --- Swipe-to-delete ---
 _attachSwipe(el, item.id);
   // --- Outer row wrapper ---
