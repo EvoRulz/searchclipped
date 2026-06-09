@@ -327,7 +327,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   left.className = 'item-left';
   var idSpan = document.createElement('span');
   idSpan.className   = 'item-id';
-  idSpan.textContent = item.deleted ? '×' : item.bumpOrder + 1;
+  idSpan.textContent = item.deleted ? '×' : '#' + (item.bumpOrder + 1);
   var isBumpMode = (_state.sortMode === 'id-asc' || _state.sortMode === 'id-desc' || _state.sortMode === 'bump');
   var isTop = _topBumped.has(item.id);
   var upBtn = document.createElement('button');
