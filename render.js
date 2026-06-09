@@ -1390,8 +1390,8 @@ function _updateCopyBtnPositions() {
     var minTop = 0;
     var maxTop = hitArea.offsetHeight - btnH;
     var btnTopInViewport = hitAreaRect.top + topOffset;
-    var _btnMarginTop = btnH * 1.0;
-    var _btnMarginBottom = btnH * 1.5;
+    var _btnMarginTop = btnH * 1.25;
+    var _btnMarginBottom = btnH * 1.75;
     if (btnTopInViewport < listTop + _btnMarginTop) topOffset = listTop + _btnMarginTop - hitAreaRect.top;
     if (btnTopInViewport + btnH > listBottom - _btnMarginBottom) topOffset = listBottom - _btnMarginBottom - hitAreaRect.top - btnH;
     topOffset = Math.max(minTop, Math.min(topOffset, maxTop));
