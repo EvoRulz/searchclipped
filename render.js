@@ -358,6 +358,12 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   left.appendChild(controls);
   el.appendChild(left);
   // --- Content ---
+  var iUndoBtn = document.createElement('button');
+  iUndoBtn.className = 'item-hist-btn';
+  iUndoBtn.title = 'Undo this item';
+  iUndoBtn.textContent = '\u21b6';
+  iUndoBtn.disabled = !(item.itemUndoStack && item.itemUndoStack.length);
+  iUndoBtn.style.fontSize = '15px';
   var contentCol = document.createElement('div');
   contentCol.className = 'item-content-col';
   var titleEl = document.createElement('div');
@@ -570,12 +576,6 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   });
   _outerActionBtn = copyBtn;
 }
-var iUndoBtn = document.createElement('button');
-iUndoBtn.className = 'item-hist-btn';
-iUndoBtn.title = 'Undo this item';
-iUndoBtn.textContent = '\u21b6';
-iUndoBtn.disabled = !(item.itemUndoStack && item.itemUndoStack.length);
-iUndoBtn.style.fontSize = '15px';
 var iRedoBtn = document.createElement('button');
 iRedoBtn.className = 'item-hist-btn';
 iRedoBtn.title = 'Redo this item';
