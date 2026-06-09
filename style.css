@@ -429,6 +429,15 @@ button { font-family: var(--font); }
   align-items: center;
   flex-shrink: 0;
   align-self: center;
+  gap: 3px;
+}
+.anchor-indicator {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  pointer-events: none;
+  opacity: 0.85;
 }
 .item-trash-outer {
   display: flex;

@@ -17,6 +17,7 @@ var _rangeTriggerId      = null;
 var _rangeAnchorIdx      = null;
 var _preRangeSelection   = null;
 var _rangeItemOrder      = null;
+var _anchorItemId        = null;
 var _versionSelectAll   = new Set();
 var _currentQuery       = '';
 var _tagFilterActive    = false;
@@ -1087,81 +1088,99 @@ var outerCb = document.createElement('input');
 outerCb.type    = 'checkbox';
 outerCb.checked = selectedIds.has(item.id);
 outerCb.addEventListener('click', function (e) {
-  var allRows = Array.from(document.querySelectorAll('#item-list .item-row .item-cb-outer input[type="checkbox"]'));
-  var thisIdx = allRows.indexOf(outerCb);
-  var currentOrder = allRows.map(function (cb) {
-    var row = cb.closest('.item-row');
-    var el  = row && row.querySelector('.item[data-id]');
-    return el ? el.dataset.id : null;
-  }).join(',');
-  if (_rangeItemOrder !== null && _rangeItemOrder !== currentOrder) {
-    _rangeTriggerId    = null;
-    _rangeAnchorIdx    = null;
-    _preRangeSelection = null;
-    _rangeItemOrder    = null;
-  }
-  if (e.shiftKey && _lastCheckedIdx !== null && thisIdx !== _lastCheckedIdx) {
-    if (_rangeTriggerId === item.id && _preRangeSelection !== null) {
-      var selectedIds = Items.getSelectedIds();
-      var preSet = _preRangeSelection;
-      var lo = Math.min(thisIdx, _rangeAnchorIdx);
-      var hi = Math.max(thisIdx, _rangeAnchorIdx);
-      for (var si = lo; si <= hi; si++) {
-        if (si === _rangeAnchorIdx) continue;
-        var targetCb = allRows[si];
-        if (!targetCb) continue;
-        var targetRow = targetCb.closest('.item-row');
-        var targetItem = targetRow && targetRow.querySelector('.item[data-id]');
-        if (!targetItem) continue;
-        var targetId = targetItem.dataset.id;
-        var wasSelected  = preSet.has(targetId);
-        var nowSelected  = selectedIds.has(targetId);
-        if (wasSelected && !nowSelected) {
-          document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: targetId } }));
-        } else if (!wasSelected && nowSelected) {
-          document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: targetId } }));
-        }
-      }
-      var triggerNowSelected = selectedIds.has(item.id);
-      if (triggerNowSelected) {
-        document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: item.id } }));
-      }
-      _rangeTriggerId    = null;
-      _rangeAnchorIdx    = null;
-      _preRangeSelection = null;
-      _rangeItemOrder    = null;
-    } else {
-      var preSelection = new Set(Items.getSelectedIds());
-      var lo2 = Math.min(thisIdx, _lastCheckedIdx);
-      var hi2 = Math.max(thisIdx, _lastCheckedIdx);
-      var selectedIds2 = Items.getSelectedIds();
-      for (var si2 = lo2; si2 <= hi2; si2++) {
-        var targetCb2 = allRows[si2];
-        if (!targetCb2) continue;
-        var targetRow2 = targetCb2.closest('.item-row');
-        var targetItem2 = targetRow2 && targetRow2.querySelector('.item[data-id]');
-        if (!targetItem2) continue;
-        var targetId2 = targetItem2.dataset.id;
-        if (_lastCheckedWasCheck && !selectedIds2.has(targetId2)) {
-          document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: targetId2 } }));
-        } else if (!_lastCheckedWasCheck && selectedIds2.has(targetId2)) {
-          document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: targetId2 } }));
-        }
-      }
-      _rangeTriggerId    = item.id;
-      _rangeAnchorIdx    = _lastCheckedIdx;
-      _preRangeSelection = preSelection;
-      _rangeItemOrder    = currentOrder;
+    var allRows = Array.from(document.querySelectorAll('#item-list .item-row .item-cb-outer input[type="checkbox"]'));
+    var thisIdx = allRows.indexOf(outerCb);
+    var currentOrder = allRows.map(function (cb) {
+        var row = cb.closest('.item-row');
+        var el  = row && row.querySelector('.item[data-id]');
+        return el ? el.dataset.id : null;
+    }).join(',');
+    if (_rangeItemOrder !== null && _rangeItemOrder !== currentOrder) {
+        _rangeTriggerId    = null;
+        _rangeAnchorIdx    = null;
+        _preRangeSelection = null;
+        _rangeItemOrder    = null;
     }
-  } else {
-    _lastCheckedWasCheck = !Items.getSelectedIds().has(item.id);
-    _lastCheckedIdx      = thisIdx;
-    _rangeTriggerId      = null;
-    _rangeAnchorIdx      = null;
-    _preRangeSelection   = null;
-    _rangeItemOrder      = null;
-    document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: item.id } }));
-  }
+    if (e.shiftKey) {
+        var selectedIds = Items.getSelectedIds();
+        var clickedIsChecked = selectedIds.has(item.id);
+        var list = document.getElementById('item-list');
+        var listRect = list.getBoundingClientRect();
+        // Find all checked item indices and their visibility
+        var checkedAbove = [];
+        var checkedBelow = [];
+        allRows.forEach(function (cb, idx) {
+            if (idx === thisIdx) return;
+            var cbRow = cb.closest('.item-row');
+            var cbItem = cbRow && cbRow.querySelector('.item[data-id]');
+            if (!cbItem) return;
+            var cbId = cbItem.dataset.id;
+            if (!selectedIds.has(cbId)) return;
+            var rect = cbRow.getBoundingClientRect();
+            var visible = rect.bottom > listRect.top && rect.top < listRect.bottom;
+            if (idx < thisIdx) checkedAbove.push({ idx: idx, id: cbId, visible: visible });
+            else checkedBelow.push({ idx: idx, id: cbId, visible: visible });
+        });
+        // Find closest checked item above and below
+        var closestAbove = checkedAbove.length ? checkedAbove[checkedAbove.length - 1] : null;
+        var closestBelow = checkedBelow.length ? checkedBelow[0] : null;
+        var anchorIdx = null;
+        var anchorId  = null;
+        if (closestAbove && !closestBelow) {
+            anchorIdx = closestAbove.idx;
+            anchorId  = closestAbove.id;
+        } else if (closestBelow && !closestAbove) {
+            anchorIdx = closestBelow.idx;
+            anchorId  = closestBelow.id;
+        } else if (closestAbove && closestBelow) {
+            var visAbove = checkedAbove.filter(function (x) { return x.visible; }).length;
+            var visBelow = checkedBelow.filter(function (x) { return x.visible; }).length;
+            if (visAbove >= visBelow) {
+                anchorIdx = closestAbove.idx;
+                anchorId  = closestAbove.id;
+            } else {
+                anchorIdx = closestBelow.idx;
+                anchorId  = closestBelow.id;
+            }
+        }
+        if (anchorIdx === null) {
+            // No checked items exist, fall back to plain toggle
+            _anchorItemId = item.id;
+            document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: item.id } }));
+            _refresh_anchor_indicators();
+            return;
+        }
+        _anchorItemId = anchorId;
+        var lo = Math.min(thisIdx, anchorIdx);
+        var hi = Math.max(thisIdx, anchorIdx);
+        for (var si = lo; si <= hi; si++) {
+            if (si === anchorIdx) continue;
+            var targetCb = allRows[si];
+            if (!targetCb) continue;
+            var targetRow = targetCb.closest('.item-row');
+            var targetItem = targetRow && targetRow.querySelector('.item[data-id]');
+            if (!targetItem) continue;
+            var targetId = targetItem.dataset.id;
+            var isChecked = selectedIds.has(targetId);
+            if (!clickedIsChecked && !isChecked) {
+                document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: targetId } }));
+            } else if (clickedIsChecked && isChecked) {
+                document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: targetId } }));
+            }
+        }
+        // Toggle the clicked item itself
+        document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: item.id } }));
+        _refresh_anchor_indicators();
+    } else {
+        _anchorItemId      = null;
+        _lastCheckedIdx    = thisIdx;
+        _rangeTriggerId    = null;
+        _rangeAnchorIdx    = null;
+        _preRangeSelection = null;
+        _rangeItemOrder    = null;
+        document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: item.id } }));
+        _refresh_anchor_indicators();
+    }
 });
 var outerCbMark = document.createElement('span');
 outerCbMark.className = 'cb-mark';
@@ -1178,6 +1197,16 @@ outerTrash.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="no
 outerTrash.addEventListener('click', function () {
   document.dispatchEvent(new CustomEvent('sc:swipe-delete', { detail: { id: item.id } }));
 });
+var anchorIndicator = document.createElement('span');
+anchorIndicator.className = 'anchor-indicator';
+anchorIndicator.title = 'Shift-click anchor';
+anchorIndicator.innerHTML = `<svg width="10" height="14" viewBox="0 0 10 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="5" cy="3.5" r="2.5" stroke="white" stroke-width="1.4"/>
+    <line x1="5" y1="6" x2="5" y2="14" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+    <line x1="2" y1="10" x2="8" y2="10" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+</svg>`;
+anchorIndicator.style.display = (_anchorItemId === item.id) ? 'flex' : 'none';
+outerCbWrap.insertBefore(anchorIndicator, outerCbWrap.firstChild);
 rowWrap.appendChild(outerCbWrap);
 rowWrap.appendChild(el);
 rowWrap.appendChild(outerTrash);
@@ -1361,6 +1390,13 @@ function _charDiff(origText, newText) {
   wrapper.appendChild(ta);
   requestAnimationFrame(_update);
   return wrapper;
+}
+function _refresh_anchor_indicators() {
+    document.querySelectorAll('#item-list .item-row .anchor-indicator').forEach(function (el) {
+        var row = el.closest('.item-row');
+        var itemEl = row && row.querySelector('.item[data-id]');
+        el.style.display = (itemEl && itemEl.dataset.id === _anchorItemId) ? 'flex' : 'none';
+    });
 }
 function setPeekThreshold(v) { _peekThreshold = v; }
 function _escHTML(s) {
