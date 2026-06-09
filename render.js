@@ -11,13 +11,11 @@ var _blobUrls           = {};   // imageId → objectURL cache
 var _openVersionPanels  = new Set();
 var _peekThreshold      = 200;
 var _versionSelections  = {};
-var _lastCheckedIdx      = null;
-var _lastCheckedWasCheck = true;
-var _rangeTriggerId      = null;
-var _rangeAnchorIdx      = null;
-var _preRangeSelection   = null;
-var _rangeItemOrder      = null;
-var _anchorItemId        = null;
+var _anchorItemId     = null;
+var _anchorBaseState  = null;
+var _lastRangeTrigger = null;
+var _lastRangeState   = null;
+var _isAtAnchorBase   = false;
 var _versionSelectAll   = new Set();
 var _currentQuery       = '';
 var _tagFilterActive    = false;
@@ -1088,8 +1086,8 @@ var outerCb = document.createElement('input');
 outerCb.type    = 'checkbox';
 outerCb.checked = selectedIds.has(item.id);
 outerCb.addEventListener('click', function (e) {
-    // Capture DOM state before any dispatch (refresh will rebuild DOM after first dispatch)
-    var allCbs = Array.from(document.querySelectorAll('#item-list .item-row .item-cb-outer input[type="checkbox"]'));
+    var allCbs = Array.from(document.querySelectorAll(
+        '#item-list .item-row .item-cb-outer input[type="checkbox"]'));
     var thisIdx = allCbs.indexOf(outerCb);
     var visIds = allCbs.map(function (cb) {
         var r = cb.closest('.item-row');
@@ -1105,71 +1103,57 @@ outerCb.addEventListener('click', function (e) {
         }
         return -1;
     }
+    function _doPlainClick() {
+        document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: item.id } }));
+        var sel = Items.getSelectedIds();
+        var allS  = visIds.length > 0 && visIds.every(function (id) { return sel.has(id); });
+        var noneS = visIds.every(function (id) { return !sel.has(id); });
+        _anchorItemId    = (allS || noneS) ? firstVisId : item.id;
+        _anchorBaseState = new Set(sel);
+        _lastRangeTrigger = null;
+        _lastRangeState   = null;
+        _isAtAnchorBase   = false;
+    }
     if (e.shiftKey) {
-        // No anchor yet, or clicking the anchor itself: treat as plain click
         if (_anchorItemId === null || item.id === _anchorItemId) {
-            _anchorItemId = item.id;
-            _rangeTriggerId = null;
-            _preRangeSelection = null;
-            _rangeItemOrder = null;
-            _lastCheckedWasCheck = false;
-            document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: item.id } }));
-            _refresh_anchor_indicators();
+            _doPlainClick();
             return;
         }
-        // Same anchor + same endpoint: toggle between stored pre-range and range states
-        if (_rangeTriggerId === item.id) {
-            var targetSel = _lastCheckedWasCheck ? _preRangeSelection : _rangeItemOrder;
-            document.dispatchEvent(new CustomEvent('sc:reset-select-all'));
-            Items.setSelection(targetSel);
-            _lastCheckedWasCheck = !_lastCheckedWasCheck;
-            _refresh_anchor_indicators();
-            return;
-        }
-        // Anchor no longer visible: fall back to plain click
         var anchorIdx = _idxOf(_anchorItemId);
         if (anchorIdx === -1) {
-            _anchorItemId = item.id;
-            _rangeTriggerId = null;
-            _preRangeSelection = null;
-            _rangeItemOrder = null;
-            _lastCheckedWasCheck = false;
-            document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: item.id } }));
-            _refresh_anchor_indicators();
+            _doPlainClick();
             return;
         }
-        // New endpoint: save current selection, compute and apply range
+        if (_lastRangeTrigger === item.id) {
+            document.dispatchEvent(new CustomEvent('sc:reset-select-all'));
+            if (_isAtAnchorBase) {
+                Items.setSelection(_lastRangeState);
+                _isAtAnchorBase = false;
+            } else {
+                Items.setSelection(_anchorBaseState);
+                _isAtAnchorBase = true;
+            }
+            return;
+        }
         var lo = Math.min(thisIdx, anchorIdx);
         var hi = Math.max(thisIdx, anchorIdx);
-        var itemIsChecked = Items.getSelectedIds().has(item.id);
-        var saved = new Set(Items.getSelectedIds());
-        var newSel = new Set(saved);
+        var curIds = Items.getSelectedIds();
+        var itemIsChecked = curIds.has(item.id);
+        var newSel = new Set(curIds);
         for (var si = lo; si <= hi; si++) {
             var sRow = allCbs[si] && allCbs[si].closest('.item-row');
             var sItem = sRow && sRow.querySelector('.item[data-id]');
-            if (!sItem) continue;
+            if (!sItem || sItem.dataset.id === _anchorItemId) continue;
             if (itemIsChecked) { newSel.delete(sItem.dataset.id); }
             else               { newSel.add(sItem.dataset.id); }
         }
-        _preRangeSelection = saved;
-        _rangeItemOrder = newSel;
-        _rangeTriggerId = item.id;
-        _lastCheckedWasCheck = true;
+        _lastRangeTrigger = item.id;
+        _lastRangeState   = newSel;
+        _isAtAnchorBase   = false;
         document.dispatchEvent(new CustomEvent('sc:reset-select-all'));
         Items.setSelection(newSel);
-        _refresh_anchor_indicators();
     } else {
-        // Plain click: toggle item, update anchor, clear shift memory
-        document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: item.id } }));
-        var selIds = Items.getSelectedIds();
-        var allSel  = visIds.length > 0 && visIds.every(function (id) { return selIds.has(id); });
-        var noneSel = visIds.every(function (id) { return !selIds.has(id); });
-        _anchorItemId = (allSel || noneSel) ? firstVisId : item.id;
-        _rangeTriggerId = null;
-        _preRangeSelection = null;
-        _rangeItemOrder = null;
-        _lastCheckedWasCheck = false;
-        _refresh_anchor_indicators();
+        _doPlainClick();
     }
 });
 var outerCbMark = document.createElement('span');
@@ -1187,17 +1171,6 @@ outerTrash.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="no
 outerTrash.addEventListener('click', function () {
   document.dispatchEvent(new CustomEvent('sc:swipe-delete', { detail: { id: item.id } }));
 });
-var anchorIndicator = document.createElement('span');
-anchorIndicator.className = 'anchor-indicator';
-anchorIndicator.title = 'Shift-click anchor';
-anchorIndicator.innerHTML = `<svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="6" cy="2.5" r="1.8" stroke="white" stroke-width="1.3"/>
-    <line x1="6" y1="4.3" x2="6" y2="13" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
-    <path d="M2 6.5 C2 6.5 1 10 1 11.5 C1 13 3 13 6 13 C9 13 11 13 11 11.5 C11 10 10 6.5 10 6.5" stroke="white" stroke-width="1.3" fill="none" stroke-linecap="round"/>
-    <line x1="3" y1="4.3" x2="9" y2="4.3" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
-</svg>`;
-anchorIndicator.style.display = 'none';
-outerCbWrap.insertBefore(anchorIndicator, outerCbWrap.firstChild);
 rowWrap.appendChild(outerCbWrap);
 rowWrap.appendChild(el);
 rowWrap.appendChild(outerTrash);
@@ -1381,20 +1354,6 @@ function _charDiff(origText, newText) {
   wrapper.appendChild(ta);
   requestAnimationFrame(_update);
   return wrapper;
-}
-function _refresh_anchor_indicators() {
-    document.querySelectorAll('#item-list .item-row .anchor-indicator').forEach(function (el) {
-        var row = el.closest('.item-row');
-        var itemEl = row && row.querySelector('.item[data-id]');
-        if (itemEl && itemEl.dataset.id === _anchorItemId) {
-            el.classList.remove('anchor-flashing');
-            void el.offsetWidth;
-            el.classList.add('anchor-flashing');
-            setTimeout(function () { el.classList.remove('anchor-flashing'); }, 500);
-        } else {
-            el.classList.remove('anchor-flashing');
-        }
-    });
 }
 function setPeekThreshold(v) { _peekThreshold = v; }
 function _escHTML(s) {
