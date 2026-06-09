@@ -470,7 +470,7 @@ mark.sc-highlight {
   padding: 0 1px;
   font-style: normal;
 }
-.item.keyboard-focused.copy-flash { border-color: var(--blue); outline-color: var(--blue); background: var(--surface); }
+.item.keyboard-focused.copy-flash { border-color: var(--orange); outline-color: var(--orange); background: var(--surface); }
 .item.keyboard-focused   { border-color: var(--orange); background: var(--surface); outline: 2px solid var(--orange); outline-offset: 1px; }
 .item.has-image {
   grid-template-rows: auto auto auto;
@@ -1368,9 +1368,9 @@ mark.sc-highlight {
   line-height: 1;
 }
 .item.alt-item-focused {
-  border-color: var(--green);
+  border-color: var(--orange);
   background: var(--surface);
-  outline: 2px solid var(--green);
+  outline: 2px solid var(--orange);
   outline-offset: 1px;
 }
 .alt-level-2 .item.alt-item-focused [data-alt-item]::after,
@@ -1380,5 +1380,13 @@ mark.sc-highlight {
 .alt-level-2 .item-row.alt-row-focused [data-alt-item]::after,
 .item-row:has(.item.keyboard-focused) [data-alt-item]::after {
   display: flex;
+}
+.copy-btn.btn-flash,
+.share-btn.btn-flash { color: var(--blue); }
+.star-btn.btn-flash  { color: var(--yellow); }
+[data-alt-item].badge-flash::after {
+  display: flex !important;
+  background: var(--blue-dim);
+  color: var(--bg-dark);
 }
 

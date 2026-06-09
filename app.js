@@ -1,6 +1,6 @@
 'use strict';
-// @version 297
-var SC_VERSION = '@version 297';
+// @version 298
+var SC_VERSION = '@version 298';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -506,6 +506,8 @@ document.addEventListener('sc:filter-tag', function (e) {
         document.dispatchEvent(new CustomEvent('sc:copy-item', { detail: { id: _focusedItemId } }));
         prevFocEl2.classList.add('copy-flash');
         setTimeout(function () { prevFocEl2.classList.remove('copy-flash'); }, 500);
+        var _ar2CopyBtn = prevFocEl2 && prevFocEl2.querySelector('.copy-btn, .share-btn');
+        if (_ar2CopyBtn) { _ar2CopyBtn.classList.add('btn-flash'); setTimeout(function () { _ar2CopyBtn.classList.remove('btn-flash'); }, 500); }
       }
       return;
     }
@@ -520,6 +522,8 @@ document.addEventListener('sc:filter-tag', function (e) {
           document.dispatchEvent(new CustomEvent('sc:copy-item', { detail: { id: _focusedItemId } }));
           prevFocEl.classList.add('copy-flash');
           setTimeout(function () { prevFocEl.classList.remove('copy-flash'); }, 500);
+          var _shCopyBtn = prevFocEl && prevFocEl.querySelector('.copy-btn, .share-btn');
+          if (_shCopyBtn) { _shCopyBtn.classList.add('btn-flash'); setTimeout(function () { _shCopyBtn.classList.remove('btn-flash'); }, 500); }
         }
         return;
       }
@@ -613,6 +617,8 @@ document.addEventListener('sc:filter-tag', function (e) {
           if (_fEl) {
             _fEl.classList.add('copy-flash');
             setTimeout(function () { _fEl.classList.remove('copy-flash'); }, 500);
+            var _kCopyBtn = _fEl.querySelector('.copy-btn, .share-btn');
+            if (_kCopyBtn) { _kCopyBtn.classList.add('btn-flash'); setTimeout(function () { _kCopyBtn.classList.remove('btn-flash'); }, 500); }
           }
           return;
         }
@@ -649,31 +655,67 @@ document.addEventListener('sc:filter-tag', function (e) {
           e.preventDefault();
           document.dispatchEvent(new CustomEvent('sc:copy-item', { detail: { id: _altFocusedItemId } }));
           var _aCopyEl = document.querySelector('.item[data-id="' + _altFocusedItemId + '"]');
-          if (_aCopyEl) { _aCopyEl.classList.add('copy-flash'); setTimeout(function () { _aCopyEl.classList.remove('copy-flash'); }, 500); }
+          if (_aCopyEl) {
+            _aCopyEl.classList.add('copy-flash');
+            setTimeout(function () { _aCopyEl.classList.remove('copy-flash'); }, 500);
+            var _aCopyBtn = _aCopyEl.querySelector('.copy-btn, .share-btn');
+            if (_aCopyBtn) { _aCopyBtn.classList.add('btn-flash'); setTimeout(function () { _aCopyBtn.classList.remove('btn-flash'); }, 500); }
+            var _aBadgeC = _aCopyEl.querySelector('[data-alt-item="c"]');
+            if (_aBadgeC) { _aBadgeC.classList.add('badge-flash'); setTimeout(function () { _aBadgeC.classList.remove('badge-flash'); }, 500); }
+          }
         } else if (_ak === 's') {
           e.preventDefault();
           document.dispatchEvent(new CustomEvent('sc:toggle-star', { detail: { id: _altFocusedItemId } }));
+          var _aStarEl = document.querySelector('.item[data-id="' + _altFocusedItemId + '"]');
+          if (_aStarEl) {
+            var _aBadgeS = _aStarEl.querySelector('[data-alt-item="s"]');
+            if (_aBadgeS) { _aBadgeS.classList.add('badge-flash'); setTimeout(function () { _aBadgeS.classList.remove('badge-flash'); }, 500); }
+          }
         } else if (_ak === 'd') {
           e.preventDefault();
           document.dispatchEvent(new CustomEvent('sc:swipe-delete', { detail: { id: _altFocusedItemId } }));
+          var _aDelEl = document.querySelector('.item[data-id="' + _altFocusedItemId + '"]');
+          if (_aDelEl) {
+            var _aDelRow = _aDelEl.closest('.item-row');
+            var _aBadgeD = _aDelRow && _aDelRow.querySelector('[data-alt-item="d"]');
+            if (_aBadgeD) { _aBadgeD.classList.add('badge-flash'); setTimeout(function () { _aBadgeD.classList.remove('badge-flash'); }, 500); }
+          }
         }
         return;
       }
       if (_focusedItemId && (_ak === 'c' || _ak === 's' || _ak === 'd')) {
         e.preventDefault();
         if (_ak === 'c') {
-          document.dispatchEvent(new CustomEvent('sc:copy-item', { detail: { id: _focusedItemId } }));
-          var _fAltEl = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
-          if (_fAltEl) { _fAltEl.classList.add('copy-flash'); setTimeout(function () { _fAltEl.classList.remove('copy-flash'); }, 500); }
-        } else if (_ak === 's') {
-          document.dispatchEvent(new CustomEvent('sc:toggle-star', { detail: { id: _focusedItemId } }));
-          requestAnimationFrame(function () {
-            var _sAltEl = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
-            if (_sAltEl) _sAltEl.classList.add('keyboard-focused');
-          });
-        } else if (_ak === 'd') {
-          document.dispatchEvent(new CustomEvent('sc:swipe-delete', { detail: { id: _focusedItemId } }));
-        }
+            document.dispatchEvent(new CustomEvent('sc:copy-item', { detail: { id: _focusedItemId } }));
+            var _fAltEl = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
+            if (_fAltEl) {
+              _fAltEl.classList.add('copy-flash');
+              setTimeout(function () { _fAltEl.classList.remove('copy-flash'); }, 500);
+              var _fAltCopyBtn = _fAltEl.querySelector('.copy-btn, .share-btn');
+              if (_fAltCopyBtn) { _fAltCopyBtn.classList.add('btn-flash'); setTimeout(function () { _fAltCopyBtn.classList.remove('btn-flash'); }, 500); }
+              var _fAltBadgeC = _fAltEl.querySelector('[data-alt-item="c"]');
+              if (_fAltBadgeC) { _fAltBadgeC.classList.add('badge-flash'); setTimeout(function () { _fAltBadgeC.classList.remove('badge-flash'); }, 500); }
+            }
+          } else if (_ak === 's') {
+            document.dispatchEvent(new CustomEvent('sc:toggle-star', { detail: { id: _focusedItemId } }));
+            var _fAltStarEl = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
+            if (_fAltStarEl) {
+              var _fAltBadgeS = _fAltStarEl.querySelector('[data-alt-item="s"]');
+              if (_fAltBadgeS) { _fAltBadgeS.classList.add('badge-flash'); setTimeout(function () { _fAltBadgeS.classList.remove('badge-flash'); }, 500); }
+            }
+            requestAnimationFrame(function () {
+              var _sAltEl = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
+              if (_sAltEl) _sAltEl.classList.add('keyboard-focused');
+            });
+          } else if (_ak === 'd') {
+            document.dispatchEvent(new CustomEvent('sc:swipe-delete', { detail: { id: _focusedItemId } }));
+            var _fAltDelEl = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
+            if (_fAltDelEl) {
+              var _fAltDelRow = _fAltDelEl.closest('.item-row');
+              var _fAltBadgeD = _fAltDelRow && _fAltDelRow.querySelector('[data-alt-item="d"]');
+              if (_fAltBadgeD) { _fAltBadgeD.classList.add('badge-flash'); setTimeout(function () { _fAltBadgeD.classList.remove('badge-flash'); }, 500); }
+            }
+          }
         return;
       }
       if (_ak === 'z') { e.preventDefault(); btnUndo.click(); }
