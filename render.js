@@ -1220,10 +1220,11 @@ outerTrash.addEventListener('click', function () {
 var anchorIndicator = document.createElement('span');
 anchorIndicator.className = 'anchor-indicator';
 anchorIndicator.title = 'Shift-click anchor';
-anchorIndicator.innerHTML = `<svg width="10" height="14" viewBox="0 0 10 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="5" cy="3.5" r="2.5" stroke="white" stroke-width="1.4"/>
-    <line x1="5" y1="6" x2="5" y2="14" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
-    <line x1="2" y1="10" x2="8" y2="10" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+anchorIndicator.innerHTML = `<svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="6" cy="2.5" r="1.8" stroke="white" stroke-width="1.3"/>
+    <line x1="6" y1="4.3" x2="6" y2="13" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+    <path d="M2 6.5 C2 6.5 1 10 1 11.5 C1 13 3 13 6 13 C9 13 11 13 11 11.5 C11 10 10 6.5 10 6.5" stroke="white" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+    <line x1="3" y1="4.3" x2="9" y2="4.3" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
 </svg>`;
 anchorIndicator.style.display = 'none';
 outerCbWrap.insertBefore(anchorIndicator, outerCbWrap.firstChild);
