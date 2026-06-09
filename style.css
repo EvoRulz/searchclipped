@@ -470,7 +470,7 @@ mark.sc-highlight {
   padding: 0 1px;
   font-style: normal;
 }
-.item.keyboard-focused.copy-flash { border-color: var(--orange); outline-color: var(--orange); background: var(--surface); }
+.item.keyboard-focused.copy-flash { border-color: var(--blue); outline-color: var(--blue); background: var(--surface); }
 .item.keyboard-focused   { border-color: var(--orange); background: var(--surface); outline: 2px solid var(--orange); outline-offset: 1px; }
 .item.has-image {
   grid-template-rows: auto auto auto;
@@ -1386,7 +1386,8 @@ mark.sc-highlight {
 .star-btn.btn-flash  { color: var(--yellow); }
 [data-alt-item].badge-flash::after {
   display: flex !important;
-  background: var(--blue-dim);
+  background: var(--orange);
   color: var(--bg-dark);
+  box-shadow: 0 0 6px 2px rgba(250, 200, 99, 0.7);
 }
 
