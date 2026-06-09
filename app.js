@@ -1,6 +1,6 @@
 'use strict';
-// @version 298
-var SC_VERSION = '@version 298';
+// @version 299
+var SC_VERSION = '@version 299';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -742,6 +742,20 @@ document.addEventListener('sc:filter-tag', function (e) {
       _altLevel = 0;
       _altFocusedItemId = null;
     }
+  });
+  window.addEventListener('blur', function () {
+    document.getElementById('app').classList.remove('alt-mode');
+    document.getElementById('app').classList.remove('alt-level-2');
+    if (_altFocusedItemId) {
+      var _blurEl = document.querySelector('.item[data-id="' + _altFocusedItemId + '"]');
+      if (_blurEl) {
+        _blurEl.classList.remove('alt-item-focused');
+        var _blurRow = _blurEl.closest('.item-row');
+        if (_blurRow) _blurRow.classList.remove('alt-row-focused');
+      }
+    }
+    _altLevel = 0;
+    _altFocusedItemId = null;
   });
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) {
