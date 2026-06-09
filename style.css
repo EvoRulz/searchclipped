@@ -395,7 +395,7 @@ button { font-family: var(--font); }
 /* ===== ITEM ===== */
 .item {
   display: grid;
-  grid-template-columns: 28px 1fr 64px;
+  grid-template-columns: 28px 1fr auto;
   grid-template-rows: auto auto;
   grid-template-areas:
     "left content right"
