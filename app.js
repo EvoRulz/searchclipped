@@ -1,6 +1,6 @@
 'use strict';
-// @version 301
-var SC_VERSION = '@version 301';
+// @version 302
+var SC_VERSION = '@version 302';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -499,7 +499,7 @@ document.addEventListener('sc:filter-tag', function (e) {
   }
   /* ===== ALT SHORTCUTS ===== */
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'ArrowRight' && !e.shiftKey && _focusedItemId) {
+    if (e.key === 'ArrowRight' && !e.shiftKey && !e.altKey && _focusedItemId) {
       e.preventDefault();
       var prevFocEl2 = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
       if (prevFocEl2) {
@@ -507,7 +507,9 @@ document.addEventListener('sc:filter-tag', function (e) {
         prevFocEl2.classList.add('copy-flash');
         setTimeout(function () { prevFocEl2.classList.remove('copy-flash'); }, 500);
         var _ar2CopyBtn = prevFocEl2 && prevFocEl2.querySelector('.copy-btn, .share-btn');
-        if (_ar2CopyBtn) { _ar2CopyBtn.classList.add('btn-flash'); setTimeout(function () { _ar2CopyBtn.classList.remove('btn-flash'); }, 500); }
+    if (_ar2CopyBtn) { _ar2CopyBtn.classList.add('btn-flash'); setTimeout(function () { _ar2CopyBtn.classList.remove('btn-flash'); }, 500); }
+    var _ar2BadgeC = prevFocEl2.querySelector('[data-alt-item="c"]');
+    if (_ar2BadgeC) { _ar2BadgeC.classList.add('badge-flash'); setTimeout(function () { _ar2BadgeC.classList.remove('badge-flash'); }, 500); }
       }
       return;
     }
@@ -619,6 +621,8 @@ document.addEventListener('sc:filter-tag', function (e) {
             setTimeout(function () { _fEl.classList.remove('copy-flash'); }, 500);
             var _kCopyBtn = _fEl.querySelector('.copy-btn, .share-btn');
             if (_kCopyBtn) { _kCopyBtn.classList.add('btn-flash'); setTimeout(function () { _kCopyBtn.classList.remove('btn-flash'); }, 500); }
+            var _kBadgeC = _fEl.querySelector('[data-alt-item="c"]');
+            if (_kBadgeC) { _kBadgeC.classList.add('badge-flash'); setTimeout(function () { _kBadgeC.classList.remove('badge-flash'); }, 500); }
           }
           return;
         }
