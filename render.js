@@ -1063,7 +1063,7 @@ footer.appendChild(tsCont);
   // Tags row
 var tagsRow = _makeTagsRow(item, tagSelMode, selectedTags, isFiltered);
   el.appendChild(footer);
-  right.insertBefore(tagsRow, copyHitArea);
+  right.appendChild(tagsRow);
   // --- Swipe-to-delete ---
 _attachSwipe(el, item.id);
   // --- Outer row wrapper ---
@@ -1392,6 +1392,7 @@ function _updateCopyBtnPositions() {
     if (btnTopInViewport < listTop + _btnMarginTop) topOffset = listTop + _btnMarginTop - hitAreaRect.top;
     if (btnTopInViewport + btnH > listBottom - _btnMarginBottom) topOffset = listBottom - _btnMarginBottom - hitAreaRect.top - btnH;
     topOffset = Math.max(minTop, Math.min(topOffset, maxTop));
+    hitArea.style.width = (btnH * 1.5) + 'px';
     btn.style.top = topOffset + 'px';
     hitArea.dataset.hct = Math.max(0, listTop + btnH * 1.5 - hitAreaRect.top);
     hitArea.dataset.hcb = Math.max(0, hitAreaRect.bottom - (listBottom - btnH * 1.0));

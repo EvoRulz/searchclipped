@@ -628,7 +628,6 @@ mark.sc-highlight {
 .copy-hit-area {
   flex: 1;
   position: relative;
-  width: 100%;
   min-height: 0;
   cursor: pointer;
   border-radius: 12px;
