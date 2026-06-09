@@ -611,6 +611,16 @@ mark.sc-highlight {
   flex-shrink: 0;
   min-width: 24px;
 }
+.item-title-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+.item-title-row .item-title {
+  flex: 1;
+  min-width: 0;
+}
 .item-undo-redo-row {
   display: flex;
   flex-direction: row;

@@ -383,7 +383,11 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   titleEl.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); titleEl.blur(); }
   });
-  contentCol.appendChild(titleEl);
+  var titleRow = document.createElement('div');
+  titleRow.className = 'item-title-row';
+  titleRow.appendChild(titleEl);
+  titleRow.appendChild(iUndoBtn);
+  contentCol.appendChild(titleRow);
   var content = document.createElement('div');
   content.className       = 'item-content';
   content.contentEditable = item.deleted ? 'false' : 'true';
@@ -581,7 +585,6 @@ iRedoBtn.style.fontSize = '15px';
 iRedoBtn.style.fontSize = '15px';
 var undoRedoRow = document.createElement('div');
 undoRedoRow.className = 'item-undo-redo-row';
-undoRedoRow.appendChild(iUndoBtn);
 undoRedoRow.appendChild(iRedoBtn);
 var copyHitArea = document.createElement('div');
 copyHitArea.className = 'copy-hit-area';
