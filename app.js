@@ -1,6 +1,6 @@
 'use strict';
-// @version 302
-var SC_VERSION = '@version 302';
+// @version 303
+var SC_VERSION = '@version 303';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -675,6 +675,16 @@ document.addEventListener('sc:filter-tag', function (e) {
             var _aBadgeS = _aStarEl.querySelector('[data-alt-item="s"]');
             if (_aBadgeS) { _aBadgeS.classList.add('badge-flash'); setTimeout(function () { _aBadgeS.classList.remove('badge-flash'); }, 500); }
           }
+          (function(id) {
+            requestAnimationFrame(function() {
+              var _reAltEl = document.querySelector('.item[data-id="' + id + '"]');
+              if (_reAltEl) {
+                _reAltEl.classList.add('alt-item-focused');
+                var _reAltRow = _reAltEl.closest('.item-row');
+                if (_reAltRow) _reAltRow.classList.add('alt-row-focused');
+              }
+            });
+          })(_altFocusedItemId);
         } else if (_ak === 'd') {
           e.preventDefault();
           document.dispatchEvent(new CustomEvent('sc:swipe-delete', { detail: { id: _altFocusedItemId } }));
