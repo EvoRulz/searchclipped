@@ -11,6 +11,8 @@ var _blobUrls           = {};   // imageId → objectURL cache
 var _openVersionPanels  = new Set();
 var _peekThreshold      = 200;
 var _versionSelections  = {};
+var _lastCheckedIdx     = null;
+var _lastCheckedWasCheck = true;
 var _versionSelectAll   = new Set();
 var _currentQuery       = '';
 var _tagFilterActive    = false;
@@ -1080,8 +1082,31 @@ outerCbWrap.className = 'item-cb-outer cb-wrap';
 var outerCb = document.createElement('input');
 outerCb.type    = 'checkbox';
 outerCb.checked = selectedIds.has(item.id);
-outerCb.addEventListener('change', function () {
-  document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: item.id } }));
+outerCb.addEventListener('click', function (e) {
+  var allRows = Array.from(document.querySelectorAll('#item-list .item-row .item-cb-outer input[type="checkbox"]'));
+  var thisIdx = allRows.indexOf(outerCb);
+  if (e.shiftKey && _lastCheckedIdx !== null && thisIdx !== _lastCheckedIdx) {
+    var lo = Math.min(thisIdx, _lastCheckedIdx);
+    var hi = Math.max(thisIdx, _lastCheckedIdx);
+    for (var si = lo; si <= hi; si++) {
+      var targetCb = allRows[si];
+      if (!targetCb) continue;
+      var targetRow = targetCb.closest('.item-row');
+      var targetItem = targetRow && targetRow.querySelector('.item[data-id]');
+      if (!targetItem) continue;
+      var targetId = targetItem.dataset.id;
+      var selectedIds = Items.getSelectedIds();
+      if (_lastCheckedWasCheck && !selectedIds.has(targetId)) {
+        document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: targetId } }));
+      } else if (!_lastCheckedWasCheck && selectedIds.has(targetId)) {
+        document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: targetId } }));
+      }
+    }
+  } else {
+    _lastCheckedWasCheck = !Items.getSelectedIds().has(item.id);
+    _lastCheckedIdx = thisIdx;
+    document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: item.id } }));
+  }
 });
 var outerCbMark = document.createElement('span');
 outerCbMark.className = 'cb-mark';
