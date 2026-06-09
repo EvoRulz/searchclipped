@@ -1346,4 +1346,39 @@ mark.sc-highlight {
   background: var(--bg-dark);
   display: block;
 }
+/* ===== ITEM-LEVEL ALT BADGES ===== */
+[data-alt-item] { position: relative; }
+[data-alt-item]::after {
+  content: attr(data-alt-item);
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--green);
+  color: var(--bg-dark);
+  font-size: 8px;
+  font-weight: 700;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  pointer-events: none;
+  line-height: 1;
+}
+.item.alt-item-focused {
+  border-color: var(--green);
+  background: var(--surface);
+  outline: 2px solid var(--green);
+  outline-offset: 1px;
+}
+.alt-level-2 .item.alt-item-focused [data-alt-item]::after,
+.item.keyboard-focused [data-alt-item]::after {
+  display: flex;
+}
+.alt-level-2 .item-row.alt-row-focused [data-alt-item]::after,
+.item-row:has(.item.keyboard-focused) [data-alt-item]::after {
+  display: flex;
+}
 

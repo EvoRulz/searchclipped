@@ -548,6 +548,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   starBtn.className   = 'star-btn' + (item.starred ? ' active' : '');
   starBtn.textContent = item.starred ? '★' : '☆';
   starBtn.title       = 'Star';
+  starBtn.setAttribute('data-alt-item', 's');
   starBtn.addEventListener('click', function () {
     document.dispatchEvent(new CustomEvent('sc:toggle-star', { detail: { id: item.id } }));
   });
@@ -565,8 +566,9 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   } else {
     var copyBtn = document.createElement('button');
     copyBtn.className   = 'copy-btn';
-    copyBtn.title       = 'Copy';
-    copyBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+  copyBtn.title       = 'Copy';
+  copyBtn.setAttribute('data-alt-item', 'c');
+  copyBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
   <rect x="4" y="4" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
   <path d="M3 10H2a1 1 0 01-1-1V2a1 1 0 011-1h7a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
   </svg>`;
@@ -1088,6 +1090,7 @@ outerCbWrap.appendChild(outerCbMark);
 var outerTrash = document.createElement('button');
 outerTrash.className = 'item-trash-outer trash-btn';
 outerTrash.title     = 'Delete';
+outerTrash.setAttribute('data-alt-item', 'd');
 outerTrash.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path d="M2 4h10M5 4V2.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5V4M6 7v3.5M8 7v3.5M3 4l.8 7.2a1 1 0 001 .8h4.4a1 1 0 001-.8L11 4"
         stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>

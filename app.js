@@ -1,6 +1,6 @@
 'use strict';
-// @version 295
-var SC_VERSION = '@version 295';
+// @version 296
+var SC_VERSION = '@version 296';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -157,6 +157,8 @@ var SC_VERSION = '@version 295';
   var _refocusEntry = false;
   var _altShortcuts = {};
   var _focusedItemId = null;
+  var _altLevel = 0;
+  var _altFocusedItemId = null;
   (function () {
     var _list = document.getElementById('item-list');
     if (!_list) return;
@@ -545,6 +547,19 @@ document.addEventListener('sc:filter-tag', function (e) {
       return;
     }
     if (e.key === 'Escape') {
+      if (_altLevel === 2) {
+        e.preventDefault();
+        var _escAltEl = document.querySelector('.item[data-id="' + _altFocusedItemId + '"]');
+        if (_escAltEl) {
+          _escAltEl.classList.remove('alt-item-focused');
+          var _escRow = _escAltEl.closest('.item-row');
+          if (_escRow) _escRow.classList.remove('alt-row-focused');
+        }
+        _altLevel = 1;
+        _altFocusedItemId = null;
+        document.getElementById('app').classList.remove('alt-level-2');
+        return;
+      }
       if (document.activeElement === searchInput && !searchInput.value) {
         searchInput.blur();
       } else {
@@ -608,16 +623,42 @@ document.addEventListener('sc:filter-tag', function (e) {
       var _altId = _altShortcuts[_altDigit];
       if (_altId) {
         e.preventDefault();
-        document.dispatchEvent(new CustomEvent('sc:copy-item', { detail: { id: _altId } }));
+        if (_altFocusedItemId) {
+          var _prevAltEl = document.querySelector('.item[data-id="' + _altFocusedItemId + '"]');
+          if (_prevAltEl) {
+            _prevAltEl.classList.remove('alt-item-focused');
+            var _prevAltRow = _prevAltEl.closest('.item-row');
+            if (_prevAltRow) _prevAltRow.classList.remove('alt-row-focused');
+          }
+        }
+        _altLevel = 2;
+        _altFocusedItemId = _altId;
         var _altEl = document.querySelector('.item[data-id="' + _altId + '"]');
         if (_altEl) {
-          _altEl.classList.add('copy-flash');
-          setTimeout(function () { _altEl.classList.remove('copy-flash'); }, 500);
+          _altEl.classList.add('alt-item-focused');
+          var _altRow = _altEl.closest('.item-row');
+          if (_altRow) _altRow.classList.add('alt-row-focused');
         }
+        document.getElementById('app').classList.add('alt-level-2');
       }
     }
     if (e.altKey && !e.ctrlKey && !e.metaKey && e.code && e.code.startsWith('Key')) {
       var _ak = e.code.slice(3).toLowerCase();
+      if (_altLevel === 2 && _altFocusedItemId) {
+        if (_ak === 'c') {
+          e.preventDefault();
+          document.dispatchEvent(new CustomEvent('sc:copy-item', { detail: { id: _altFocusedItemId } }));
+          var _aCopyEl = document.querySelector('.item[data-id="' + _altFocusedItemId + '"]');
+          if (_aCopyEl) { _aCopyEl.classList.add('copy-flash'); setTimeout(function () { _aCopyEl.classList.remove('copy-flash'); }, 500); }
+        } else if (_ak === 's') {
+          e.preventDefault();
+          document.dispatchEvent(new CustomEvent('sc:toggle-star', { detail: { id: _altFocusedItemId } }));
+        } else if (_ak === 'd') {
+          e.preventDefault();
+          document.dispatchEvent(new CustomEvent('sc:swipe-delete', { detail: { id: _altFocusedItemId } }));
+        }
+        return;
+      }
       if (_ak === 'z') { e.preventDefault(); btnUndo.click(); }
       else if (_ak === 'y') { e.preventDefault(); btnRedo.click(); }
       else if (_ak === 'f') { e.preventDefault(); searchInput.focus(); searchInput.select(); }
@@ -630,10 +671,34 @@ document.addEventListener('sc:filter-tag', function (e) {
   document.addEventListener('keyup', function (e) {
     if (e.key === 'Alt') {
       document.getElementById('app').classList.remove('alt-mode');
+      document.getElementById('app').classList.remove('alt-level-2');
+      if (_altFocusedItemId) {
+        var _kuEl = document.querySelector('.item[data-id="' + _altFocusedItemId + '"]');
+        if (_kuEl) {
+          _kuEl.classList.remove('alt-item-focused');
+          var _kuRow = _kuEl.closest('.item-row');
+          if (_kuRow) _kuRow.classList.remove('alt-row-focused');
+        }
+      }
+      _altLevel = 0;
+      _altFocusedItemId = null;
     }
   });
   document.addEventListener('visibilitychange', function () {
-    if (document.hidden) document.getElementById('app').classList.remove('alt-mode');
+    if (document.hidden) {
+      document.getElementById('app').classList.remove('alt-mode');
+      document.getElementById('app').classList.remove('alt-level-2');
+      if (_altFocusedItemId) {
+        var _vcEl = document.querySelector('.item[data-id="' + _altFocusedItemId + '"]');
+        if (_vcEl) {
+          _vcEl.classList.remove('alt-item-focused');
+          var _vcRow = _vcEl.closest('.item-row');
+          if (_vcRow) _vcRow.classList.remove('alt-row-focused');
+        }
+      }
+      _altLevel = 0;
+      _altFocusedItemId = null;
+    }
   });
   (function () {
     var _scrollDir = 0;
