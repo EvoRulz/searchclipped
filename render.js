@@ -1155,6 +1155,7 @@ outerCb.addEventListener('click', function (e) {
         var hi = Math.max(thisIdx, anchorIdx);
         for (var si = lo; si <= hi; si++) {
             if (si === anchorIdx) continue;
+        if (si === thisIdx) continue;
             var targetCb = allRows[si];
             if (!targetCb) continue;
             var targetRow = targetCb.closest('.item-row');
