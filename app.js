@@ -1,6 +1,6 @@
 'use strict';
-// @version 296
-var SC_VERSION = '@version 296';
+// @version 297
+var SC_VERSION = '@version 297';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -656,6 +656,23 @@ document.addEventListener('sc:filter-tag', function (e) {
         } else if (_ak === 'd') {
           e.preventDefault();
           document.dispatchEvent(new CustomEvent('sc:swipe-delete', { detail: { id: _altFocusedItemId } }));
+        }
+        return;
+      }
+      if (_focusedItemId && (_ak === 'c' || _ak === 's' || _ak === 'd')) {
+        e.preventDefault();
+        if (_ak === 'c') {
+          document.dispatchEvent(new CustomEvent('sc:copy-item', { detail: { id: _focusedItemId } }));
+          var _fAltEl = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
+          if (_fAltEl) { _fAltEl.classList.add('copy-flash'); setTimeout(function () { _fAltEl.classList.remove('copy-flash'); }, 500); }
+        } else if (_ak === 's') {
+          document.dispatchEvent(new CustomEvent('sc:toggle-star', { detail: { id: _focusedItemId } }));
+          requestAnimationFrame(function () {
+            var _sAltEl = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
+            if (_sAltEl) _sAltEl.classList.add('keyboard-focused');
+          });
+        } else if (_ak === 'd') {
+          document.dispatchEvent(new CustomEvent('sc:swipe-delete', { detail: { id: _focusedItemId } }));
         }
         return;
       }

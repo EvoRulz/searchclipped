@@ -1281,7 +1281,7 @@ mark.sc-highlight {
   pointer-events: none;
   line-height: 1;
 }
-.alt-mode [data-alt]::after { display: flex; }
+.alt-mode:not(.alt-level-2) [data-alt]::after { display: flex; }
 /* ===== HIDE TOGGLES ===== */
 #app.hide-item-content .item:not(.new-placeholder) .item-content { display: none; }
 #app.hide-titles .item:not(.new-placeholder) .item-title { display: none; }
@@ -1353,7 +1353,7 @@ mark.sc-highlight {
   position: absolute;
   top: -4px;
   right: -4px;
-  background: var(--green);
+  background: var(--orange);
   color: var(--bg-dark);
   font-size: 8px;
   font-weight: 700;
