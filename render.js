@@ -1063,7 +1063,7 @@ footer.appendChild(tsCont);
   // Tags row
 var tagsRow = _makeTagsRow(item, tagSelMode, selectedTags, isFiltered);
   el.appendChild(footer);
-  el.appendChild(tagsRow);
+  right.insertBefore(tagsRow, copyHitArea);
   // --- Swipe-to-delete ---
 _attachSwipe(el, item.id);
   // --- Outer row wrapper ---
