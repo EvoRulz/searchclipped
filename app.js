@@ -1,6 +1,6 @@
 'use strict';
-// @version 292
-var SC_VERSION = '@version 292';
+// @version 293
+var SC_VERSION = '@version 293';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -632,8 +632,8 @@ document.addEventListener('sc:filter-tag', function (e) {
       document.getElementById('app').classList.remove('alt-mode');
     }
   });
-  window.addEventListener('blur', function () {
-    document.getElementById('app').classList.remove('alt-mode');
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) document.getElementById('app').classList.remove('alt-mode');
   });
   (function () {
     var _scrollDir = 0;
