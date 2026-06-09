@@ -1,6 +1,6 @@
 'use strict';
-// @version 290
-var SC_VERSION = '@version 290';
+// @version 291
+var SC_VERSION = '@version 291';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -127,9 +127,9 @@ var SC_VERSION = '@version 290';
     _lastFiltered = result.filtered;
     _altShortcuts = {};
     document.querySelectorAll('.item[data-shortcut]').forEach(function (el) {
-      var letter = el.dataset.shortcut;
+      var digit = el.dataset.shortcut;
       var id = el.dataset.id;
-      if (letter && id && id !== '__new__') _altShortcuts[letter] = id;
+      if (digit && id && id !== '__new__') _altShortcuts[digit] = id;
     });
     if (_refocusEntry) {
       _refocusEntry = false;
@@ -603,18 +603,28 @@ document.addEventListener('sc:filter-tag', function (e) {
         }
       }
     }
-    if (e.altKey && e.code && e.code.startsWith('Key')) {
-      var letter = e.code.slice(3).toLowerCase();
-      var id = _altShortcuts[letter];
-      if (id) {
+    if (e.altKey && e.code && e.code.startsWith('Digit')) {
+      var _altDigit = e.code.slice(5);
+      var _altId = _altShortcuts[_altDigit];
+      if (_altId) {
         e.preventDefault();
-        document.dispatchEvent(new CustomEvent('sc:copy-item', { detail: { id: id } }));
-        var el = document.querySelector('.item[data-id="' + id + '"]');
-        if (el) {
-          el.classList.add('copy-flash');
-          setTimeout(function () { el.classList.remove('copy-flash'); }, 500);
+        document.dispatchEvent(new CustomEvent('sc:copy-item', { detail: { id: _altId } }));
+        var _altEl = document.querySelector('.item[data-id="' + _altId + '"]');
+        if (_altEl) {
+          _altEl.classList.add('copy-flash');
+          setTimeout(function () { _altEl.classList.remove('copy-flash'); }, 500);
         }
       }
+    }
+    if (e.altKey && !e.ctrlKey && !e.metaKey && e.code && e.code.startsWith('Key')) {
+      var _ak = e.code.slice(3).toLowerCase();
+      if (_ak === 'z') { e.preventDefault(); btnUndo.click(); }
+      else if (_ak === 'y') { e.preventDefault(); btnRedo.click(); }
+      else if (_ak === 'f') { e.preventDefault(); searchInput.focus(); searchInput.select(); }
+      else if (_ak === 'n') { e.preventDefault(); var _ph = document.querySelector('.item-content[data-placeholder]'); if (_ph) _ph.focus(); }
+      else if (_ak === 'd') { e.preventDefault(); btnShowDeleted.click(); }
+      else if (_ak === 's') { e.preventDefault(); btnStarFilter.click(); }
+      else if (_ak === 'e') { e.preventDefault(); btnExport.click(); }
     }
   });
   document.addEventListener('keyup', function (e) {

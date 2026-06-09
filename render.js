@@ -110,14 +110,14 @@ function render(filtered, rest, selectedIds, tagSelMode, selectedTags, query, ta
     frag.appendChild(banner);
   }
   // Filtered section
-  var _sc = 'asdfghjklqwertyuiopzxcvbnm';
   var _li = 0;
   if (filtered.length > 0) {
     filtered.forEach(function (item) {
       var rowEl = _makeItem(item, true, selectedIds, tagSelMode, selectedTags);
-      if (_li < _sc.length) {
+      if (_li < 9) {
         var innerEl = rowEl.querySelector('.item');
-        if (innerEl) innerEl.dataset.shortcut = _sc[_li++]; else _li++;
+        if (innerEl) { innerEl.dataset.shortcut = String(_li + 1); }
+        _li++;
       }
       frag.appendChild(rowEl);
     });
@@ -129,10 +129,6 @@ function render(filtered, rest, selectedIds, tagSelMode, selectedTags, query, ta
   // Rest section
   rest.forEach(function (item) {
     var rowEl = _makeItem(item, false, selectedIds, tagSelMode, selectedTags);
-    if (_li < _sc.length) {
-      var innerEl = rowEl.querySelector('.item');
-      if (innerEl) innerEl.dataset.shortcut = _sc[_li++]; else _li++;
-    }
     frag.appendChild(rowEl);
   });
   var _storageRow = document.getElementById('storage-row');
