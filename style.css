@@ -404,7 +404,7 @@ button { font-family: var(--font); }
   border: 1px solid var(--border-lo);
   border-radius: var(--radius-lg);
   margin-bottom: 5px;
-  padding: 7px 8px 6px;
+  padding: 7px 8px 6px 3px;
   gap: 0 5px;
   position: relative;
   transition: transform 0.18s ease, border-color var(--transition);
@@ -550,7 +550,7 @@ mark.sc-highlight {
   color: var(--text-ph);
   cursor: pointer;
   font-size: 20px;
-  padding: 2px 4px;
+  padding: 2px 2px 2px 0;
   line-height: 1;
   border-radius: 3px;
   transition: color var(--transition), background var(--transition);
