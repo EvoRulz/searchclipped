@@ -129,6 +129,11 @@ function render(filtered, rest, selectedIds, tagSelMode, selectedTags, query, ta
   // Rest section
   rest.forEach(function (item) {
     var rowEl = _makeItem(item, false, selectedIds, tagSelMode, selectedTags);
+    if (_li < 9) {
+      var innerEl = rowEl.querySelector('.item');
+      if (innerEl) { innerEl.dataset.shortcut = String(_li + 1); }
+      _li++;
+    }
     frag.appendChild(rowEl);
   });
   var _storageRow = document.getElementById('storage-row');
