@@ -1144,9 +1144,28 @@ outerCb.addEventListener('click', function (e) {
             }
         }
         if (anchorIdx === null) {
-            // No checked items exist, fall back to plain toggle
-            _anchorItemId = item.id;
-            document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: item.id } }));
+            var _topCb2 = allRows[0];
+            var _topRow2 = _topCb2 && _topCb2.closest('.item-row');
+            var _topItem2 = _topRow2 && _topRow2.querySelector('.item[data-id]');
+            if (!_topItem2 || _topItem2.dataset.id === item.id) {
+                _anchorItemId = item.id;
+                document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: item.id } }));
+                _refresh_anchor_indicators();
+                return;
+            }
+            anchorIdx = 0;
+            anchorId = _topItem2.dataset.id;
+            _anchorItemId = anchorId;
+            var _lo2 = Math.min(thisIdx, anchorIdx);
+            var _hi2 = Math.max(thisIdx, anchorIdx);
+            for (var _si2 = _lo2; _si2 <= _hi2; _si2++) {
+                var _targetCb2 = allRows[_si2];
+                if (!_targetCb2) continue;
+                var _targetRow2 = _targetCb2.closest('.item-row');
+                var _targetItem2 = _targetRow2 && _targetRow2.querySelector('.item[data-id]');
+                if (!_targetItem2) continue;
+                document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: _targetItem2.dataset.id } }));
+            }
             _refresh_anchor_indicators();
             return;
         }
