@@ -1205,7 +1205,7 @@ anchorIndicator.innerHTML = `<svg width="10" height="14" viewBox="0 0 10 14" fil
     <line x1="5" y1="6" x2="5" y2="14" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
     <line x1="2" y1="10" x2="8" y2="10" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
 </svg>`;
-anchorIndicator.style.display = (_anchorItemId === item.id) ? 'flex' : 'none';
+anchorIndicator.style.display = 'none';
 outerCbWrap.insertBefore(anchorIndicator, outerCbWrap.firstChild);
 rowWrap.appendChild(outerCbWrap);
 rowWrap.appendChild(el);
@@ -1395,7 +1395,14 @@ function _refresh_anchor_indicators() {
     document.querySelectorAll('#item-list .item-row .anchor-indicator').forEach(function (el) {
         var row = el.closest('.item-row');
         var itemEl = row && row.querySelector('.item[data-id]');
-        el.style.display = (itemEl && itemEl.dataset.id === _anchorItemId) ? 'flex' : 'none';
+        if (itemEl && itemEl.dataset.id === _anchorItemId) {
+            el.classList.remove('anchor-flashing');
+            void el.offsetWidth;
+            el.classList.add('anchor-flashing');
+            setTimeout(function () { el.classList.remove('anchor-flashing'); }, 500);
+        } else {
+            el.classList.remove('anchor-flashing');
+        }
     });
 }
 function setPeekThreshold(v) { _peekThreshold = v; }

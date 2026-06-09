@@ -439,6 +439,15 @@ button { font-family: var(--font); }
   pointer-events: none;
   opacity: 0.85;
 }
+@keyframes anchor-flash {
+  0%   { opacity: 0.85; }
+  60%  { opacity: 0.85; }
+  100% { opacity: 0; }
+}
+.anchor-indicator.anchor-flashing {
+  display: flex !important;
+  animation: anchor-flash 0.5s ease forwards;
+}
 .item-trash-outer {
   display: flex;
   align-items: center;
