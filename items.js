@@ -121,6 +121,11 @@ function clearSelection() {
   _selectedIds.clear();
   _refresh();
 }
+function setSelection(ids) {
+  _selectedIds.clear();
+  if (ids) ids.forEach(function (id) { _selectedIds.add(id); });
+  _refresh();
+}
 /* ====== STAR ====== */
 function _onToggleStar(e) {
   var item = State.getItem(_state, e.detail.id);
@@ -452,6 +457,7 @@ window.Items = {
   selectAllSilent,
   selectFiltered,
   clearSelection,
+  setSelection,
   bulkDelete,
   bulkBurn,
   getTagSelMode,

@@ -1088,117 +1088,87 @@ var outerCb = document.createElement('input');
 outerCb.type    = 'checkbox';
 outerCb.checked = selectedIds.has(item.id);
 outerCb.addEventListener('click', function (e) {
-    var allRows = Array.from(document.querySelectorAll('#item-list .item-row .item-cb-outer input[type="checkbox"]'));
-    var thisIdx = allRows.indexOf(outerCb);
-    var currentOrder = allRows.map(function (cb) {
-        var row = cb.closest('.item-row');
-        var el  = row && row.querySelector('.item[data-id]');
-        return el ? el.dataset.id : null;
-    }).join(',');
-    if (_rangeItemOrder !== null && _rangeItemOrder !== currentOrder) {
-        _rangeTriggerId    = null;
-        _rangeAnchorIdx    = null;
-        _preRangeSelection = null;
-        _rangeItemOrder    = null;
+    // Capture DOM state before any dispatch (refresh will rebuild DOM after first dispatch)
+    var allCbs = Array.from(document.querySelectorAll('#item-list .item-row .item-cb-outer input[type="checkbox"]'));
+    var thisIdx = allCbs.indexOf(outerCb);
+    var visIds = allCbs.map(function (cb) {
+        var r = cb.closest('.item-row');
+        var el = r && r.querySelector('.item[data-id]');
+        return (el && el.dataset.id !== '__new__') ? el.dataset.id : null;
+    }).filter(Boolean);
+    var firstVisId = visIds[0] || item.id;
+    function _idxOf(id) {
+        for (var i = 0; i < allCbs.length; i++) {
+            var r = allCbs[i].closest('.item-row');
+            var el = r && r.querySelector('.item[data-id]');
+            if (el && el.dataset.id === id) return i;
+        }
+        return -1;
     }
     if (e.shiftKey) {
-        var selectedIds = Items.getSelectedIds();
-        var clickedIsChecked = selectedIds.has(item.id);
-        var list = document.getElementById('item-list');
-        var listRect = list.getBoundingClientRect();
-        // Find all checked item indices and their visibility
-        var checkedAbove = [];
-        var checkedBelow = [];
-        allRows.forEach(function (cb, idx) {
-            if (idx === thisIdx) return;
-            var cbRow = cb.closest('.item-row');
-            var cbItem = cbRow && cbRow.querySelector('.item[data-id]');
-            if (!cbItem) return;
-            var cbId = cbItem.dataset.id;
-            if (!selectedIds.has(cbId)) return;
-            var rect = cbRow.getBoundingClientRect();
-            var visible = rect.bottom > listRect.top && rect.top < listRect.bottom;
-            if (idx < thisIdx) checkedAbove.push({ idx: idx, id: cbId, visible: visible });
-            else checkedBelow.push({ idx: idx, id: cbId, visible: visible });
-        });
-        // Find closest checked item above and below
-        var closestAbove = checkedAbove.length ? checkedAbove[checkedAbove.length - 1] : null;
-        var closestBelow = checkedBelow.length ? checkedBelow[0] : null;
-        var anchorIdx = null;
-        var anchorId  = null;
-        if (closestAbove && !closestBelow) {
-            anchorIdx = closestAbove.idx;
-            anchorId  = closestAbove.id;
-        } else if (closestBelow && !closestAbove) {
-            anchorIdx = closestBelow.idx;
-            anchorId  = closestBelow.id;
-        } else if (closestAbove && closestBelow) {
-            var visAbove = checkedAbove.filter(function (x) { return x.visible; }).length;
-            var visBelow = checkedBelow.filter(function (x) { return x.visible; }).length;
-            if (visAbove >= visBelow) {
-                anchorIdx = closestAbove.idx;
-                anchorId  = closestAbove.id;
-            } else {
-                anchorIdx = closestBelow.idx;
-                anchorId  = closestBelow.id;
-            }
-        }
-        if (anchorIdx === null) {
-            var _topCb2 = allRows[0];
-            var _topRow2 = _topCb2 && _topCb2.closest('.item-row');
-            var _topItem2 = _topRow2 && _topRow2.querySelector('.item[data-id]');
-            if (!_topItem2 || _topItem2.dataset.id === item.id) {
-                _anchorItemId = item.id;
-                document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: item.id } }));
-                _refresh_anchor_indicators();
-                return;
-            }
-            anchorIdx = 0;
-            anchorId = _topItem2.dataset.id;
-            _anchorItemId = anchorId;
-            var _lo2 = Math.min(thisIdx, anchorIdx);
-            var _hi2 = Math.max(thisIdx, anchorIdx);
-            for (var _si2 = _lo2; _si2 <= _hi2; _si2++) {
-                var _targetCb2 = allRows[_si2];
-                if (!_targetCb2) continue;
-                var _targetRow2 = _targetCb2.closest('.item-row');
-                var _targetItem2 = _targetRow2 && _targetRow2.querySelector('.item[data-id]');
-                if (!_targetItem2) continue;
-                document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: _targetItem2.dataset.id } }));
-            }
+        // No anchor yet, or clicking the anchor itself: treat as plain click
+        if (_anchorItemId === null || item.id === _anchorItemId) {
+            _anchorItemId = item.id;
+            _rangeTriggerId = null;
+            _preRangeSelection = null;
+            _rangeItemOrder = null;
+            _lastCheckedWasCheck = false;
+            document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: item.id } }));
             _refresh_anchor_indicators();
             return;
         }
-        _anchorItemId = anchorId;
+        // Same anchor + same endpoint: toggle between stored pre-range and range states
+        if (_rangeTriggerId === item.id) {
+            var targetSel = _lastCheckedWasCheck ? _preRangeSelection : _rangeItemOrder;
+            document.dispatchEvent(new CustomEvent('sc:reset-select-all'));
+            Items.setSelection(targetSel);
+            _lastCheckedWasCheck = !_lastCheckedWasCheck;
+            _refresh_anchor_indicators();
+            return;
+        }
+        // Anchor no longer visible: fall back to plain click
+        var anchorIdx = _idxOf(_anchorItemId);
+        if (anchorIdx === -1) {
+            _anchorItemId = item.id;
+            _rangeTriggerId = null;
+            _preRangeSelection = null;
+            _rangeItemOrder = null;
+            _lastCheckedWasCheck = false;
+            document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: item.id } }));
+            _refresh_anchor_indicators();
+            return;
+        }
+        // New endpoint: save current selection, compute and apply range
         var lo = Math.min(thisIdx, anchorIdx);
         var hi = Math.max(thisIdx, anchorIdx);
+        var itemIsChecked = Items.getSelectedIds().has(item.id);
+        var saved = new Set(Items.getSelectedIds());
+        var newSel = new Set(saved);
         for (var si = lo; si <= hi; si++) {
-            if (si === anchorIdx) continue;
-        if (si === thisIdx) continue;
-            var targetCb = allRows[si];
-            if (!targetCb) continue;
-            var targetRow = targetCb.closest('.item-row');
-            var targetItem = targetRow && targetRow.querySelector('.item[data-id]');
-            if (!targetItem) continue;
-            var targetId = targetItem.dataset.id;
-            var isChecked = selectedIds.has(targetId);
-            if (!clickedIsChecked && !isChecked) {
-                document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: targetId } }));
-            } else if (clickedIsChecked && isChecked) {
-                document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: targetId } }));
-            }
+            var sRow = allCbs[si] && allCbs[si].closest('.item-row');
+            var sItem = sRow && sRow.querySelector('.item[data-id]');
+            if (!sItem) continue;
+            if (itemIsChecked) { newSel.delete(sItem.dataset.id); }
+            else               { newSel.add(sItem.dataset.id); }
         }
-        // Toggle the clicked item itself
-        document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: item.id } }));
+        _preRangeSelection = saved;
+        _rangeItemOrder = newSel;
+        _rangeTriggerId = item.id;
+        _lastCheckedWasCheck = true;
+        document.dispatchEvent(new CustomEvent('sc:reset-select-all'));
+        Items.setSelection(newSel);
         _refresh_anchor_indicators();
     } else {
-        _anchorItemId      = null;
-        _lastCheckedIdx    = thisIdx;
-        _rangeTriggerId    = null;
-        _rangeAnchorIdx    = null;
-        _preRangeSelection = null;
-        _rangeItemOrder    = null;
+        // Plain click: toggle item, update anchor, clear shift memory
         document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: item.id } }));
+        var selIds = Items.getSelectedIds();
+        var allSel  = visIds.length > 0 && visIds.every(function (id) { return selIds.has(id); });
+        var noneSel = visIds.every(function (id) { return !selIds.has(id); });
+        _anchorItemId = (allSel || noneSel) ? firstVisId : item.id;
+        _rangeTriggerId = null;
+        _preRangeSelection = null;
+        _rangeItemOrder = null;
+        _lastCheckedWasCheck = false;
         _refresh_anchor_indicators();
     }
 });

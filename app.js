@@ -1,6 +1,6 @@
 'use strict';
-// @version 310
-var SC_VERSION = '@version 310';
+// @version 311
+var SC_VERSION = '@version 311';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -83,6 +83,7 @@ var SC_VERSION = '@version 310';
   var btnBulkDelete  = document.getElementById('btn-bulk-delete');
   var btnBulkBurn    = document.getElementById('btn-bulk-burn');
   var btnExport      = document.getElementById('btn-export');
+  var btnJump        = document.getElementById('btn-jump');
   var _verEl = document.getElementById('sc-version');
   if (_verEl) _verEl.textContent = SC_VERSION;
   var importInput    = document.getElementById('import-input');
@@ -152,6 +153,7 @@ var SC_VERSION = '@version 310';
     Render.drawSelCanvas(cbSelFiltered, result.filtered.length, _cbFiltSelSet, false);
     var _now = Date.now();
     if (_now - _lastStorageCheck > 10000) { _lastStorageCheck = _now; _updateStorageDisplay(); }
+    _updateJumpBtn();
   }
   var _lastFiltered = [];
   var _refocusEntry = false;
@@ -181,6 +183,24 @@ var SC_VERSION = '@version 310';
   btnToggleFilterRow.textContent = hideFilterRow ? 'show more' : 'hide';
   Items.init(state, refresh);
   document.addEventListener('sc:toggle-select', function () { _selectAllActive = false; });
+document.addEventListener('sc:reset-select-all', function () { _selectAllActive = false; });
+  /* ===== JUMP BUTTON ===== */
+  var _updateJumpBtn = (function () {
+    var _jList = document.getElementById('item-list');
+    function _upd() {
+      var scrollable = _jList.scrollHeight > _jList.clientHeight + 100;
+      if (!scrollable) { btnJump.style.display = 'none'; return; }
+      btnJump.style.display = '';
+      document.getElementById('btn-jump-chip').textContent = _jList.scrollTop <= 10 ? '\u25bc' : '\u25b2';
+    }
+    _jList.addEventListener('scroll', _upd, { passive: true });
+    window.addEventListener('resize', _upd);
+    btnJump.addEventListener('click', function () {
+      var atTop = _jList.scrollTop <= 10;
+      _jList.scrollTo({ top: atTop ? _jList.scrollHeight : 0, behavior: 'smooth' });
+    });
+    return _upd;
+  })();
   /* Initial render */
   refresh();
   searchInput.focus();
@@ -739,6 +759,7 @@ document.addEventListener('sc:filter-tag', function (e) {
       else if (_ak === 'd') { e.preventDefault(); btnShowDeleted.click(); }
       else if (_ak === 's') { e.preventDefault(); btnStarFilter.click(); }
       else if (_ak === 'e') { e.preventDefault(); btnExport.click(); }
+      else if (_ak === 'j') { e.preventDefault(); if (btnJump.style.display !== 'none') btnJump.click(); }
     }
   });
   document.addEventListener('keyup', function (e) {
