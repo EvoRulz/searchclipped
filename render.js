@@ -11,8 +11,12 @@ var _blobUrls           = {};   // imageId → objectURL cache
 var _openVersionPanels  = new Set();
 var _peekThreshold      = 200;
 var _versionSelections  = {};
-var _lastCheckedIdx     = null;
+var _lastCheckedIdx      = null;
 var _lastCheckedWasCheck = true;
+var _rangeTriggerId      = null;
+var _rangeAnchorIdx      = null;
+var _preRangeSelection   = null;
+var _rangeItemOrder      = null;
 var _versionSelectAll   = new Set();
 var _currentQuery       = '';
 var _tagFilterActive    = false;
@@ -1085,26 +1089,77 @@ outerCb.checked = selectedIds.has(item.id);
 outerCb.addEventListener('click', function (e) {
   var allRows = Array.from(document.querySelectorAll('#item-list .item-row .item-cb-outer input[type="checkbox"]'));
   var thisIdx = allRows.indexOf(outerCb);
+  var currentOrder = allRows.map(function (cb) {
+    var row = cb.closest('.item-row');
+    var el  = row && row.querySelector('.item[data-id]');
+    return el ? el.dataset.id : null;
+  }).join(',');
+  if (_rangeItemOrder !== null && _rangeItemOrder !== currentOrder) {
+    _rangeTriggerId    = null;
+    _rangeAnchorIdx    = null;
+    _preRangeSelection = null;
+    _rangeItemOrder    = null;
+  }
   if (e.shiftKey && _lastCheckedIdx !== null && thisIdx !== _lastCheckedIdx) {
-    var lo = Math.min(thisIdx, _lastCheckedIdx);
-    var hi = Math.max(thisIdx, _lastCheckedIdx);
-    for (var si = lo; si <= hi; si++) {
-      var targetCb = allRows[si];
-      if (!targetCb) continue;
-      var targetRow = targetCb.closest('.item-row');
-      var targetItem = targetRow && targetRow.querySelector('.item[data-id]');
-      if (!targetItem) continue;
-      var targetId = targetItem.dataset.id;
+    if (_rangeTriggerId === item.id && _preRangeSelection !== null) {
       var selectedIds = Items.getSelectedIds();
-      if (_lastCheckedWasCheck && !selectedIds.has(targetId)) {
-        document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: targetId } }));
-      } else if (!_lastCheckedWasCheck && selectedIds.has(targetId)) {
-        document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: targetId } }));
+      var preSet = _preRangeSelection;
+      var lo = Math.min(thisIdx, _rangeAnchorIdx);
+      var hi = Math.max(thisIdx, _rangeAnchorIdx);
+      for (var si = lo; si <= hi; si++) {
+        if (si === _rangeAnchorIdx) continue;
+        var targetCb = allRows[si];
+        if (!targetCb) continue;
+        var targetRow = targetCb.closest('.item-row');
+        var targetItem = targetRow && targetRow.querySelector('.item[data-id]');
+        if (!targetItem) continue;
+        var targetId = targetItem.dataset.id;
+        var wasSelected  = preSet.has(targetId);
+        var nowSelected  = selectedIds.has(targetId);
+        if (wasSelected && !nowSelected) {
+          document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: targetId } }));
+        } else if (!wasSelected && nowSelected) {
+          document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: targetId } }));
+        }
       }
+      var triggerNowSelected = selectedIds.has(item.id);
+      if (triggerNowSelected) {
+        document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: item.id } }));
+      }
+      _rangeTriggerId    = null;
+      _rangeAnchorIdx    = null;
+      _preRangeSelection = null;
+      _rangeItemOrder    = null;
+    } else {
+      var preSelection = new Set(Items.getSelectedIds());
+      var lo2 = Math.min(thisIdx, _lastCheckedIdx);
+      var hi2 = Math.max(thisIdx, _lastCheckedIdx);
+      var selectedIds2 = Items.getSelectedIds();
+      for (var si2 = lo2; si2 <= hi2; si2++) {
+        var targetCb2 = allRows[si2];
+        if (!targetCb2) continue;
+        var targetRow2 = targetCb2.closest('.item-row');
+        var targetItem2 = targetRow2 && targetRow2.querySelector('.item[data-id]');
+        if (!targetItem2) continue;
+        var targetId2 = targetItem2.dataset.id;
+        if (_lastCheckedWasCheck && !selectedIds2.has(targetId2)) {
+          document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: targetId2 } }));
+        } else if (!_lastCheckedWasCheck && selectedIds2.has(targetId2)) {
+          document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: targetId2 } }));
+        }
+      }
+      _rangeTriggerId    = item.id;
+      _rangeAnchorIdx    = _lastCheckedIdx;
+      _preRangeSelection = preSelection;
+      _rangeItemOrder    = currentOrder;
     }
   } else {
     _lastCheckedWasCheck = !Items.getSelectedIds().has(item.id);
-    _lastCheckedIdx = thisIdx;
+    _lastCheckedIdx      = thisIdx;
+    _rangeTriggerId      = null;
+    _rangeAnchorIdx      = null;
+    _preRangeSelection   = null;
+    _rangeItemOrder      = null;
     document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: item.id } }));
   }
 });
