@@ -30,13 +30,13 @@
                placeholder="Search items, titles, tags..."
                autocomplete="off" spellcheck="false">
         <button id="btn-clear-search" class="icon-btn" title="Clear search" style="display:none">×</button>
-        <button id="btn-star-filter" class="icon-btn" title="Show starred first">☆</button>
+        <button id="btn-star-filter" class="icon-btn" title="Show starred first" data-alt="s">☆</button>
       </div>
-      <button id="btn-undo" class="icon-btn" title="Undo" disabled>↶</button>
-      <button id="btn-redo" class="icon-btn" title="Redo" disabled>↷</button>
+      <button id="btn-undo" class="icon-btn" title="Undo" disabled data-alt="z">↶</button>
+      <button id="btn-redo" class="icon-btn" title="Redo" disabled data-alt="y">↷</button>
       </div>
     <div id="search-options-row">
-      <button id="btn-show-deleted" class="eye-btn" title="Show deleted">
+      <button id="btn-show-deleted" class="eye-btn" title="Show deleted" data-alt="d">
         <svg class="eye-open" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 7 Q4 4 7 4 Q10 4 13.5 7 Q10 10 7 10 Q4 10 0.5 7 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>
         <svg class="eye-closed" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 L4 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10 7 L13 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
         <span class="eye-label">deleted</span>
@@ -205,7 +205,7 @@
         </svg>
       </button>
       <button id="btn-bulk-copy"   class="action-btn"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3 10H2a1 1 0 01-1-1V2a1 1 0 011-1h7a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>
-      <button id="btn-export"      class="action-btn">Export</button>
+      <button id="btn-export"      class="action-btn" data-alt="e">Export</button>
       <label  class="action-btn import-label" title="Import JSON export">
         Import
         <input type="file" id="import-input" accept=".json" hidden>

@@ -395,7 +395,7 @@ button { font-family: var(--font); }
 /* ===== ITEM ===== */
 .item {
   display: grid;
-  grid-template-columns: 28px 1fr auto;
+  grid-template-columns: auto 1fr auto;
   grid-template-rows: auto auto;
   grid-template-areas:
     "left content right"
@@ -1261,6 +1261,27 @@ mark.sc-highlight {
 .alt-mode .item[data-shortcut]:not(.new-placeholder)::after {
   display: flex;
 }
+[data-alt] { position: relative; }
+[data-alt]::after {
+  content: attr(data-alt);
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--orange);
+  color: var(--bg-dark);
+  font-size: 8px;
+  font-weight: 700;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  pointer-events: none;
+  line-height: 1;
+}
+.alt-mode [data-alt]::after { display: flex; }
 /* ===== HIDE TOGGLES ===== */
 #app.hide-item-content .item:not(.new-placeholder) .item-content { display: none; }
 #app.hide-titles .item:not(.new-placeholder) .item-title { display: none; }
