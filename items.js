@@ -152,10 +152,12 @@ function _onBump(e) {
       .sort(function (a, b) { return a.bumpOrder - b.bumpOrder; });
     var idx = active.findIndex(function (i) { return i.id === id; });
     if (idx < 0) return;
-    var targetIdx = idx + dir;
-    if (targetIdx < 0 || targetIdx >= active.length) return;
+    var targetIdx = dir === 1 ? active.length - 1 : 0;
+    if (targetIdx === idx) return;
     State.pushUndo(_state);
-    State.bumpItem(_state, id, dir);
+    var movedBump = active.splice(idx, 1)[0];
+    active.splice(targetIdx, 0, movedBump);
+    active.forEach(function (item, vi) { item.bumpOrder = vi; });
   } else {
     State.reindexBumpOrder(_state);
     var target = State.getItem(_state, id);
@@ -165,13 +167,12 @@ function _onBump(e) {
       .sort(function (a, b) { return a.bumpOrder - b.bumpOrder; });
     var curIdx = activeNonBump.findIndex(function (i) { return i.id === id; });
     if (curIdx < 0) return;
-    var newIdx = curIdx + dir;
-    if (newIdx < 0 || newIdx >= activeNonBump.length) return;
+    var newIdx = dir === 1 ? activeNonBump.length - 1 : 0;
+    if (newIdx === curIdx) return;
     State.pushUndo(_state);
-    var tmp = activeNonBump[curIdx].bumpOrder;
-    activeNonBump[curIdx].bumpOrder = activeNonBump[newIdx].bumpOrder;
-    activeNonBump[newIdx].bumpOrder = tmp;
-    State.reindexBumpOrder(_state);
+    var movedNonBump = activeNonBump.splice(curIdx, 1)[0];
+    activeNonBump.splice(newIdx, 0, movedNonBump);
+    activeNonBump.forEach(function (item, vi) { item.bumpOrder = vi; });
   }
   State.saveState(_state);
   _refresh();
