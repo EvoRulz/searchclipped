@@ -220,7 +220,7 @@ button { font-family: var(--font); }
 .search-input-wrap #btn-star-filter {
   position: absolute;
   top: -10px;
-  right: 2px;
+  right: -18px;
   background: none;
   border: none;
   border-radius: 0;
@@ -662,10 +662,9 @@ mark.sc-highlight {
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  align-self: flex-start;
+  align-self: stretch;
   gap: 4px;
-  margin-bottom: 0;
-  margin-top: -10px;
+  margin-bottom: 8px;
 }
 .copy-hit-area .copy-btn,
 .copy-hit-area .share-btn {
@@ -690,9 +689,7 @@ mark.sc-highlight {
 .star-btn {
   position: absolute;
   top: -10px;
-  right: -10px;
-  margin-right: 0;
-  align-self: unset;
+  right: -18px;
   background: none;
   border: none;
   border-radius: 0;
