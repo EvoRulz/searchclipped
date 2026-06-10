@@ -1527,64 +1527,44 @@ function ensureVersionPanelsOpen(ids) {
 (function () {
   var panel = document.createElement('div');
   panel.style.cssText = 'position:fixed;bottom:20px;right:10px;z-index:9999;background:#252d38;border:1px solid #435160;border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px;font-family:monospace;font-size:11px;color:#d8dee9;min-width:220px;';
-  var targets = [
-    { label: 'Item Star',       sel: function () { return document.querySelector('.item:not(.new-placeholder) .star-btn'); }, prop: '--star-x', prop2: '--star-y' },
-    { label: 'Search Bar Star', sel: function () { return document.querySelector('#btn-star-filter'); }, prop: '--sstar-x', prop2: '--sstar-y' },
-    { label: 'Redo Button',     sel: function () { return document.querySelector('#btn-redo'); }, prop: '--redo-x', prop2: '--redo-y' }
-  ];
-  var vals = {
-    '--star-x': 0, '--star-y': 0,
-    '--sstar-x': 0, '--sstar-y': 0,
-    '--redo-x': 0, '--redo-y': 0
-  };
+  var vals = { x: 0, y: 0 };
   function apply() {
-    document.querySelectorAll('.item:not(.new-placeholder) .star-btn').forEach(function (el) {
-      el.style.transform = 'translate(' + vals['--star-x'] + 'px,' + vals['--star-y'] + 'px)';
+    document.querySelectorAll('.item-hist-btn').forEach(function (el) {
+      el.style.transform = 'translate(' + vals.x + 'px,' + vals.y + 'px)';
     });
-    var ss = document.querySelector('#btn-star-filter');
-    if (ss) ss.style.transform = 'translate(' + vals['--sstar-x'] + 'px,' + vals['--sstar-y'] + 'px)';
-    var rd = document.querySelector('#btn-redo');
-    if (rd) rd.style.transform = 'translate(' + vals['--redo-x'] + 'px,' + vals['--redo-y'] + 'px)';
   }
-  function makeRow(label, propX, propY) {
-    var row = document.createElement('div');
-    row.style.cssText = 'display:flex;flex-direction:column;gap:3px;border-bottom:1px solid #303d4d;padding-bottom:6px;';
-    var title = document.createElement('div');
-    title.style.cssText = 'color:#fac863;font-weight:600;';
-    title.textContent = label;
-    row.appendChild(title);
-    [[propX, 'X'], [propY, 'Y']].forEach(function (pair) {
-      var prop = pair[0]; var axis = pair[1];
-      var line = document.createElement('div');
-      line.style.cssText = 'display:flex;align-items:center;gap:6px;';
-      var lbl = document.createElement('span');
-      lbl.style.width = '12px';
-      lbl.textContent = axis;
-      var slider = document.createElement('input');
-      slider.type = 'range'; slider.min = '-60'; slider.max = '60'; slider.value = '0'; slider.step = '1';
-      slider.style.cssText = 'flex:1;';
-      var readout = document.createElement('span');
-      readout.style.cssText = 'width:32px;text-align:right;color:#a6acb9;';
-      readout.textContent = '0px';
-      slider.addEventListener('input', function () {
-        vals[prop] = parseInt(slider.value, 10);
-        readout.textContent = slider.value + 'px';
-        apply();
-        var out = Object.keys(vals).map(function (k) { return k + ': ' + vals[k]; }).join('  |  ');
-        valDisplay.textContent = out;
-      });
-      line.appendChild(lbl); line.appendChild(slider); line.appendChild(readout);
-      row.appendChild(line);
+  var title = document.createElement('div');
+  title.style.cssText = 'color:#fac863;font-weight:600;';
+  title.textContent = 'Item Redo/Undo Btn';
+  panel.appendChild(title);
+  [['x', 'X'], ['y', 'Y']].forEach(function (pair) {
+    var prop = pair[0]; var axis = pair[1];
+    var line = document.createElement('div');
+    line.style.cssText = 'display:flex;align-items:center;gap:6px;';
+    var lbl = document.createElement('span');
+    lbl.style.width = '12px';
+    lbl.textContent = axis;
+    var slider = document.createElement('input');
+    slider.type = 'range'; slider.min = '-60'; slider.max = '60'; slider.value = '0'; slider.step = '1';
+    slider.style.cssText = 'flex:1;';
+    var readout = document.createElement('span');
+    readout.style.cssText = 'width:32px;text-align:right;color:#a6acb9;';
+    readout.textContent = '0px';
+    slider.addEventListener('input', function () {
+      vals[prop] = parseInt(slider.value, 10);
+      readout.textContent = slider.value + 'px';
+      apply();
+      valDisplay.textContent = 'X: ' + vals.x + 'px  Y: ' + vals.y + 'px';
     });
-    return row;
-  }
-  targets.forEach(function (t) { panel.appendChild(makeRow(t.label, t.prop, t.prop2)); });
+    line.appendChild(lbl); line.appendChild(slider); line.appendChild(readout);
+    panel.appendChild(line);
+  });
   var valDisplay = document.createElement('div');
   valDisplay.style.cssText = 'font-size:9px;color:#546370;word-break:break-all;margin-top:2px;';
   valDisplay.textContent = 'move sliders to see values';
   panel.appendChild(valDisplay);
-  document.addEventListener('DOMContentLoaded', function () { document.body.appendChild(panel); });
   if (document.body) document.body.appendChild(panel);
+  else document.addEventListener('DOMContentLoaded', function () { document.body.appendChild(panel); });
 })();
 window.Render = { init, render, drawSelCanvas: _drawSelCanvas, setPeekThreshold, ensureVersionPanelsOpen };
 
