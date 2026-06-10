@@ -633,7 +633,7 @@ mark.sc-highlight {
   font-style: italic;
   pointer-events: none;
 }
-.item-title:focus { color: var(--text); }
+.item-title:focus { color: var(--blue); }
 /* Item right */
 .item-right {
   position: relative;
