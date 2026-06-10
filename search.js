@@ -128,7 +128,7 @@ function _matches(item, q, opts) {
   _consider(titleM, 'title');
   _consider(textM,  textField);
   _consider(tagM,   'tag');
-  return best === null ? 0 : best;
+  return best === null ? 0 : best + 1;
 }
 function _sort(items, mode) {
   if (mode === 'created' || mode === 'created-desc') {
