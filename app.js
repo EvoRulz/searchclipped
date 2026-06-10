@@ -1,6 +1,6 @@
 'use strict';
-// @version 321
-var SC_VERSION = '@version 321';
+// @version 322
+var SC_VERSION = '@version 322';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -397,46 +397,47 @@ document.addEventListener('sc:reset-select-all', function () { _selectAllActive 
     _overlayEl = document.createElement('div');
     _overlayEl.className = 'search-history-overlay dir-' + _historyDir;
     var n = _searchHistory.length;
-    // near = slots between active and search bar (1 slot)
-    // far = slots away from search bar (up to 4 slots, last one fades)
-    // dir 'up': active is above bar, near slots go further up (larger index), far slots go below (smaller index, toward bar then past)
-    // Layout order in DOM for dir='up' (top to bottom): far3 far2 far1 near1 [active] [search bar below]
-    // Layout order in DOM for dir='down' (top to bottom): [search bar above] [active] near1 far1 far2 far3
+    // _historyIdx is always the focused entry.
+    // For dir='up': focused slot is the BOTTOM slot (closest to bar), above it are older entries going up.
+    //   Visual order top->bottom: [fade] [idx+2] [idx+1] [idx-1] [idx+0 FOCUSED]
+    //   idx+N = less recent (wrapping), idx-1 = next most recent after focused
+    // For dir='down': focused slot is the TOP slot (closest to bar), below it are older entries going down.
+    //   Visual order top->bottom: [idx+0 FOCUSED] [idx+1] [idx+2] [idx+3] [idx+4] [fade]
     function _idx(offset) { return ((_historyIdx + offset) % n + n) % n; }
     if (_historyDir === 'up') {
-      // far side: indices +3, +2, +1 (rendered top to bottom, furthest first)
+      // Top to bottom: far2, far1, near1, focused
+      // far slots: +3, +2 above the near slot (rendered top first)
       var farSlots = [];
-      for (var fi = 3; fi >= 1; fi--) {
-        if (n > fi) farSlots.push(_makeSlotEl(_searchHistory[_idx(fi)], _idx(fi), false));
+      for (var fi = Math.min(n - 1, 3); fi >= 2; fi--) {
+        farSlots.push(_makeSlotEl(_searchHistory[_idx(fi)], _idx(fi), false));
       }
-      farSlots.forEach(function (s) { _overlayEl.appendChild(s); });
       if (farSlots.length > 0) {
         var fadeTop = document.createElement('div');
         fadeTop.className = 'search-history-fade-top';
-        _overlayEl.insertBefore(fadeTop, _overlayEl.firstChild);
+        _overlayEl.appendChild(fadeTop);
+        farSlots.forEach(function (s) { _overlayEl.appendChild(s); });
       }
-      // near side: index -1 (between active and search bar)
-      if (n > 1) {
-        var nearSlot = _makeSlotEl(_searchHistory[_idx(-1)], _idx(-1), false);
-        _overlayEl.appendChild(nearSlot);
+      // near slot: +1 (one step less recent than focused, sits just above focused)
+      if (n >= 2) {
+        _overlayEl.appendChild(_makeSlotEl(_searchHistory[_idx(1)], _idx(1), false));
       }
-      // active slot last (closest to search bar, i.e. bottom)
+      // near-below: -1 (one step more recent, sits between focused and bar) -- only if exists beyond focused
+      if (n >= 3) {
+        _overlayEl.appendChild(_makeSlotEl(_searchHistory[_idx(-1)], _idx(-1), false));
+      }
+      // focused slot: bottom, closest to bar
       _overlayEl.appendChild(_makeSlotEl(_searchHistory[_historyIdx], _historyIdx, true));
     } else {
-      // dir='down': active is below bar
+      // dir='down': focused slot is top, older entries go downward
+      // focused slot: top, closest to bar
       _overlayEl.appendChild(_makeSlotEl(_searchHistory[_historyIdx], _historyIdx, true));
-      // near side: index +1
-      if (n > 1) {
-        var nearSlotD = _makeSlotEl(_searchHistory[_idx(1)], _idx(1), false);
-        _overlayEl.appendChild(nearSlotD);
+      // slots going downward: +1, +2, +3, +4
+      var downSlots = [];
+      for (var di = 1; di <= Math.min(n - 1, 4); di++) {
+        downSlots.push(_makeSlotEl(_searchHistory[_idx(di)], _idx(di), false));
       }
-      // far side: indices -1, -2, -3 (rendered top to bottom, nearest first)
-      var farSlotsD = [];
-      for (var fi2 = 1; fi2 <= 3; fi2++) {
-        if (n > fi2 + 1) farSlotsD.push(_makeSlotEl(_searchHistory[_idx(-fi2)], _idx(-fi2), false));
-      }
-      farSlotsD.forEach(function (s) { _overlayEl.appendChild(s); });
-      if (farSlotsD.length > 0) {
+      downSlots.forEach(function (s) { _overlayEl.appendChild(s); });
+      if (downSlots.length >= 3) {
         var fadeBot = document.createElement('div');
         fadeBot.className = 'search-history-fade-bottom';
         _overlayEl.appendChild(fadeBot);
@@ -479,7 +480,7 @@ document.addEventListener('sc:reset-select-all', function () { _selectAllActive 
     if (!_historyOpen) {
       _historyOpen = true;
       _historyDir  = dir;
-      _historyIdx  = dir === 'up' ? 0 : _searchHistory.length - 1;
+      _historyIdx  = 0;
     } else {
       _historyIdx = dir === 'up'
         ? (_historyIdx + 1) % _searchHistory.length
