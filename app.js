@@ -1,6 +1,6 @@
 'use strict';
-// @version 331
-var SC_VERSION = '@version 331';
+// @version 332
+var SC_VERSION = '@version 332';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -295,9 +295,9 @@ document.addEventListener('sc:reset-select-all', function () { _selectAllActive 
   function _updateMagCount() {
     var q = (searchInput.value || '').trim().toLowerCase();
     if (!_magCountEl) return;
-    if (!q) { _magCountEl.textContent = ''; return; }
+    if (!q) { _magCountEl.textContent = '\u00a0'; return; }
     var entry = _searchHistory.find(function (h) { return h.q.toLowerCase() === q; });
-    _magCountEl.textContent = entry ? entry.count : '';
+    _magCountEl.textContent = entry ? entry.count : '\u00a0';
   }
   function _ghostText() {
     if (!_ghostEl) return;
