@@ -798,6 +798,9 @@ mark.sc-highlight {
   transition: color var(--transition);
   flex-shrink: 0;
 }
+.item-undo-redo-row .item-hist-btn {
+  transform: translateY(-20px);
+}
 .item-hist-btn:hover         { color: var(--blue); }
 .item-hist-btn:disabled      { opacity: 0.25; cursor: default; pointer-events: none; }
 .version-panel {
