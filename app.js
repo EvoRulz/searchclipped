@@ -1,6 +1,6 @@
 'use strict';
-// @version 347
-var SC_VERSION = '@version 347';
+// @version 348
+var SC_VERSION = '@version 348';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -229,7 +229,20 @@ document.addEventListener('sc:reset-select-all', function () { _selectAllActive 
     window.addEventListener('resize', _upd);
     btnJump.addEventListener('click', function () {
       var atTop = _jList.scrollTop <= 10;
-      _jList.scrollTo({ top: atTop ? _jList.scrollHeight : 0, behavior: 'smooth' });
+      (function () {
+  var _start = _jList.scrollTop;
+  var _end = atTop ? _jList.scrollHeight : 0;
+  var _dur = 500;
+  var _t0 = null;
+  function _step(ts) {
+    if (!_t0) _t0 = ts;
+    var p = Math.min((ts - _t0) / _dur, 1);
+    var ease = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
+    _jList.scrollTop = _start + (_end - _start) * ease;
+    if (p < 1) requestAnimationFrame(_step);
+  }
+  requestAnimationFrame(_step);
+})();
     });
     return _upd;
   })();
