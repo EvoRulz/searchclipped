@@ -115,6 +115,44 @@ async function loadUndoStack(type) {
     req.onerror   = function (e) { reject(e.target.error); };
   });
 }
+async function saveSearchHistory(entries) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx    = db.transaction('undostacks', 'readwrite');
+    const store = tx.objectStore('undostacks');
+    const req   = store.put({ id: 'searchHistory', data: entries });
+    req.onsuccess = function () { resolve(); };
+    tx.onerror    = function (e) { reject(e.target.error); };
+  });
+}
+async function loadSearchHistory() {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx  = db.transaction('undostacks', 'readonly');
+    const req = tx.objectStore('undostacks').get('searchHistory');
+    req.onsuccess = function (e) { resolve(e.target.result ? e.target.result.data : []); };
+    req.onerror   = function (e) { reject(e.target.error); };
+  });
+}
+async function saveCopyCounts(counts) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx    = db.transaction('undostacks', 'readwrite');
+    const store = tx.objectStore('undostacks');
+    const req   = store.put({ id: 'copyCounts', data: counts });
+    req.onsuccess = function () { resolve(); };
+    tx.onerror    = function (e) { reject(e.target.error); };
+  });
+}
+async function loadCopyCounts() {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx  = db.transaction('undostacks', 'readonly');
+    const req = tx.objectStore('undostacks').get('copyCounts');
+    req.onsuccess = function (e) { resolve(e.target.result ? e.target.result.data : {}); };
+    req.onerror   = function (e) { reject(e.target.error); };
+  });
+}
 window.DB = {
   openDB,
   saveImage,
@@ -124,6 +162,10 @@ window.DB = {
   exportAllImages,
   importImages,
   saveUndoStack,
-  loadUndoStack
+  loadUndoStack,
+  saveSearchHistory,
+  loadSearchHistory,
+  saveCopyCounts,
+  loadCopyCounts
 };
 

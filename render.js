@@ -596,9 +596,16 @@ copyHitArea.addEventListener('click', function (ev) {
     setTimeout(function () { el.classList.remove('copy-flash'); }, 500);
   }
 });
-copyHitArea.appendChild(_outerActionBtn);
-right.appendChild(undoRedoRow);
-right.appendChild(copyHitArea);
+var copyCountEl = document.createElement('span');
+  copyCountEl.className = 'copy-count-badge';
+  copyCountEl.dataset.id = item.id;
+  var _initCount = (window._copyCounts && window._copyCounts[item.id]) || 0;
+  copyCountEl.textContent = _initCount > 0 ? _initCount : '';
+  copyCountEl.style.display = _initCount > 0 ? '' : 'none';
+  copyHitArea.appendChild(_outerActionBtn);
+  copyHitArea.appendChild(copyCountEl);
+  right.appendChild(undoRedoRow);
+  right.appendChild(copyHitArea);
 el.appendChild(right);
   // --- Image ---
 if (item.imageId) {

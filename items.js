@@ -89,6 +89,11 @@ function _onCopy(e) {
   var item = State.getItem(_state, e.detail.id);
   if (!item) return;
   Clip.writeItem(item);
+  if (window._copyCounts && item.id) {
+    window._copyCounts[item.id] = (window._copyCounts[item.id] || 0) + 1;
+    DB.saveCopyCounts(window._copyCounts).catch(function (err) { console.warn('saveCopyCounts failed', err); });
+    document.dispatchEvent(new CustomEvent('sc:copy-count-updated', { detail: { id: item.id, count: window._copyCounts[item.id] } }));
+  }
 }
 /* ====== SHARE ====== */
 function _onShare(e) {
