@@ -1567,19 +1567,18 @@ mark.sc-highlight {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1px;
+  gap: 0px;
   flex-shrink: 0;
   pointer-events: none;
   user-select: none;
-  padding: 0 4px 0 8px;
-  align-self: center;
+  padding: 0 4px 3px 8px;
+  align-self: flex-end;
 }
 .search-mag-count {
-  font-size: 8px;
+  font-size: 7px;
   color: var(--text-ph);
   line-height: 1;
   text-align: center;
-  min-height: 9px;
 }
 .search-input-outer {
   position: relative;
@@ -1596,6 +1595,16 @@ mark.sc-highlight {
 }
 .search-floppy-flash {
   animation: floppy-fade 1s ease forwards;
+}
+.search-input-inner:has(#btn-clear-search.search-floppy-flash) {
+  border-color: var(--green) !important;
+  transition: border-color 0s;
+  animation: floppy-border-fade 1s ease forwards;
+}
+@keyframes floppy-border-fade {
+  0%   { border-color: var(--green); }
+  70%  { border-color: var(--green); }
+  100% { border-color: var(--border); }
 }
 @keyframes floppy-fade {
   0%   { opacity: 1; }
