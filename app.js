@@ -1,6 +1,6 @@
 'use strict';
-// @version 326
-var SC_VERSION = '@version 326';
+// @version 327
+var SC_VERSION = '@version 327';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -252,10 +252,15 @@ document.addEventListener('sc:reset-select-all', function () { _selectAllActive 
     innerWrap.className = 'search-input-inner';
     var ghost = document.createElement('div');
     ghost.className = 'search-history-ghost';
+    ghost.style.paddingLeft = '0';
     _ghostEl = ghost;
     innerWrap.appendChild(ghost);
     innerWrap.appendChild(inputWrap);
     innerWrap.insertBefore(magWrap, innerWrap.firstChild);
+    requestAnimationFrame(function () {
+      var magW = magWrap.offsetWidth;
+      ghost.style.paddingLeft = magW + 'px';
+    });
     outer.appendChild(innerWrap);
     inputWrap.style.position = 'relative';
     inputWrap.style.flex = '1';
