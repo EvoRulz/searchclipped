@@ -249,19 +249,12 @@ content.addEventListener('paste', function (e) {
     _phSrcTA.value = plain;
     _phSrcTA.spellcheck = false;
     var _phPrevDiv = document.createElement('div');
-    _phPrevDiv.className = 'html-preview-editable';
-    _phPrevDiv.contentEditable = 'true';
-    _phPrevDiv.innerHTML = plain;
+    _phPrevDiv.className = 'html-preview-editable html-preview-hl';
+    _phPrevDiv.contentEditable = 'false';
+    _phPrevDiv.innerHTML = _syntaxHighlightHTML(plain);
     _phSrcTA.addEventListener('input', function () {
       _phRawHtml = _phSrcTA.value;
-      _phPrevDiv.innerHTML = _phSrcTA.value;
-    });
-    _phPrevDiv.addEventListener('input', function () {
-      _phRawHtml = _phPrevDiv.innerHTML;
-      _phSrcTA.value = _phPrevDiv.innerHTML;
-    });
-    _phPrevDiv.addEventListener('keydown', function (ev) {
-      if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); _phPrevDiv.blur(); }
+      _phPrevDiv.innerHTML = _syntaxHighlightHTML(_phSrcTA.value);
     });
     var _phResetEditor = function () {
       _inHtmlEditMode = false;
@@ -415,17 +408,11 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     _htmlSrcTA.spellcheck = false;
     _htmlSrcTA.disabled = !!item.deleted;
     var _htmlPrevDiv = document.createElement('div');
-    _htmlPrevDiv.className = 'html-preview-editable';
-    _htmlPrevDiv.contentEditable = item.deleted ? 'false' : 'true';
-    _htmlPrevDiv.innerHTML = item.html || '';
+    _htmlPrevDiv.className = 'html-preview-editable html-preview-hl';
+    _htmlPrevDiv.contentEditable = 'false';
+    _htmlPrevDiv.innerHTML = _syntaxHighlightHTML(item.html || '');
     _htmlSrcTA.addEventListener('input', function () {
-      _htmlPrevDiv.innerHTML = _htmlSrcTA.value;
-    });
-    _htmlPrevDiv.addEventListener('input', function () {
-      _htmlSrcTA.value = _htmlPrevDiv.innerHTML;
-    });
-    _htmlPrevDiv.addEventListener('keydown', function (ev) {
-      if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); _htmlPrevDiv.blur(); }
+      _htmlPrevDiv.innerHTML = _syntaxHighlightHTML(_htmlSrcTA.value);
     });
     _htmlEditorWrap.addEventListener('focusout', function (ev) {
       if (_htmlEditorWrap.contains(ev.relatedTarget)) return;
@@ -916,7 +903,8 @@ _versions.slice().reverse().forEach(function (ver, rIdx) {
       if (currentlyPeeking) {
         if (_isHtmlPeek) {
           _srcTA.value = vTs._origSrcValue || '';
-          _prevDiv.innerHTML = vTs._origPrevHTML || '';
+          _srcTA._hlUpdate && _srcTA._hlUpdate();
+          _prevDiv.innerHTML = _syntaxHighlightHTML(vTs._origSrcValue || '');
         } else {
           content.innerHTML = _origHTML;
         }
@@ -955,7 +943,8 @@ _versions.slice().reverse().forEach(function (ver, rIdx) {
         if (_isHtmlPeek) {
           var _verHtml = ver.html || ver.text || '';
           _srcTA.value = _verHtml;
-          _prevDiv.innerHTML = _verHtml;
+          _srcTA._hlUpdate && _srcTA._hlUpdate();
+          _prevDiv.innerHTML = _syntaxHighlightHTML(_verHtml);
         } else if (_useDiff) {
           content.innerHTML = _diffToHTML(_charDiff(_diffCurText, _diffVerText));
         } else {
@@ -1341,17 +1330,29 @@ function _charDiff(origText, newText) {
   var lnDiv = document.createElement('div');
   lnDiv.className = 'line-numbers';
   lnDiv.setAttribute('aria-hidden', 'true');
+  var taWrap = document.createElement('div');
+  taWrap.className = 'html-ta-wrap';
+  var hlDiv = document.createElement('div');
+  hlDiv.className = 'html-ta-hl';
+  hlDiv.setAttribute('aria-hidden', 'true');
   function _update() {
-    var lines = ta.value.split('\n').length;
+    var val = ta.value;
+    var lines = val.split('\n').length;
     var out = '';
     for (var i = 1; i <= lines; i++) out += i < lines ? i + '\n' : i;
     lnDiv.textContent = out;
+    hlDiv.innerHTML = _syntaxHighlightHTML(val) + '\n';
     ta.style.height = '1px';
     ta.style.height = ta.scrollHeight + 'px';
+    hlDiv.style.minHeight = ta.style.height;
   }
+  ta._hlUpdate = _update;
   ta.addEventListener('input', _update);
+  ta.addEventListener('scroll', function () { hlDiv.scrollTop = ta.scrollTop; hlDiv.scrollLeft = ta.scrollLeft; });
+  taWrap.appendChild(hlDiv);
+  taWrap.appendChild(ta);
   wrapper.appendChild(lnDiv);
-  wrapper.appendChild(ta);
+  wrapper.appendChild(taWrap);
   requestAnimationFrame(_update);
   return wrapper;
 }
