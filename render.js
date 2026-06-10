@@ -289,7 +289,7 @@ content.addEventListener('paste', function (e) {
     setTimeout(function () { _phSrcTA.focus(); }, 0);
   } else {
     _phRawHtml = null;
-      document.execCommand('insertHTML', false, plain.replace(/\n/g, '<br>'));
+      document.execCommand('insertHTML', false, plain.replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/\n/g, '<br>'));
     }
 });
 content.addEventListener('keydown', function (e) {
@@ -445,7 +445,13 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
     _htmlEditorWrap.appendChild(_htmlCopyBtn);
     content.appendChild(_htmlEditorWrap);
   } else {
-    content.innerHTML = _currentQuery ? _highlightText(item.text || '', _currentQuery) : (item.html || item.text || '');
+    if (window._showNewlines) {
+      content.contentEditable = 'false';
+      content.style.cursor = 'default';
+      content.innerHTML = _visualizeNewlines(item.text || '');
+    } else {
+      content.innerHTML = _currentQuery ? _highlightText(item.text || '', _currentQuery) : (item.html || item.text || '');
+    }
   }
   content.setAttribute('data-id', item.id);
   content.addEventListener('blur', function () {
@@ -471,7 +477,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   content.addEventListener('paste', function (e) {
     e.preventDefault();
     var plain = e.clipboardData.getData('text/plain');
-    document.execCommand('insertHTML', false, plain.replace(/\n/g, '<br>'));
+    document.execCommand('insertHTML', false, plain.replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/\n/g, '<br>'));
   });
   content.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); content.blur(); }
@@ -1280,6 +1286,28 @@ function _highlightText(plainText, query) {
   var esc = plainText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   var qReg = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return esc.replace(new RegExp('(' + qReg + ')', 'gi'), '<mark class="sc-highlight">$1</mark>').replace(/\n/g, '<br>');
+}
+function _visualizeNewlines(text) {
+  if (!text) return '';
+  var out = '';
+  var i = 0;
+  while (i < text.length) {
+    var ch = text[i];
+    if (ch === '\r' && i + 1 < text.length && text[i + 1] === '\n') {
+      out += '<span class="nl-crlf" title="Windows CRLF">\\r\\n</span><br>';
+      i += 2;
+    } else if (ch === '\r') {
+      out += '<span class="nl-cr" title="Old Mac CR">\\r</span><br>';
+      i++;
+    } else if (ch === '\n') {
+      out += '<span class="nl-lf" title="Unix LF">\\n</span><br>';
+      i++;
+    } else {
+      out += ch === '&' ? '&amp;' : ch === '<' ? '&lt;' : ch === '>' ? '&gt;' : ch;
+      i++;
+    }
+  }
+  return out;
 }
 function _fmtDate(iso) {
   if (!iso) return '';

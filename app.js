@@ -1,6 +1,6 @@
 'use strict';
-// @version 333
-var SC_VERSION = '@version 333';
+// @version 335
+var SC_VERSION = '@version 335';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -39,6 +39,7 @@ var SC_VERSION = '@version 333';
   var hideItemEntry    = false;
   var hideImgEntry     = false;
   var hideFilterRow    = true;
+  var showNewlines     = false;
   var searchItems        = true;
   var searchTitles       = true;
   var searchTags         = true;
@@ -55,6 +56,7 @@ var SC_VERSION = '@version 333';
   var _historyIdx    = 0;    // index into _searchHistory, 0 = most recent
   var _ghostEl       = null;
   var _overlayEl     = null;
+  var _overlayBelow  = null;
   var _magCountEl    = null;
   DB.loadSearchHistory().then(function (h) {
     _searchHistory = h || [];
@@ -98,6 +100,7 @@ var SC_VERSION = '@version 333';
   var btnHideTitleEntry  = document.getElementById('btn-hide-title-entry');
   var btnHideItemEntry   = document.getElementById('btn-hide-item-entry');
   var btnHideImgEntry    = document.getElementById('btn-hide-img-entry');
+  var btnShowNewlines    = document.getElementById('btn-show-newlines');
   var btnToggleFilterRow = document.getElementById('btn-toggle-filter-row');
   var cbSearchItems  = document.getElementById('cb-search-items');
   var cbSearchTitles = document.getElementById('cb-search-titles');
@@ -347,7 +350,8 @@ document.addEventListener('sc:reset-select-all', function () { _selectAllActive 
   function _closeHistory() {
     _historyOpen = false;
     _historyDir  = null;
-    if (_overlayEl) { _overlayEl.remove(); _overlayEl = null; }
+    if (_overlayEl)    { _overlayEl.remove();    _overlayEl    = null; }
+    if (_overlayBelow) { _overlayBelow.remove(); _overlayBelow = null; }
   }
   function _commitSearch(q) {
     if (!q || !q.trim()) return;
@@ -396,11 +400,30 @@ document.addEventListener('sc:reset-select-all', function () { _selectAllActive 
     }
   }
   function _renderHistoryOverlay() {
-    if (_overlayEl) { _overlayEl.remove(); _overlayEl = null; }
+    if (_overlayEl)    { _overlayEl.remove();    _overlayEl    = null; }
+    if (_overlayBelow) { _overlayBelow.remove(); _overlayBelow = null; }
     if (!_searchHistory.length) { _closeHistory(); return; }
+    var n    = _searchHistory.length;
     var wrap = searchInput.closest('.search-input-inner') || searchInput.parentElement;
-    _overlayEl = document.createElement('div');
-    _overlayEl.className = 'search-history-overlay dir-' + _historyDir;
+    function _idx(offset) { return ((_historyIdx + offset) % n + n) % n; }
+    var isUp      = _historyDir === 'up';
+    var above2Idx = isUp ? _idx(0)  : _idx(1);
+    var above1Idx = isUp ? _idx(1)  : _idx(2);
+    var below1Idx = isUp ? _idx(-1) : _idx(0);
+    var below2Idx = isUp ? _idx(-2) : _idx(-1);
+    var above = document.createElement('div');
+    above.className = 'search-history-above';
+    if (n > 1) above.appendChild(_makeSlotEl(_searchHistory[above1Idx], above1Idx, false));
+    above.appendChild(_makeSlotEl(_searchHistory[above2Idx], above2Idx, isUp));
+    var below = document.createElement('div');
+    below.className = 'search-history-below';
+    below.appendChild(_makeSlotEl(_searchHistory[below1Idx], below1Idx, !isUp));
+    if (n > 1) below.appendChild(_makeSlotEl(_searchHistory[below2Idx], below2Idx, false));
+    wrap.appendChild(above);
+    wrap.appendChild(below);
+    _overlayEl    = above;
+    _overlayBelow = below;
+    if (false) {
     var n = _searchHistory.length;
     // _historyIdx is always the focused entry.
     // For dir='up': focused slot is the BOTTOM slot (closest to bar), above it are older entries going up.
@@ -485,21 +508,13 @@ document.addEventListener('sc:reset-select-all', function () { _selectAllActive 
     if (!_historyOpen) {
       _historyOpen = true;
       _historyDir  = dir;
-      _historyIdx  = 0;
+      _historyIdx  = dir === 'up' ? 0 : _searchHistory.length - 1;
     } else {
       _historyIdx = dir === 'up'
         ? (_historyIdx + 1) % _searchHistory.length
         : (_historyIdx - 1 + _searchHistory.length) % _searchHistory.length;
     }
     _renderHistoryOverlay();
-    if (_overlayEl) {
-      var focusedSlot = _overlayEl.querySelector('.search-history-slot.focused');
-      if (focusedSlot) {
-        focusedSlot.classList.remove('history-slot-animate-up', 'history-slot-animate-down');
-        void focusedSlot.offsetWidth;
-        focusedSlot.classList.add(dir === 'up' ? 'history-slot-animate-up' : 'history-slot-animate-down');
-      }
-    }
   }
   /* ===== SEARCH ===== */
   function _revertTagFilter() {
@@ -603,7 +618,9 @@ document.addEventListener('sc:reset-select-all', function () { _selectAllActive 
   });
   searchInput.addEventListener('blur', function () {
     setTimeout(function () {
-      if (_overlayEl && _overlayEl.contains(document.activeElement)) return;
+      var _ae = document.activeElement;
+      if (_overlayEl    && _overlayEl.contains(_ae))    return;
+      if (_overlayBelow && _overlayBelow.contains(_ae)) return;
       _closeHistory();
     }, 120);
   });
@@ -764,6 +781,12 @@ document.addEventListener('sc:reset-select-all', function () { _selectAllActive 
     hideImgEntry = !hideImgEntry;
     btnHideImgEntry.classList.toggle('active', hideImgEntry);
     document.getElementById('app').classList.toggle('hide-img-entry', hideImgEntry);
+  });
+  btnShowNewlines.addEventListener('click', function () {
+    showNewlines = !showNewlines;
+    btnShowNewlines.classList.toggle('active', showNewlines);
+    window._showNewlines = showNewlines;
+    refresh();
   });
   btnToggleFilterRow.addEventListener('click', function () {
     hideFilterRow = !hideFilterRow;
@@ -1463,7 +1486,7 @@ document.addEventListener('sc:filter-tag', function (e) {
         hideTsDeleted: hideTsDeleted, hideTsRestored: hideTsRestored,
         hideCheckboxes: hideCheckboxes, hideDelete: hideDelete,
         hideTitleEntry: hideTitleEntry, hideItemEntry: hideItemEntry,
-        hideImgEntry: hideImgEntry, hideFilterRow: hideFilterRow,
+        hideImgEntry: hideImgEntry, hideFilterRow: hideFilterRow, showNewlines: showNewlines,
         searchItems: searchItems, searchTitles: searchTitles, searchTags: searchTags,
         tagFilterActive: _tagFilterActive, savedSearchItems: _savedSearchItems, savedSearchTitles: _savedSearchTitles, savedSearchTags: _savedSearchTags, savedQuery: _savedQuery
       }));
@@ -1532,6 +1555,7 @@ document.addEventListener('sc:filter-tag', function (e) {
         _a.classList.toggle('hide-item-entry', hideItemEntry);
       }
       if (p.hideImgEntry !== undefined)   { hideImgEntry = p.hideImgEntry; btnHideImgEntry.classList.toggle('active', hideImgEntry); _a.classList.toggle('hide-img-entry', hideImgEntry); }
+      if (p.showNewlines !== undefined)   { showNewlines = p.showNewlines; window._showNewlines = showNewlines; btnShowNewlines.classList.toggle('active', showNewlines); }
       if (p.searchItems !== undefined)    { searchItems = p.searchItems; cbSearchItems.checked = searchItems; }
       if (p.searchTitles !== undefined)   { searchTitles = p.searchTitles; cbSearchTitles.checked = searchTitles; }
       if (p.searchTags !== undefined)     { searchTags = p.searchTags; cbSearchTags.checked = searchTags; }
