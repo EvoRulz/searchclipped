@@ -219,8 +219,8 @@ button { font-family: var(--font); }
 }
 .search-input-wrap #btn-star-filter {
   position: absolute;
-  top: -12px;
-  right: -12px;
+  top: -10px;
+  right: -10px;
   background: none;
   border: none;
   border-radius: 0;
@@ -688,8 +688,8 @@ mark.sc-highlight {
 }
 .star-btn {
   position: absolute;
-  top: -12px;
-  right: -12px;
+  top: -10px;
+  right: -10px;
   background: none;
   border: none;
   border-radius: 0;
