@@ -128,9 +128,6 @@ function init(state) {
     panel.appendChild(makeSlider('bot margin', 0, 4, 0.05, _dbgMarginBottom, function (v) {
       _dbgMarginBottom = v; _updateCopyBtnPositions();
     }));
-    panel.appendChild(makeSlider('redo mb', 0, 40, 1, 8, function (v) {
-      document.querySelectorAll('.item-undo-redo-row').forEach(function (el) { el.style.marginBottom = v + 'px'; });
-    }));
     document.body.appendChild(panel);
     var ox = 0, oy = 0, drag = false;
     title.addEventListener('pointerdown', function (e) {
@@ -1569,8 +1566,8 @@ function _updateCopyBtnPositions() {
     var minTop = 0;
     var maxTop = hitArea.offsetHeight - groupH;
     var btnTopInViewport = hitAreaRect.top + topOffset;
-    var marginTop = btnH * _dbgMarginTop;
-    var marginBottom = btnH * _dbgMarginBottom;
+    var marginTop = btnH * _dbgMarginBottom;
+    var marginBottom = btnH * _dbgMarginTop;
     if (btnTopInViewport < listTop + marginTop) topOffset = listTop + marginTop - hitAreaRect.top;
     if (btnTopInViewport + groupH > listBottom - marginBottom) topOffset = listBottom - marginBottom - hitAreaRect.top - groupH;
     topOffset = Math.max(minTop, Math.min(topOffset, maxTop));

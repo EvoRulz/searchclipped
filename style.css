@@ -664,7 +664,7 @@ mark.sc-highlight {
   justify-content: flex-start;
   align-self: stretch;
   gap: 4px;
-  margin-bottom: 8px;
+  margin-bottom: 0;
 }
 .copy-btn-group {
   position: absolute;
