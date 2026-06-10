@@ -55,6 +55,7 @@ function loadState() {
         if (_sk.indexOf(_k) === -1) { _sk.push(_k); _dv.unshift(item.versions[_i]); }
       }
       item.versions = _dv;
+    _sortItemTags(item);
     purgeOrphanedItemUndoRedo(item);
     item.itemUndoStack = _dedupeItemStack(item.itemUndoStack);
     item.itemRedoStack = _dedupeItemStack(item.itemRedoStack);
@@ -80,6 +81,7 @@ function saveState(state) {
       }
       item.versions = _dv2;
     });
+    state.items.forEach(function (item) { _sortItemTags(item); });
     var _toSave = Object.assign({}, state, { undoStack: [], redoStack: [] });
     localStorage.setItem(STORAGE_KEY, JSON.stringify(_toSave));
   } catch (e) {
@@ -89,6 +91,32 @@ function saveState(state) {
 }
 function generateId() {
   return 'i' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+}
+function _sortTagsCustom(tags) {
+  if (!tags || tags.length < 2) return tags;
+  function _charRank(ch) {
+    if (ch >= '0' && ch <= '9') return 0;
+    var lower = ch.toLowerCase();
+    var upper = ch.toUpperCase();
+    if (lower !== upper) {
+      var base = lower.charCodeAt(0) - 97;
+      return 1 + base * 2 + (ch === upper ? 1 : 0);
+    }
+    return 1000 + ch.charCodeAt(0);
+  }
+  function _cmp(a, b) {
+    var len = Math.min(a.length, b.length);
+    for (var i = 0; i < len; i++) {
+      var ra = _charRank(a[i]);
+      var rb = _charRank(b[i]);
+      if (ra !== rb) return ra - rb;
+    }
+    return a.length - b.length;
+  }
+  return tags.slice().sort(_cmp);
+}
+function _sortItemTags(item) {
+  if (item.tags && item.tags.length > 1) item.tags = _sortTagsCustom(item.tags);
 }
 function nowISO() {
   return new Date().toISOString();
@@ -575,6 +603,7 @@ window.State = {
   purgeVersionsFromStacks,
   purgeItemContentFromStacks,
   purgeContentFromUndoStacks,
-  initUndoFromDB
+  initUndoFromDB,
+  _sortTagsCustom
 };
 

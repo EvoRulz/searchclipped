@@ -249,6 +249,7 @@ function _onOpenTags(e) {
   Modals.openTagEditor(_state, e.detail.id, function (changedItem) {
     var tagsChanged = JSON.stringify(oldSnap.tags) !== JSON.stringify(changedItem.tags);
     if (tagsChanged) {
+      changedItem.tags        = State._sortTagsCustom(changedItem.tags);
       changedItem.modifiedAt  = State.nowISO();
       changedItem.versionName = '';
       State.pushUndo(_state);
