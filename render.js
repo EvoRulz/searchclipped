@@ -11,8 +11,8 @@ var _blobUrls           = {};   // imageId → objectURL cache
 var _openVersionPanels  = new Set();
 var _peekThreshold      = 200;
 var _versionSelections  = {};
-var _dbgMarginTop     = 1.25;
-var _dbgMarginBottom  = 1.75;
+var _dbgPadTop  = 8;
+var _dbgPadBot  = 8;
 var _anchorItemId     = null;
 var _anchorBaseState  = null;
 var _lastRangeTrigger = null;
@@ -122,11 +122,11 @@ function init(state) {
     title.style.cssText = 'color:var(--orange);font-weight:600;cursor:move;margin-bottom:2px;user-select:none;';
     title.textContent = 'DEBUG — report values';
     panel.appendChild(title);
-    panel.appendChild(makeSlider('top margin', 0, 4, 0.05, _dbgMarginTop, function (v) {
-      _dbgMarginTop = v; _updateCopyBtnPositions();
+    panel.appendChild(makeSlider('top pad', 0, 40, 1, _dbgPadTop, function (v) {
+      _dbgPadTop = v; _updateCopyBtnPositions();
     }));
-    panel.appendChild(makeSlider('bot margin', 0, 4, 0.05, _dbgMarginBottom, function (v) {
-      _dbgMarginBottom = v; _updateCopyBtnPositions();
+    panel.appendChild(makeSlider('bot pad', 0, 40, 1, _dbgPadBot, function (v) {
+      _dbgPadBot = v; _updateCopyBtnPositions();
     }));
     document.body.appendChild(panel);
     var ox = 0, oy = 0, drag = false;
@@ -1563,11 +1563,11 @@ function _updateCopyBtnPositions() {
     var groupH = group.offsetHeight;
     var trueCenterY = (itemRect.top + itemRect.bottom) / 2;
     var topOffset = trueCenterY - hitAreaRect.top - btnH / 2;
-    var minTop = 0;
-    var maxTop = hitArea.offsetHeight - groupH;
+    var minTop = _dbgPadTop;
+    var maxTop = Math.max(minTop, hitArea.offsetHeight - groupH - _dbgPadBot);
     var btnTopInViewport = hitAreaRect.top + topOffset;
-    var marginTop = btnH * _dbgMarginBottom;
-    var marginBottom = btnH * _dbgMarginTop;
+    var marginTop = btnH * 1.25;
+    var marginBottom = btnH * 1.75;
     if (btnTopInViewport < listTop + marginTop) topOffset = listTop + marginTop - hitAreaRect.top;
     if (btnTopInViewport + groupH > listBottom - marginBottom) topOffset = listBottom - marginBottom - hitAreaRect.top - groupH;
     topOffset = Math.max(minTop, Math.min(topOffset, maxTop));
