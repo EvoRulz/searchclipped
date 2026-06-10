@@ -289,8 +289,8 @@ content.addEventListener('paste', function (e) {
     setTimeout(function () { _phSrcTA.focus(); }, 0);
   } else {
     _phRawHtml = null;
-    document.execCommand('insertHTML', false, plain);
-  }
+      document.execCommand('insertHTML', false, plain.replace(/\n/g, '<br>'));
+    }
 });
 content.addEventListener('keydown', function (e) {
   if (e.key === 'Enter' && !e.shiftKey) {
@@ -471,7 +471,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   content.addEventListener('paste', function (e) {
     e.preventDefault();
     var plain = e.clipboardData.getData('text/plain');
-    document.execCommand('insertHTML', false, plain);
+    document.execCommand('insertHTML', false, plain.replace(/\n/g, '<br>'));
   });
   content.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); content.blur(); }
