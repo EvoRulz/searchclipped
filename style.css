@@ -183,6 +183,13 @@ button { font-family: var(--font); }
   flex: 1;
   min-width: 0;
 }
+#btn-clear-search {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
 .search-input-wrap #btn-star-filter {
   position: absolute;
   top: -12px;
