@@ -1,6 +1,6 @@
 'use strict';
-// @version 336
-var SC_VERSION = '@version 336';
+// @version 337
+var SC_VERSION = '@version 337';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -144,6 +144,7 @@ var SC_VERSION = '@version 336';
       searchTags:    searchTags,
       starFilter:    state.starFilter
     });
+    Render.ensureVersionPanelsOpen(result.autoOpenIds);
     Render.render(
       result.filtered,
       result.rest,

@@ -19,10 +19,17 @@
  */
 function getDisplayList(state, query, opts) {
   opts = opts || {};
+  var _autoOpenIds = new Set();
   // 1. Build candidate pool
   var pool = state.items.filter(function (item) {
     if (item.deleted && !opts.showDeleted)  return false;
-    if (!item.deleted && opts.hideUndeleted) return false;
+    if (!item.deleted && opts.hideUndeleted) {
+      if (opts.showDeleted && (item.versions || []).some(function (v) { return v.deleted; })) {
+        _autoOpenIds.add(item.id);
+        return true;
+      }
+      return false;
+    }
     return true;
   });
   // 2. Sort pool by current mode
@@ -41,7 +48,7 @@ function getDisplayList(state, query, opts) {
   // 4. Apply search
   var q = (query || '').trim().toLowerCase();
   if (!q) {
-    return { filtered: [], rest: starred.concat(normal) };
+    return { filtered: [], rest: starred.concat(normal), autoOpenIds: _autoOpenIds };
   }
   var filteredStarred = [], restStarred   = [];
   var filteredNormal  = [], restNormal    = [];
@@ -59,7 +66,7 @@ function getDisplayList(state, query, opts) {
   filteredNormal.sort(function (a, b)  { return a._matchPriority - b._matchPriority; });
   var filtered = filteredStarred.concat(filteredNormal);
   var rest     = restStarred.concat(restNormal);
-  return { filtered: filtered, rest: rest };
+  return { filtered: filtered, rest: rest, autoOpenIds: _autoOpenIds };
 }
 function _matches(item, q, opts) {
   var si = opts.searchItems  !== false;

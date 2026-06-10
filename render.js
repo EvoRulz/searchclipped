@@ -1520,5 +1520,9 @@ function _updateCopyBtnPositions() {
     hitArea.dataset.hcb = Math.max(0, hitAreaRect.bottom - (listBottom - btnH * 1.0));
   });
 }
-window.Render = { init, render, drawSelCanvas: _drawSelCanvas, setPeekThreshold };
+function ensureVersionPanelsOpen(ids) {
+  if (!ids) return;
+  ids.forEach(function (id) { _openVersionPanels.add(id); });
+}
+window.Render = { init, render, drawSelCanvas: _drawSelCanvas, setPeekThreshold, ensureVersionPanelsOpen };
 
