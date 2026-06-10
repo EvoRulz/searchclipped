@@ -1,6 +1,6 @@
 'use strict';
-// @version 317
-var SC_VERSION = '@version 317';
+// @version 318
+var SC_VERSION = '@version 318';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -255,7 +255,7 @@ document.addEventListener('sc:reset-select-all', function () { _selectAllActive 
     _ghostEl = ghost;
     innerWrap.appendChild(ghost);
     innerWrap.appendChild(inputWrap);
-    outer.appendChild(magWrap);
+    innerWrap.insertBefore(magWrap, innerWrap.firstChild);
     outer.appendChild(innerWrap);
     inputWrap.style.position = 'relative';
     inputWrap.style.flex = '1';

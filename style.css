@@ -166,18 +166,17 @@ button { font-family: var(--font); }
 }
 #search-input {
   width: 100%;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  background: transparent;
+  border: none;
   color: var(--text);
   font-family: var(--font);
   font-size: 13px;
-  padding: 5px 28px 5px 10px;
+  padding: 5px 28px 5px 0;
   outline: none;
-  transition: border-color var(--transition);
   position: relative;
   z-index: 1;
-  background: transparent;
+  flex: 1;
+  min-width: 0;
 }
 .search-input-inner {
   position: relative;
@@ -187,6 +186,8 @@ button { font-family: var(--font); }
   border: 1px solid var(--border);
   border-radius: var(--radius);
   transition: border-color var(--transition);
+  display: flex;
+  align-items: center;
 }
 .search-input-inner:focus-within {
   border-color: var(--blue-dim);
@@ -1555,7 +1556,7 @@ mark.sc-highlight {
   pointer-events: none;
   display: flex;
   align-items: center;
-  padding: 5px 28px 5px 32px;
+  padding: 5px 28px 5px 10px;
   font-family: var(--font);
   font-size: 13px;
   color: var(--text-ph);
@@ -1570,6 +1571,8 @@ mark.sc-highlight {
   flex-shrink: 0;
   pointer-events: none;
   user-select: none;
+  padding: 0 4px 0 8px;
+  align-self: center;
 }
 .search-mag-count {
   font-size: 8px;
