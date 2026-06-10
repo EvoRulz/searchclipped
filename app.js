@@ -1,6 +1,6 @@
 'use strict';
-// @version 314
-var SC_VERSION = '@version 314';
+// @version 315
+var SC_VERSION = '@version 315';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -237,11 +237,13 @@ document.addEventListener('sc:reset-select-all', function () { _selectAllActive 
     _tagFilterActive       = false;
     btnClearSearch.style.display = searchInput.value ? '' : 'none';
   }
+  var _searchRefreshTimer = null;
   searchInput.addEventListener('input', function () {
     _revertTagFilter();
     query = searchInput.value;
     btnClearSearch.style.display = query ? '' : 'none';
-    refresh();
+    clearTimeout(_searchRefreshTimer);
+    _searchRefreshTimer = setTimeout(refresh, 40);
   });
   btnClearSearch.addEventListener('click', function () {
     _revertTagFilter();
@@ -519,6 +521,9 @@ document.addEventListener('sc:filter-tag', function (e) {
   }
   /* ===== ALT SHORTCUTS ===== */
   document.addEventListener('keydown', function (e) {
+    var _activeEl = document.activeElement;
+    var _isTypingNow = _activeEl && (_activeEl.isContentEditable || _activeEl.tagName === 'INPUT' || _activeEl.tagName === 'TEXTAREA');
+    if (_isTypingNow && !e.altKey && !e.ctrlKey && !e.metaKey && e.key !== 'Escape' && e.key !== 'Tab') return;
     if (e.key === 'ArrowRight' && !e.shiftKey && !e.altKey && _focusedItemId) {
       e.preventDefault();
       var prevFocEl2 = document.querySelector('.item[data-id="' + _focusedItemId + '"]');
