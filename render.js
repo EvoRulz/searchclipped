@@ -91,56 +91,6 @@ function init(state) {
   });
   _list.addEventListener('scroll', _rafUpdateCopyBtns, { passive: true });
   window.addEventListener('resize', _rafUpdateCopyBtns);
-  // DEBUG PANEL — remove when done tuning
-  (function () {
-    var panel = document.createElement('div');
-    panel.id = 'sc-debug-panel';
-    panel.style.cssText = `
-      position: fixed; bottom: 80px; right: 8px; z-index: 9999;
-      background: var(--bg-panel); border: 1px solid var(--orange);
-      border-radius: 6px; padding: 8px 10px;
-      font-family: var(--font); font-size: 10px; color: var(--text-muted);
-      display: flex; flex-direction: column; gap: 6px; min-width: 210px;
-    `;
-    function makeSlider(label, min, max, step, val, onChange) {
-      var row = document.createElement('div');
-      row.style.cssText = 'display:flex;align-items:center;gap:6px;';
-      var lbl = document.createElement('span');
-      lbl.style.cssText = 'min-width:76px;';
-      lbl.textContent = label + ':';
-      var inp = document.createElement('input');
-      inp.type = 'range'; inp.min = min; inp.max = max; inp.step = step; inp.value = val;
-      inp.style.cssText = 'flex:1;';
-      var valEl = document.createElement('span');
-      valEl.style.cssText = 'min-width:32px;text-align:right;color:var(--yellow);';
-      valEl.textContent = val;
-      inp.addEventListener('input', function () { valEl.textContent = inp.value; onChange(parseFloat(inp.value)); });
-      row.appendChild(lbl); row.appendChild(inp); row.appendChild(valEl);
-      return row;
-    }
-    var title = document.createElement('div');
-    title.style.cssText = 'color:var(--orange);font-weight:600;cursor:move;margin-bottom:2px;user-select:none;';
-    title.textContent = 'DEBUG — report values';
-    panel.appendChild(title);
-    panel.appendChild(makeSlider('top pad', 0, 40, 1, _dbgPadTop, function (v) {
-      _dbgPadTop = v; _updateCopyBtnPositions();
-    }));
-    panel.appendChild(makeSlider('bot pad', 0, 40, 1, _dbgPadBot, function (v) {
-      _dbgPadBot = v; _updateCopyBtnPositions();
-    }));
-    document.body.appendChild(panel);
-    var ox = 0, oy = 0, drag = false;
-    title.addEventListener('pointerdown', function (e) {
-      drag = true; ox = e.clientX - panel.offsetLeft; oy = e.clientY - panel.offsetTop;
-      title.setPointerCapture(e.pointerId);
-    });
-    title.addEventListener('pointermove', function (e) {
-      if (!drag) return;
-      panel.style.left = (e.clientX - ox) + 'px'; panel.style.top = (e.clientY - oy) + 'px';
-      panel.style.right = 'auto'; panel.style.bottom = 'auto';
-    });
-    title.addEventListener('pointerup', function () { drag = false; });
-  })();
 }
 /*
  * render(filtered, rest, selectedIds, tagSelMode, selectedTags)
@@ -421,6 +371,12 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   iUndoBtn.textContent = '\u21b6';
   iUndoBtn.disabled = !(item.itemUndoStack && item.itemUndoStack.length);
   iUndoBtn.style.fontSize = '15px';
+  var iRedoBtn = document.createElement('button');
+  iRedoBtn.className = 'item-hist-btn';
+  iRedoBtn.title = 'Redo this item';
+  iRedoBtn.textContent = '\u21b7';
+  iRedoBtn.disabled = !(item.itemRedoStack && item.itemRedoStack.length);
+  iRedoBtn.style.fontSize = '15px';
   var contentCol = document.createElement('div');
   contentCol.className = 'item-content-col';
   var titleEl = document.createElement('div');
@@ -450,6 +406,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   titleRow.className = 'item-title-row';
   titleRow.appendChild(titleEl);
   titleRow.appendChild(iUndoBtn);
+  titleRow.appendChild(iRedoBtn);
   contentCol.appendChild(titleRow);
   var content = document.createElement('div');
   content.className       = 'item-content';
@@ -635,16 +592,6 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   });
   _outerActionBtn = copyBtn;
 }
-var iRedoBtn = document.createElement('button');
-iRedoBtn.className = 'item-hist-btn';
-iRedoBtn.title = 'Redo this item';
-iRedoBtn.textContent = '\u21b7';
-iRedoBtn.disabled = !(item.itemRedoStack && item.itemRedoStack.length);
-iRedoBtn.style.fontSize = '15px';
-iRedoBtn.style.fontSize = '15px';
-var undoRedoRow = document.createElement('div');
-undoRedoRow.className = 'item-undo-redo-row';
-undoRedoRow.appendChild(iRedoBtn);
 var copyHitArea = document.createElement('div');
 copyHitArea.className = 'copy-hit-area';
 copyHitArea.addEventListener('click', function (ev) {
@@ -671,7 +618,6 @@ var copyCountEl = document.createElement('span');
   copyBtnGroup.appendChild(_outerActionBtn);
   copyBtnGroup.appendChild(copyCountEl);
   copyHitArea.appendChild(copyBtnGroup);
-  right.appendChild(undoRedoRow);
   right.appendChild(copyHitArea);
 el.appendChild(right);
   // --- Image ---
