@@ -159,13 +159,18 @@ function _onBump(e) {
   } else {
     State.reindexBumpOrder(_state);
     var target = State.getItem(_state, id);
-    if (!target || target.bumpOrder === 0) return;
-    State.pushUndo(_state);
+    if (!target) return;
     var activeNonBump = _state.items
       .filter(function (i) { return !i.deleted; })
       .sort(function (a, b) { return a.bumpOrder - b.bumpOrder; });
-    activeNonBump.forEach(function (i) { i.bumpOrder += 1; });
-    target.bumpOrder = 0;
+    var curIdx = activeNonBump.findIndex(function (i) { return i.id === id; });
+    if (curIdx < 0) return;
+    var newIdx = curIdx + dir;
+    if (newIdx < 0 || newIdx >= activeNonBump.length) return;
+    State.pushUndo(_state);
+    var tmp = activeNonBump[curIdx].bumpOrder;
+    activeNonBump[curIdx].bumpOrder = activeNonBump[newIdx].bumpOrder;
+    activeNonBump[newIdx].bumpOrder = tmp;
     State.reindexBumpOrder(_state);
   }
   State.saveState(_state);
