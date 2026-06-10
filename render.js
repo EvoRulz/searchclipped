@@ -11,6 +11,8 @@ var _blobUrls           = {};   // imageId → objectURL cache
 var _openVersionPanels  = new Set();
 var _peekThreshold      = 200;
 var _versionSelections  = {};
+var _dbgMarginTop     = 1.25;
+var _dbgMarginBottom  = 1.75;
 var _anchorItemId     = null;
 var _anchorBaseState  = null;
 var _lastRangeTrigger = null;
@@ -89,6 +91,59 @@ function init(state) {
   });
   _list.addEventListener('scroll', _rafUpdateCopyBtns, { passive: true });
   window.addEventListener('resize', _rafUpdateCopyBtns);
+  // DEBUG PANEL — remove when done tuning
+  (function () {
+    var panel = document.createElement('div');
+    panel.id = 'sc-debug-panel';
+    panel.style.cssText = `
+      position: fixed; bottom: 80px; right: 8px; z-index: 9999;
+      background: var(--bg-panel); border: 1px solid var(--orange);
+      border-radius: 6px; padding: 8px 10px;
+      font-family: var(--font); font-size: 10px; color: var(--text-muted);
+      display: flex; flex-direction: column; gap: 6px; min-width: 210px;
+    `;
+    function makeSlider(label, min, max, step, val, onChange) {
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:6px;';
+      var lbl = document.createElement('span');
+      lbl.style.cssText = 'min-width:76px;';
+      lbl.textContent = label + ':';
+      var inp = document.createElement('input');
+      inp.type = 'range'; inp.min = min; inp.max = max; inp.step = step; inp.value = val;
+      inp.style.cssText = 'flex:1;';
+      var valEl = document.createElement('span');
+      valEl.style.cssText = 'min-width:32px;text-align:right;color:var(--yellow);';
+      valEl.textContent = val;
+      inp.addEventListener('input', function () { valEl.textContent = inp.value; onChange(parseFloat(inp.value)); });
+      row.appendChild(lbl); row.appendChild(inp); row.appendChild(valEl);
+      return row;
+    }
+    var title = document.createElement('div');
+    title.style.cssText = 'color:var(--orange);font-weight:600;cursor:move;margin-bottom:2px;user-select:none;';
+    title.textContent = 'DEBUG — report values';
+    panel.appendChild(title);
+    panel.appendChild(makeSlider('top margin', 0, 4, 0.05, _dbgMarginTop, function (v) {
+      _dbgMarginTop = v; _updateCopyBtnPositions();
+    }));
+    panel.appendChild(makeSlider('bot margin', 0, 4, 0.05, _dbgMarginBottom, function (v) {
+      _dbgMarginBottom = v; _updateCopyBtnPositions();
+    }));
+    panel.appendChild(makeSlider('redo mb', 0, 40, 1, 8, function (v) {
+      document.querySelectorAll('.item-undo-redo-row').forEach(function (el) { el.style.marginBottom = v + 'px'; });
+    }));
+    document.body.appendChild(panel);
+    var ox = 0, oy = 0, drag = false;
+    title.addEventListener('pointerdown', function (e) {
+      drag = true; ox = e.clientX - panel.offsetLeft; oy = e.clientY - panel.offsetTop;
+      title.setPointerCapture(e.pointerId);
+    });
+    title.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      panel.style.left = (e.clientX - ox) + 'px'; panel.style.top = (e.clientY - oy) + 'px';
+      panel.style.right = 'auto'; panel.style.bottom = 'auto';
+    });
+    title.addEventListener('pointerup', function () { drag = false; });
+  })();
 }
 /*
  * render(filtered, rest, selectedIds, tagSelMode, selectedTags)
@@ -614,8 +669,11 @@ var copyCountEl = document.createElement('span');
   var _initCount = (window._copyCounts && window._copyCounts[item.id]) || 0;
   copyCountEl.textContent = _initCount > 0 ? _initCount : '';
   copyCountEl.style.display = _initCount > 0 ? '' : 'none';
-  copyHitArea.appendChild(_outerActionBtn);
-  copyHitArea.appendChild(copyCountEl);
+  var copyBtnGroup = document.createElement('div');
+  copyBtnGroup.className = 'copy-btn-group';
+  copyBtnGroup.appendChild(_outerActionBtn);
+  copyBtnGroup.appendChild(copyCountEl);
+  copyHitArea.appendChild(copyBtnGroup);
   right.appendChild(undoRedoRow);
   right.appendChild(copyHitArea);
 el.appendChild(right);
@@ -1498,26 +1556,28 @@ function _updateCopyBtnPositions() {
   items.forEach(function (itemEl) {
     var itemRight = itemEl.querySelector('.item-right');
     var hitArea = itemRight && itemRight.querySelector('.copy-hit-area');
-    var btn = hitArea && hitArea.querySelector('.copy-btn, .share-btn');
-    if (!btn || !hitArea) return;
+    var group = hitArea && hitArea.querySelector('.copy-btn-group');
+    var btn = group && group.querySelector('.copy-btn, .share-btn');
+    if (!btn || !hitArea || !group) return;
     var itemRect = itemEl.getBoundingClientRect();
     if (itemRect.bottom < listTop || itemRect.top > listBottom) return;
     var hitAreaRect = hitArea.getBoundingClientRect();
     var btnH = btn.offsetHeight;
+    var groupH = group.offsetHeight;
     var trueCenterY = (itemRect.top + itemRect.bottom) / 2;
     var topOffset = trueCenterY - hitAreaRect.top - btnH / 2;
     var minTop = 0;
-    var maxTop = hitArea.offsetHeight - btnH;
+    var maxTop = hitArea.offsetHeight - groupH;
     var btnTopInViewport = hitAreaRect.top + topOffset;
-    var _btnMarginTop = btnH * 1.25;
-    var _btnMarginBottom = btnH * 1.75;
-    if (btnTopInViewport < listTop + _btnMarginTop) topOffset = listTop + _btnMarginTop - hitAreaRect.top;
-    if (btnTopInViewport + btnH > listBottom - _btnMarginBottom) topOffset = listBottom - _btnMarginBottom - hitAreaRect.top - btnH;
+    var marginTop = btnH * _dbgMarginTop;
+    var marginBottom = btnH * _dbgMarginBottom;
+    if (btnTopInViewport < listTop + marginTop) topOffset = listTop + marginTop - hitAreaRect.top;
+    if (btnTopInViewport + groupH > listBottom - marginBottom) topOffset = listBottom - marginBottom - hitAreaRect.top - groupH;
     topOffset = Math.max(minTop, Math.min(topOffset, maxTop));
     hitArea.style.width = (btnH * 1.5) + 'px';
-    btn.style.top = topOffset + 'px';
-    hitArea.dataset.hct = Math.max(0, listTop + btnH * 1.5 - hitAreaRect.top);
-    hitArea.dataset.hcb = Math.max(0, hitAreaRect.bottom - (listBottom - btnH * 1.0));
+    group.style.top = topOffset + 'px';
+    hitArea.dataset.hct = Math.max(0, listTop + marginTop - hitAreaRect.top);
+    hitArea.dataset.hcb = Math.max(0, hitAreaRect.bottom - (listBottom - marginBottom));
   });
 }
 function ensureVersionPanelsOpen(ids) {

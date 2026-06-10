@@ -666,12 +666,15 @@ mark.sc-highlight {
   gap: 4px;
   margin-bottom: 8px;
 }
-.copy-hit-area .copy-btn,
-.copy-hit-area .share-btn {
+.copy-btn-group {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
   top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
 }
 .copy-hit-area {
   flex: 1;
@@ -797,9 +800,6 @@ mark.sc-highlight {
   line-height: 1;
   transition: color var(--transition);
   flex-shrink: 0;
-}
-.item-undo-redo-row .item-hist-btn {
-  transform: translateY(-20px);
 }
 .item-hist-btn:hover         { color: var(--blue); }
 .item-hist-btn:disabled      { opacity: 0.25; cursor: default; pointer-events: none; }
@@ -1491,7 +1491,6 @@ mark.sc-highlight {
   font-size: 8px;
   color: var(--text-ph);
   line-height: 1;
-  margin-top: 2px;
   pointer-events: none;
   user-select: none;
 }
