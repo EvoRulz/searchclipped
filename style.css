@@ -1579,6 +1579,7 @@ mark.sc-highlight {
   color: var(--text-ph);
   line-height: 1;
   text-align: center;
+  min-height: 9px;
 }
 .search-input-outer {
   position: relative;
