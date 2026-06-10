@@ -1524,47 +1524,5 @@ function ensureVersionPanelsOpen(ids) {
   if (!ids) return;
   ids.forEach(function (id) { _openVersionPanels.add(id); });
 }
-(function () {
-  var panel = document.createElement('div');
-  panel.style.cssText = 'position:fixed;bottom:20px;right:10px;z-index:9999;background:#252d38;border:1px solid #435160;border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px;font-family:monospace;font-size:11px;color:#d8dee9;min-width:220px;';
-  var vals = { x: 0, y: 0 };
-  function apply() {
-    document.querySelectorAll('.item-hist-btn').forEach(function (el) {
-      el.style.transform = 'translate(' + vals.x + 'px,' + vals.y + 'px)';
-    });
-  }
-  var title = document.createElement('div');
-  title.style.cssText = 'color:#fac863;font-weight:600;';
-  title.textContent = 'Item Redo/Undo Btn';
-  panel.appendChild(title);
-  [['x', 'X'], ['y', 'Y']].forEach(function (pair) {
-    var prop = pair[0]; var axis = pair[1];
-    var line = document.createElement('div');
-    line.style.cssText = 'display:flex;align-items:center;gap:6px;';
-    var lbl = document.createElement('span');
-    lbl.style.width = '12px';
-    lbl.textContent = axis;
-    var slider = document.createElement('input');
-    slider.type = 'range'; slider.min = '-60'; slider.max = '60'; slider.value = '0'; slider.step = '1';
-    slider.style.cssText = 'flex:1;';
-    var readout = document.createElement('span');
-    readout.style.cssText = 'width:32px;text-align:right;color:#a6acb9;';
-    readout.textContent = '0px';
-    slider.addEventListener('input', function () {
-      vals[prop] = parseInt(slider.value, 10);
-      readout.textContent = slider.value + 'px';
-      apply();
-      valDisplay.textContent = 'X: ' + vals.x + 'px  Y: ' + vals.y + 'px';
-    });
-    line.appendChild(lbl); line.appendChild(slider); line.appendChild(readout);
-    panel.appendChild(line);
-  });
-  var valDisplay = document.createElement('div');
-  valDisplay.style.cssText = 'font-size:9px;color:#546370;word-break:break-all;margin-top:2px;';
-  valDisplay.textContent = 'move sliders to see values';
-  panel.appendChild(valDisplay);
-  if (document.body) document.body.appendChild(panel);
-  else document.addEventListener('DOMContentLoaded', function () { document.body.appendChild(panel); });
-})();
 window.Render = { init, render, drawSelCanvas: _drawSelCanvas, setPeekThreshold, ensureVersionPanelsOpen };
 
