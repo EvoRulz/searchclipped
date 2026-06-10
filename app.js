@@ -1,6 +1,6 @@
 'use strict';
-// @version 335
-var SC_VERSION = '@version 335';
+// @version 336
+var SC_VERSION = '@version 336';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -472,6 +472,7 @@ document.addEventListener('sc:reset-select-all', function () { _selectAllActive 
       }
     }
     wrap.appendChild(_overlayEl);
+  }
   }
   function _makeSlotEl(entry, idx, isFocused) {
     var el = document.createElement('div');
