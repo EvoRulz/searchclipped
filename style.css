@@ -1488,20 +1488,20 @@ mark.sc-highlight {
 .search-history-slot {
   pointer-events: all;
   background: var(--bg-panel);
-  border: 1px solid var(--blue-dim);
   border-radius: var(--radius);
   padding: 4px 8px;
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  color: var(--text);
+  color: var(--text-muted);
   overflow: hidden;
   position: relative;
   margin: 1px 0;
+  transition: color 0.08s ease;
 }
 .search-history-slot.focused {
-  border-color: var(--blue);
+  color: var(--orange);
   background: var(--surface);
 }
 .search-history-slot-text {
@@ -1539,14 +1539,14 @@ mark.sc-highlight {
 }
 .search-history-slot-x:hover { color: var(--red); }
 .search-history-fade-top {
-  height: 18px;
-  background: linear-gradient(to bottom, var(--bg-dark), transparent);
+  height: 28px;
+  background: linear-gradient(to bottom, var(--bg-dark) 0%, transparent 100%);
   pointer-events: none;
   flex-shrink: 0;
 }
 .search-history-fade-bottom {
-  height: 18px;
-  background: linear-gradient(to top, var(--bg-dark), transparent);
+  height: 28px;
+  background: linear-gradient(to top, var(--bg-dark) 0%, transparent 100%);
   pointer-events: none;
   flex-shrink: 0;
 }
@@ -1603,18 +1603,10 @@ mark.sc-highlight {
   100% { opacity: 0; }
 }
 .history-slot-animate-up {
-  animation: slide-up-in 0.13s ease;
+  animation: none;
 }
 .history-slot-animate-down {
-  animation: slide-down-in 0.13s ease;
-}
-@keyframes slide-up-in {
-  from { transform: translateY(8px); opacity: 0.4; }
-  to   { transform: translateY(0);   opacity: 1; }
-}
-@keyframes slide-down-in {
-  from { transform: translateY(-8px); opacity: 0.4; }
-  to   { transform: translateY(0);    opacity: 1; }
+  animation: none;
 }
 .copy-btn.btn-flash,
 .share-btn.btn-flash { color: var(--blue); }
