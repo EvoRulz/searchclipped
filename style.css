@@ -28,12 +28,13 @@
   --radius-lg:    10px;
   --transition:   0.14s ease;
   --header-h:     120px;
-  --star-top: -12px;
-  --star-right: -28px;
+  --star-top: -11px;
+  --star-right: -8px;
   --item-undo-top: 0px;
   --item-undo-left: 0px;
   --global-undo-top: 0px;
-  --global-undo-left: 0px;
+  --global-undo-left: 6px;
+  --search-right: 0px;
 }
 /* ===== STORAGE DISPLAY ===== */
 #storage-row {
@@ -1660,6 +1661,7 @@ mark.sc-highlight {
   display: flex;
   align-items: center;
   gap: 4px;
+  margin-right: var(--search-right);
 }
 .search-input-inner {
   position: relative;
