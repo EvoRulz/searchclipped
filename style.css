@@ -34,7 +34,7 @@
   --item-undo-left: 0px;
   --global-undo-top: 0px;
   --global-undo-left: 6px;
-  --search-right: 0px;
+  --search-right: -9px;
 }
 /* ===== STORAGE DISPLAY ===== */
 #storage-row {

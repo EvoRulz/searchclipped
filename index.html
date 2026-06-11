@@ -283,53 +283,5 @@
 <script src="modals.js"></script>
 <script src="items.js"></script>
 <script src="app.js"></script>
-<div id="pos-debug" style="
-  position: fixed; top: 8px; right: 8px; z-index: 9999;
-  background: #1a2030; border: 1px solid #435160; border-radius: 6px;
-  padding: 8px 10px; font-family: monospace; font-size: 11px; color: #a6acb9;
-  display: flex; flex-direction: column; gap: 5px; min-width: 190px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.6);
-">
-  <div style="color:#6dcbf7; font-weight:700; margin-bottom:2px;">pos debug</div>
-  <div style="display:grid; grid-template-columns: 100px 32px 32px; gap:3px; align-items:center;">
-    <span>star top</span>
-    <input id="pd-star-top" type="number" value="-11" style="width:100%; background:#303841; border:1px solid #435160; color:#d8dee9; font-family:monospace; font-size:11px; padding:1px 3px; border-radius:3px;">
-    <span style="color:#546370">px</span>
-    <span>star right</span>
-    <input id="pd-star-right" type="number" value="-8" style="width:100%; background:#303841; border:1px solid #435160; color:#d8dee9; font-family:monospace; font-size:11px; padding:1px 3px; border-radius:3px;">
-    <span style="color:#546370">px</span>
-    <span>undo/redo top</span>
-    <input id="pd-iu-top" type="number" value="0" style="width:100%; background:#303841; border:1px solid #435160; color:#d8dee9; font-family:monospace; font-size:11px; padding:1px 3px; border-radius:3px;">
-    <span style="color:#546370">px</span>
-    <span>undo/redo left</span>
-    <input id="pd-iu-left" type="number" value="0" style="width:100%; background:#303841; border:1px solid #435160; color:#d8dee9; font-family:monospace; font-size:11px; padding:1px 3px; border-radius:3px;">
-    <span style="color:#546370">px</span>
-    <span>global undo top</span>
-    <input id="pd-gu-top" type="number" value="0" style="width:100%; background:#303841; border:1px solid #435160; color:#d8dee9; font-family:monospace; font-size:11px; padding:1px 3px; border-radius:3px;">
-    <span style="color:#546370">px</span>
-    <span>global undo left</span>
-    <input id="pd-gu-left" type="number" value="6" style="width:100%; background:#303841; border:1px solid #435160; color:#d8dee9; font-family:monospace; font-size:11px; padding:1px 3px; border-radius:3px;">
-    <span style="color:#546370">px</span>
-    <span>search right</span>
-    <input id="pd-search-right" type="number" value="0" style="width:100%; background:#303841; border:1px solid #435160; color:#d8dee9; font-family:monospace; font-size:11px; padding:1px 3px; border-radius:3px;">
-    <span style="color:#546370">px</span>
-  </div>
-</div>
-<script>
-(function () {
-  var r = document.documentElement;
-  function wire(id, prop, suffix) {
-    var el = document.getElementById(id);
-    el.addEventListener('input', function () { r.style.setProperty(prop, el.value + suffix); });
-  }
-  wire('pd-star-top',   '--star-top',       'px');
-  wire('pd-star-right', '--star-right',     'px');
-  wire('pd-iu-top',     '--item-undo-top',  'px');
-  wire('pd-iu-left',    '--item-undo-left', 'px');
-  wire('pd-gu-top',     '--global-undo-top',  'px');
-  wire('pd-gu-left',    '--global-undo-left', 'px');
-  wire('pd-search-right', '--search-right',   'px');
-})();
-</script>
 </body>
 </html>
