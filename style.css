@@ -1216,6 +1216,90 @@ mark.sc-highlight {
 .tag-del-btn:hover { color: var(--red); }
 #tag-input-row { display: flex; gap: 6px; }
 #tag-input-row input { flex: 1; }
+.tag-input-inner {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: border-color var(--transition);
+}
+.tag-input-inner:focus-within {
+  border-color: var(--blue-dim);
+}
+.tag-input-inner #tag-input {
+  background: transparent;
+  border: none;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+.tag-history-ghost {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  padding: 7px 10px;
+  font-family: var(--font);
+  font-size: 13px;
+  color: var(--text-ph);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.tag-history-above {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  z-index: 200;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+}
+.tag-history-below {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  z-index: 200;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+}
+.tag-history-slot {
+  pointer-events: all;
+  background: var(--bg-panel);
+  border-radius: var(--radius);
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+  overflow: hidden;
+  position: relative;
+  margin: 1px 0;
+  transition: color 0.08s ease;
+}
+.tag-history-slot.focused {
+  color: var(--orange);
+  background: var(--surface);
+}
+.tag-history-slot-text {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tag-history-slot-count {
+  font-size: 10px;
+  color: var(--text-ph);
+  flex-shrink: 0;
+}
 #tag-add-btn {
   background: var(--blue-dim);
   border: none;
