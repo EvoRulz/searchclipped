@@ -37,7 +37,7 @@ function init(state, refreshFn) {
 function _onCreate(e) {
   var text = (e.detail.text || '').trim();
   if (!text) return;
-  State.pushUndo(_state);
+  State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
   var item = State.createItem(text, e.detail.html || text, null);
   if (e.detail.title) item.title = e.detail.title.trim();
   // Give it the next bumpOrder slot at the top
@@ -57,7 +57,7 @@ function _onEdit(e) {
     ts: item.modifiedAt, text: item.text, html: item.html,
     title: item.title, tags: (item.tags || []).slice(), name: item.versionName || '', deleted: item.deleted || false
   };
-  State.pushUndo(_state);
+  State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
   item.text        = e.detail.text || '';
   item.html        = e.detail.html || item.text;
   item.modifiedAt  = State.nowISO();
@@ -75,7 +75,7 @@ function _onEditTitle(e) {
     ts: item.modifiedAt, text: item.text, html: item.html,
     title: item.title, tags: (item.tags || []).slice(), name: item.versionName || '', deleted: item.deleted || false
   };
-  State.pushUndo(_state);
+  State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
   item.title       = e.detail.title || '';
   item.modifiedAt  = State.nowISO();
   item.versionName = '';
@@ -131,11 +131,15 @@ function setSelection(ids) {
   if (ids) ids.forEach(function (id) { _selectedIds.add(id); });
   _refresh();
 }
+function setSelectionSilent(ids) {
+  _selectedIds.clear();
+  if (ids) ids.forEach(function (id) { _selectedIds.add(id); });
+}
 /* ====== STAR ====== */
 function _onToggleStar(e) {
   var item = State.getItem(_state, e.detail.id);
   if (!item) return;
-  State.pushUndo(_state);
+  State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
   item.starred    = !item.starred;
   item.modifiedAt = State.nowISO();
   State.saveState(_state);
@@ -154,7 +158,7 @@ function _onBump(e) {
     if (idx < 0) return;
     var targetIdx = dir === 1 ? active.length - 1 : 0;
     if (targetIdx === idx) return;
-    State.pushUndo(_state);
+    State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
     var movedBump = active.splice(idx, 1)[0];
     active.splice(targetIdx, 0, movedBump);
     active.forEach(function (item, vi) { item.bumpOrder = vi; });
@@ -169,7 +173,7 @@ function _onBump(e) {
     if (curIdx < 0) return;
     var newIdx = dir === 1 ? activeNonBump.length - 1 : 0;
     if (newIdx === curIdx) return;
-    State.pushUndo(_state);
+    State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
     var movedNonBump = activeNonBump.splice(curIdx, 1)[0];
     activeNonBump.splice(newIdx, 0, movedNonBump);
     activeNonBump.forEach(function (item, vi) { item.bumpOrder = vi; });
@@ -187,7 +191,7 @@ function bulkDelete(ids) {
   _doDelete(Array.from(ids));
 }
 async function _doDelete(ids) {
-  State.pushUndo(_state);
+  State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
   ids.forEach(function (id) {
     var item = State.getItem(_state, id);
     if (item) {
@@ -215,7 +219,7 @@ async function _onRestore(e) {
     ts: item.modifiedAt, text: item.text, html: item.html,
     title: item.title, tags: (item.tags || []).slice(), name: item.versionName || '', deleted: true
   });
-  State.pushUndo(_state);
+  State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
   item.deleted    = false;
   item.bumpOrder  = Math.floor(item.bumpOrder);
   item.restoredAt = State.nowISO();
@@ -252,7 +256,7 @@ function _onOpenTags(e) {
       changedItem.tags        = State._sortTagsCustom(changedItem.tags);
       changedItem.modifiedAt  = State.nowISO();
       changedItem.versionName = '';
-      State.pushUndo(_state);
+      State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
       State.pushItemUndo(changedItem, oldSnap);
       State.addItemVersion(changedItem, oldSnap);
     }
@@ -296,7 +300,7 @@ function _onPaste(e) {
 async function _createImageItem(blob) {
   var id = State.generateId();
   await DB.saveImage(id, blob);
-  State.pushUndo(_state);
+  State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
   var item = State.createItem('Image', '', id);
   _state.items.forEach(function (i) { if (!i.deleted) i.bumpOrder += 1; });
   item.bumpOrder = 0;
@@ -310,7 +314,7 @@ async function bulkDeleteTags() {
     'Delete ' + _selectedTags.size + ' tag(s)?\nType "yes" to confirm.'
   );
   if (!ok) return;
-  State.pushUndo(_state);
+  State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
   _selectedTags.forEach(function (key) {
     var parts  = key.split('|');
     var tag    = parts[0];
@@ -334,7 +338,7 @@ function _onItemUndo(e) {
     ts: item.modifiedAt, text: item.text, html: item.html,
     title: item.title, tags: (item.tags || []).slice(), name: item.versionName || '', deleted: item.deleted || false
   };
-  State.pushUndo(_state);
+  State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
   State.itemUndo(item);
   State.addItemVersion(item, oldSnap);
   State.saveState(_state);
@@ -347,7 +351,7 @@ function _onItemRedo(e) {
     ts: item.modifiedAt, text: item.text, html: item.html,
     title: item.title, tags: (item.tags || []).slice(), name: item.versionName || '', deleted: item.deleted || false
   };
-  State.pushUndo(_state);
+  State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
   State.itemRedo(item);
   State.addItemVersion(item, oldSnap);
   State.saveState(_state);
@@ -365,7 +369,7 @@ function _onRestoreVersion(e) {
     ts: item.modifiedAt, text: item.text, html: item.html,
     title: item.title, tags: (item.tags || []).slice(), name: item.versionName || ''
   });
-  State.pushUndo(_state);
+  State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
   item.text          = ver.text;
   item.html          = ver.html;
   item.title         = ver.title;
@@ -397,7 +401,7 @@ async function _onVersionDelete(e) {
   if (!ok) return;
   var item = State.getItem(_state, e.detail.id);
   if (!item) return;
-  State.pushUndo(_state);
+  State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
   e.detail.indices.forEach(function (idx) {
     if (item.versions[idx]) item.versions[idx].deleted = true;
   });
@@ -407,7 +411,7 @@ async function _onVersionDelete(e) {
 function _onVersionUndelete(e) {
   var item = State.getItem(_state, e.detail.id);
   if (!item) return;
-  State.pushUndo(_state);
+  State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
   e.detail.indices.forEach(function (idx) {
     if (item.versions[idx]) item.versions[idx].deleted = false;
   });
@@ -470,6 +474,7 @@ window.Items = {
   selectFiltered,
   clearSelection,
   setSelection,
+  setSelectionSilent,
   bulkDelete,
   bulkBurn,
   getTagSelMode,

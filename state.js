@@ -22,7 +22,7 @@
  * }
  */
 var STORAGE_KEY = 'searchclipped_state';
-var MAX_UNDO    = 40;
+var MAX_UNDO    = 1000;
 var DEFAULT_STATE = {
   items:       [],
   sortMode:    'bump',
@@ -170,19 +170,23 @@ function _applyDiff(snap, diff) {
   return result;
 }
 function _computeStackDiffs(stack) {
-  if (!stack.length) return { base: [], diffs: [] };
-  var base = stack[0];
+  if (!stack.length) return { base: [], diffs: [], uiSnapshots: [] };
+  var itemsStack = stack.map(function(e) { return e.items; });
+  var base = itemsStack[0];
   var diffs = [];
-  for (var i = 1; i < stack.length; i++) { diffs.push(_computeDiff(stack[i - 1], stack[i])); }
-  return { base: base, diffs: diffs };
+  for (var i = 1; i < itemsStack.length; i++) { diffs.push(_computeDiff(itemsStack[i - 1], itemsStack[i])); }
+  return { base: base, diffs: diffs, uiSnapshots: stack.map(function(e) { return e.ui || null; }) };
 }
 function _reconstructStack(stored) {
   if (!stored || !stored.base || !stored.base.length) return [];
-  var result = [stored.base];
+  var itemsStack = [stored.base];
   for (var i = 0; i < stored.diffs.length; i++) {
-    result.push(_applyDiff(result[result.length - 1], stored.diffs[i]));
+    itemsStack.push(_applyDiff(itemsStack[itemsStack.length - 1], stored.diffs[i]));
   }
-  return result;
+  var uiSnapshots = stored.uiSnapshots || [];
+  return itemsStack.map(function(items, idx) {
+    return { items: items, ui: uiSnapshots[idx] || null };
+  });
 }
 function _snapSig(snap) {
   return JSON.stringify(snap.map(function(item) {
@@ -194,11 +198,14 @@ function _snapSig(snap) {
     };
   }));
 }
+function _entryKey(entry) {
+  return _snapSig(entry.items) + '||' + JSON.stringify(entry.ui);
+}
 function _dedupeStack(stack) {
   if (stack.length < 2) return stack;
   var result = [stack[0]];
   for (var i = 1; i < stack.length; i++) {
-    if (_snapSig(stack[i]) !== _snapSig(result[result.length - 1])) result.push(stack[i]);
+    if (_entryKey(stack[i]) !== _entryKey(result[result.length - 1])) result.push(stack[i]);
   }
   return result;
 }
@@ -219,7 +226,7 @@ async function initUndoFromDB(state) {
     var liveIds = new Set(state.items.map(function (i) { return i.id; }));
     function _filterBurned(stack) {
       for (var i = 0; i < stack.length; i++) {
-        stack[i] = stack[i].filter(function (item) { return liveIds.has(item.id); });
+        stack[i] = { items: stack[i].items.filter(function (item) { return liveIds.has(item.id); }), ui: stack[i].ui };
       }
       return _dedupeStack(stack);
     }
@@ -233,33 +240,35 @@ async function initUndoFromDB(state) {
   }
 }
 /* ===== UNDO / REDO ===== */
-function pushUndo(state) {
+function pushUndo(state, uiSnap) {
   var _snap = snapshotItems(state);
+  var _newEntry = { items: _snap, ui: uiSnap || null };
   if (state.undoStack.length) {
     var _top = state.undoStack[state.undoStack.length - 1];
-    if (_snapSig(_top) === _snapSig(_snap)) return;
+    if (_entryKey(_top) === _entryKey(_newEntry)) return;
   }
-  state.undoStack.push(_snap);
+  state.undoStack.push(_newEntry);
   if (state.undoStack.length > MAX_UNDO) state.undoStack.shift();
   state.redoStack = [];
   _persistStacks(state);
 }
-function undo(state) {
-  if (!state.undoStack.length) return false;
+function undo(state, currentUi) {
+  if (!state.undoStack.length) return null;
   var liveStacks = {};
   state.items.forEach(function (i) {
     liveStacks[i.id] = { itemUndoStack: i.itemUndoStack || [], itemRedoStack: i.itemRedoStack || [] };
   });
-  var currentSnap = snapshotItems(state);
-  var currentSig  = _snapSig(currentSnap);
-  while (state.undoStack.length && _snapSig(state.undoStack[state.undoStack.length - 1]) === currentSig) {
+  var currentSnap  = snapshotItems(state);
+  var currentEntry = { items: currentSnap, ui: currentUi || null };
+  var currentKey   = _entryKey(currentEntry);
+  while (state.undoStack.length && _entryKey(state.undoStack[state.undoStack.length - 1]) === currentKey) {
     state.undoStack.pop();
   }
-  if (!state.undoStack.length) { _persistStacks(state); return false; }
-  var targetSnap  = state.undoStack.pop();
-  state.redoStack.push(currentSnap);
+  if (!state.undoStack.length) { _persistStacks(state); return null; }
+  var targetEntry = state.undoStack.pop();
+  state.redoStack.push(currentEntry);
   var seen   = {};
-  var result = targetSnap.map(function (item) {
+  var result = targetEntry.items.map(function (item) {
     seen[item.id] = true;
     var stacks = liveStacks[item.id] || { itemUndoStack: [], itemRedoStack: [] };
     return Object.assign({}, item, stacks);
@@ -269,24 +278,25 @@ function undo(state) {
   });
   state.items = result;
   _persistStacks(state);
-  return true;
+  return targetEntry;
 }
-function redo(state) {
-  if (!state.redoStack.length) return false;
+function redo(state, currentUi) {
+  if (!state.redoStack.length) return null;
   var liveStacks = {};
   state.items.forEach(function (i) {
     liveStacks[i.id] = { itemUndoStack: i.itemUndoStack || [], itemRedoStack: i.itemRedoStack || [] };
   });
-  var currentSnap = snapshotItems(state);
-  var currentSig  = _snapSig(currentSnap);
-  while (state.redoStack.length && _snapSig(state.redoStack[state.redoStack.length - 1]) === currentSig) {
+  var currentSnap  = snapshotItems(state);
+  var currentEntry = { items: currentSnap, ui: currentUi || null };
+  var currentKey   = _entryKey(currentEntry);
+  while (state.redoStack.length && _entryKey(state.redoStack[state.redoStack.length - 1]) === currentKey) {
     state.redoStack.pop();
   }
-  if (!state.redoStack.length) { _persistStacks(state); return false; }
-  var targetSnap  = state.redoStack.pop();
-  state.undoStack.push(currentSnap);
+  if (!state.redoStack.length) { _persistStacks(state); return null; }
+  var targetEntry = state.redoStack.pop();
+  state.undoStack.push(currentEntry);
   var seen   = {};
-  var result = targetSnap.map(function (item) {
+  var result = targetEntry.items.map(function (item) {
     seen[item.id] = true;
     var stacks = liveStacks[item.id] || { itemUndoStack: [], itemRedoStack: [] };
     return Object.assign({}, item, stacks);
@@ -296,7 +306,7 @@ function redo(state) {
   });
   state.items = result;
   _persistStacks(state);
-  return true;
+  return targetEntry;
 }
 function createItem(text, html, imageId) {
   var now = nowISO();
@@ -498,7 +508,7 @@ function purgeBurnedItemFromStacks(state, id) {
 async function purgeAllBurnedFromStacks(state, idSet) {
   function purge(stack) {
     for (var i = 0; i < stack.length; i++) {
-      stack[i] = stack[i].filter(function (item) { return !idSet.has(item.id); });
+      stack[i] = { items: stack[i].items.filter(function (item) { return !idSet.has(item.id); }), ui: stack[i].ui };
     }
   }
   purge(state.undoStack);
@@ -513,7 +523,7 @@ function purgeVersionsFromStacks(state, itemId, tsList) {
   tsList.forEach(function (ts) { tsSet[ts] = true; });
   function purge(stack) {
     for (var i = 0; i < stack.length; i++) {
-      var snapshot = stack[i];
+      var snapshot = stack[i].items;
       for (var j = 0; j < snapshot.length; j++) {
         if (snapshot[j].id === itemId && snapshot[j].versions) {
           snapshot[j].versions = snapshot[j].versions.filter(function (v) { return !tsSet[v.ts]; });
@@ -525,7 +535,7 @@ function purgeVersionsFromStacks(state, itemId, tsList) {
   purge(state.redoStack);
   var liveSig2 = _snapSig(snapshotItems(state));
   function purgeLiveMatch2(stack) {
-    return stack.filter(function (snap) { return _snapSig(snap) !== liveSig2; });
+    return stack.filter(function (entry) { return _snapSig(entry.items) !== liveSig2; });
   }
   state.undoStack = _dedupeStack(purgeLiveMatch2(state.undoStack));
   state.redoStack = _dedupeStack(purgeLiveMatch2(state.redoStack));
@@ -534,8 +544,8 @@ function purgeVersionsFromStacks(state, itemId, tsList) {
 function purgeItemContentFromStacks(state, itemId, burnedKeys) {
   if (!burnedKeys || !burnedKeys.size) return Promise.resolve();
   function purge(stack) {
-    return stack.filter(function (snapshot) {
-      return !snapshot.some(function (item) {
+    return stack.filter(function (entry) {
+      return !entry.items.some(function (item) {
         if (item.id !== itemId) return false;
         var key = (item.text || '').trim() + '\x00' + (item.title || '').replace(/\s*\(preview\)$/i, '').trim();
         return burnedKeys.has(key);
@@ -544,7 +554,7 @@ function purgeItemContentFromStacks(state, itemId, burnedKeys) {
   }
   var liveSig = _snapSig(snapshotItems(state));
   function purgeLiveMatch(stack) {
-    return stack.filter(function (snap) { return _snapSig(snap) !== liveSig; });
+    return stack.filter(function (entry) { return _snapSig(entry.items) !== liveSig; });
   }
   state.undoStack = _dedupeStack(purgeLiveMatch(purge(state.undoStack)));
   state.redoStack = _dedupeStack(purgeLiveMatch(purge(state.redoStack)));
@@ -553,11 +563,11 @@ function purgeItemContentFromStacks(state, itemId, burnedKeys) {
 function purgeContentFromUndoStacks(state, itemId, tsList) {
   if (!tsList || !tsList.length) return;
   var tsSet = new Set(tsList);
-  state.undoStack = state.undoStack.filter(function (snapshot) {
-    return !snapshot.some(function (i) { return i.id === itemId && tsSet.has(i.modifiedAt); });
+  state.undoStack = state.undoStack.filter(function (entry) {
+    return !entry.items.some(function (i) { return i.id === itemId && tsSet.has(i.modifiedAt); });
   });
-  state.redoStack = state.redoStack.filter(function (snapshot) {
-    return !snapshot.some(function (i) { return i.id === itemId && tsSet.has(i.modifiedAt); });
+  state.redoStack = state.redoStack.filter(function (entry) {
+    return !entry.items.some(function (i) { return i.id === itemId && tsSet.has(i.modifiedAt); });
   });
   state.undoStack = _dedupeStack(state.undoStack);
   state.redoStack = _dedupeStack(state.redoStack);
@@ -566,11 +576,11 @@ function purgeContentFromUndoStacks(state, itemId, tsList) {
 function purgeBurnedFromStacks(state, idSet) {
   function _filt(stack) {
     for (var i = 0; i < stack.length; i++) {
-      stack[i] = stack[i].filter(function (item) { return !idSet.has(item.id); });
+      stack[i] = { items: stack[i].items.filter(function (item) { return !idSet.has(item.id); }), ui: stack[i].ui };
     }
     var out = [];
     for (var j = 0; j < stack.length; j++) {
-      var sig = stack[j].map(function (it) { return it.id + '|' + it.modifiedAt; }).join(',');
+      var sig = stack[j].items.map(function (it) { return it.id + '|' + it.modifiedAt; }).join(',');
       if (!out.length || sig !== out[out.length - 1]._sig) out.push({ snap: stack[j], _sig: sig });
     }
     return out.map(function (d) { return d.snap; });
