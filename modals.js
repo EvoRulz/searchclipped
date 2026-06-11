@@ -65,3 +65,4 @@ function init() {
   _initConfirm();
 }
 window.Modals = { init, confirm };
+

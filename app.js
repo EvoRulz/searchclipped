@@ -1,6 +1,6 @@
 'use strict';
-// @version 367
-var SC_VERSION = '@version 367';
+// @version 368
+var SC_VERSION = '@version 368';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -300,8 +300,6 @@ var SC_VERSION = '@version 367';
       result.filtered,
       result.rest,
       Items.getSelectedIds(),
-      Items.getTagSelMode(),
-      Items.getSelectedTags(),
       query,
       _tagFilterActive
     );
@@ -1525,11 +1523,7 @@ document.addEventListener('sc:filter-tag', function (e) {
   btnBulkDelete.addEventListener('click', function () {
     var ids = Items.getSelectedIds();
     if (!ids.size) { alert('No items selected.'); return; }
-    if (Items.getTagSelMode()) {
-      Items.bulkDeleteTags();
-    } else {
-      Items.bulkDelete(ids);
-    }
+    Items.bulkDelete(ids);
   });
   /* ===== EXPORT ===== */
   btnExport.addEventListener('click', async function () {

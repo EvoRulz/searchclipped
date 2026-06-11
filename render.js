@@ -99,32 +99,18 @@ function init(state, refreshFn) {
 /*
  * render(filtered, rest, selectedIds, tagSelMode, selectedTags)
  */
-function render(filtered, rest, selectedIds, tagSelMode, selectedTags, query, tagFilterActive) {
+function render(filtered, rest, selectedIds, query, tagFilterActive) {
   _currentQuery = (query || '').trim();
   _tagFilterActive = tagFilterActive || false;
   _topBumped = State.getTopBumped(_state, 10);
   var frag   = document.createDocumentFragment();
   // New-item placeholder always first
   frag.appendChild(_makePlaceholder());
-  // Tag selection mode banner
-  if (tagSelMode) {
-    var banner = document.createElement('div');
-    banner.className = 'tag-sel-banner';
-    var bannerTxt = document.createElement('span');
-    bannerTxt.textContent = 'Tag selection mode — tap tags to select';
-    var exitBtn = document.createElement('button');
-    exitBtn.className   = 'tag-sel-exit-btn';
-    exitBtn.textContent = 'Exit';
-    exitBtn.addEventListener('click', function () { Items.exitTagSelMode(); });
-    banner.appendChild(bannerTxt);
-    banner.appendChild(exitBtn);
-    frag.appendChild(banner);
-  }
   // Filtered section
   var _li = 0;
   if (filtered.length > 0) {
     filtered.forEach(function (item) {
-      var rowEl = _makeItem(item, true, selectedIds, tagSelMode, selectedTags);
+      var rowEl = _makeItem(item, true, selectedIds);
       if (_li < 9) {
         var innerEl = rowEl.querySelector('.item');
         if (innerEl) { innerEl.dataset.shortcut = String(_li + 1); }
@@ -139,7 +125,7 @@ function render(filtered, rest, selectedIds, tagSelMode, selectedTags, query, ta
   }
   // Rest section
   rest.forEach(function (item) {
-    var rowEl = _makeItem(item, false, selectedIds, tagSelMode, selectedTags);
+    var rowEl = _makeItem(item, false, selectedIds);
     if (_li < 9) {
       var innerEl = rowEl.querySelector('.item');
       if (innerEl) { innerEl.dataset.shortcut = String(_li + 1); }
@@ -320,7 +306,7 @@ el.appendChild(contentRow);
 return el;
 }
 /* ====== ITEM ELEMENT ====== */
-function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
+function _makeItem(item, isFiltered, selectedIds) {
   var el = document.createElement('div');
   el.className  = 'item' + (isFiltered ? ' filtered' : '') +
   (item.starred ? ' starred' : '') +
@@ -1089,7 +1075,7 @@ footer.appendChild(hardDelBtn);
 }
 footer.appendChild(tsCont);
   // Tags row
-var tagsRow = _makeTagsRow(item, tagSelMode, selectedTags, isFiltered);
+var tagsRow = _makeTagsRow(item, isFiltered);
   footer.appendChild(tagsRow);
   el.appendChild(footer);
   // --- Swipe-to-delete ---
@@ -1214,10 +1200,10 @@ function _computeTagEntriesForItem(item) {
   });
   return entries;
 }
-function _makeTagsRow(item, tagSelMode, selectedTags, isFiltered) {
+function _makeTagsRow(item, isFiltered) {
   var row = document.createElement('div');
   var isEditing = (_tagEditItemId === item.id);
-  row.className = 'tags-row' + (tagSelMode ? ' tag-sel-mode' : '') + (isEditing ? ' tag-edit-mode' : '');
+  row.className = 'tags-row' + (isEditing ? ' tag-edit-mode' : '');
   if (item.tags && item.tags.length > 0) {
     item.tags.forEach(function (tag, tagIdx) {
       if (isEditing && _tagRenameIdx === tagIdx) {
@@ -1242,7 +1228,7 @@ function _makeTagsRow(item, tagSelMode, selectedTags, isFiltered) {
         return;
       }
       var pill = document.createElement('span');
-      pill.className   = 'tag-pill' + ((selectedTags && selectedTags.has(tag + '|' + item.id)) ? ' selected' : '');
+      pill.className   = 'tag-pill';
       var tagMatches = _currentQuery && tag.toLowerCase() === _currentQuery.toLowerCase();
       if (_tagFilterActive && isFiltered && tagMatches) {
         pill.textContent = tag;
@@ -1267,12 +1253,6 @@ function _makeTagsRow(item, tagSelMode, selectedTags, isFiltered) {
           document.dispatchEvent(new CustomEvent('sc:delete-tag', { detail: { id: item.id, idx: tagIdx } }));
         });
         pill.appendChild(xBtn);
-      } else if (tagSelMode) {
-        pill.addEventListener('click', function () {
-          document.dispatchEvent(new CustomEvent('sc:toggle-tag-sel', {
-            detail: { itemId: item.id, tag: tag }
-          }));
-        });
       } else {
         pill.addEventListener('click', function () {
           document.dispatchEvent(new CustomEvent('sc:filter-tag', { detail: { tag: tag, itemId: item.id } }));
@@ -1288,16 +1268,6 @@ function _makeTagsRow(item, tagSelMode, selectedTags, isFiltered) {
     editBtn.addEventListener('click', function () {
       document.dispatchEvent(new CustomEvent('sc:toggle-tag-edit', { detail: { id: item.id } }));
     });
-    // Long-press on edit button enters tag-selection mode
-    var _lpTagTimer = null;
-    editBtn.addEventListener('pointerdown', function () {
-      _lpTagTimer = setTimeout(function () {
-        document.dispatchEvent(new CustomEvent('sc:enter-tag-sel-mode'));
-      }, 2000);
-    });
-    editBtn.addEventListener('pointerup',    function () { clearTimeout(_lpTagTimer); });
-    editBtn.addEventListener('pointermove',  function () { clearTimeout(_lpTagTimer); });
-    editBtn.addEventListener('pointercancel',function () { clearTimeout(_lpTagTimer); });
     row.appendChild(editBtn);
     if (isEditing) {
       var wrap = document.createElement('div');
@@ -1309,6 +1279,76 @@ function _makeTagsRow(item, tagSelMode, selectedTags, isFiltered) {
       newInput.className = 'tag-new-input';
       newInput.placeholder = 'new tag\u2026';
       var entries = _computeTagEntriesForItem(item);
+      var _tagHistoryOpen = false;
+      var _tagHistoryIdx = 0;
+      var _tagOverlayAbove = null;
+      var _tagOverlayBelow = null;
+      function _closeTagHistory() {
+        _tagHistoryOpen = false;
+        if (_tagOverlayAbove) { _tagOverlayAbove.remove(); _tagOverlayAbove = null; }
+        if (_tagOverlayBelow) { _tagOverlayBelow.remove(); _tagOverlayBelow = null; }
+      }
+      function _makeTagSlotEl(entry, isFocused) {
+        var el = document.createElement('div');
+        el.className = 'search-history-slot' + (isFocused ? ' focused' : '');
+        var countWrap = document.createElement('span');
+        countWrap.className = 'search-history-slot-count';
+        countWrap.textContent = entry.count;
+        var txt = document.createElement('span');
+        txt.className = 'search-history-slot-text';
+        txt.textContent = entry.tag;
+        el.appendChild(countWrap);
+        el.appendChild(txt);
+        el.addEventListener('click', function () {
+          newInput.value = entry.tag;
+          ghost.textContent = '';
+          _closeTagHistory();
+          document.dispatchEvent(new CustomEvent('sc:add-tag', { detail: { id: item.id, tag: entry.tag } }));
+          newInput.value = '';
+          entries = _computeTagEntriesForItem(item);
+        });
+        return el;
+      }
+      function _renderTagHistoryOverlay() {
+        if (_tagOverlayAbove) { _tagOverlayAbove.remove(); _tagOverlayAbove = null; }
+        if (_tagOverlayBelow) { _tagOverlayBelow.remove(); _tagOverlayBelow = null; }
+        var q = newInput.value.toLowerCase();
+        var filtered = entries.filter(function(e) { return e.tag.toLowerCase().indexOf(q) !== -1; });
+        if (!filtered.length) { _closeTagHistory(); return; }
+        var n = filtered.length;
+        var above = document.createElement('div');
+        above.className = 'search-history-above';
+        var below = document.createElement('div');
+        below.className = 'search-history-below';
+        var focusedIdx = _tagHistoryIdx % n;
+        var above1Idx = (focusedIdx + 1) % n;
+        var above2Idx = (focusedIdx + 2) % n;
+        var below1Idx = (focusedIdx - 1 + n) % n;
+        var below2Idx = (focusedIdx - 2 + n) % n;
+        if (n > 2) above.appendChild(_makeTagSlotEl(filtered[above2Idx], false));
+        if (n > 1) above.appendChild(_makeTagSlotEl(filtered[above1Idx], false));
+        below.appendChild(_makeTagSlotEl(filtered[focusedIdx], true));
+        if (n > 1) below.appendChild(_makeTagSlotEl(filtered[below1Idx], false));
+        if (n > 2) below.appendChild(_makeTagSlotEl(filtered[below2Idx], false));
+        wrap.appendChild(above);
+        wrap.appendChild(below);
+        _tagOverlayAbove = above;
+        _tagOverlayBelow = below;
+      }
+      function _openOrScrollTagHistory(dir) {
+        var q = newInput.value.toLowerCase();
+        var filtered = entries.filter(function(e) { return e.tag.toLowerCase().indexOf(q) !== -1; });
+        if (!filtered.length) return;
+        if (!_tagHistoryOpen) {
+          _tagHistoryOpen = true;
+          _tagHistoryIdx = 0;
+        } else {
+          _tagHistoryIdx = dir === 'up'
+            ? (_tagHistoryIdx + 1) % filtered.length
+            : (_tagHistoryIdx - 1 + filtered.length) % filtered.length;
+        }
+        _renderTagHistoryOverlay();
+      }
       function _ghostText() {
         var q = newInput.value;
         if (!q) { ghost.textContent = ''; return; }
@@ -1331,18 +1371,48 @@ function _makeTagsRow(item, tagSelMode, selectedTags, isFiltered) {
         return null;
       }
       newInput.addEventListener('input', function () {
+        _closeTagHistory();
         _ghostText();
       });
       newInput.addEventListener('keydown', function (ev) {
         ev.stopPropagation();
+        if (ev.key === 'ArrowUp') {
+          ev.preventDefault();
+          _openOrScrollTagHistory('up');
+          return;
+        }
+        if (ev.key === 'ArrowDown') {
+          ev.preventDefault();
+          _openOrScrollTagHistory('down');
+          return;
+        }
         if (ev.key === 'Tab') {
           ev.preventDefault();
+          if (_tagHistoryOpen) {
+            var q0 = newInput.value.toLowerCase();
+            var f0 = entries.filter(function(e) { return e.tag.toLowerCase().indexOf(q0) !== -1; });
+            if (f0.length) { newInput.value = f0[_tagHistoryIdx % f0.length].tag; ghost.textContent = ''; }
+            _closeTagHistory();
+            return;
+          }
           var c = _ghostCompletion();
           if (c) { newInput.value = c; ghost.textContent = ''; }
           return;
         }
         if (ev.key === 'Enter') {
           ev.preventDefault();
+          if (_tagHistoryOpen) {
+            var qe = newInput.value.toLowerCase();
+            var fe = entries.filter(function(e) { return e.tag.toLowerCase().indexOf(qe) !== -1; });
+            if (fe.length) {
+              var chosen = fe[_tagHistoryIdx % fe.length].tag;
+              _closeTagHistory();
+              document.dispatchEvent(new CustomEvent('sc:add-tag', { detail: { id: item.id, tag: chosen } }));
+              newInput.value = '';
+              entries = _computeTagEntriesForItem(item);
+            }
+            return;
+          }
           var comp = _ghostCompletion();
           if (comp) newInput.value = comp;
           var val = (newInput.value || '').trim();
@@ -1355,6 +1425,7 @@ function _makeTagsRow(item, tagSelMode, selectedTags, isFiltered) {
         }
         if (ev.key === 'Escape') {
           ev.preventDefault();
+          if (_tagHistoryOpen) { _closeTagHistory(); return; }
           newInput.blur();
         }
       });

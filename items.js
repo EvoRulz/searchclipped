@@ -22,11 +22,9 @@ function init(state, refreshFn) {
   document.addEventListener('sc:add-tag',         _onAddTag);
   document.addEventListener('sc:rename-tag',      _onRenameTag);
   document.addEventListener('sc:delete-tag',      _onDeleteTag);
-  document.addEventListener('sc:enter-tag-sel-mode', _onEnterTagSelMode);
- document.addEventListener('sc:edit-title',         _onEditTitle);
+  document.addEventListener('sc:edit-title',         _onEditTitle);
   document.addEventListener('sc:create-image',       function (e) { _createImageItem(e.detail.blob); });
   document.addEventListener('paste',                 _onPaste);
-  document.addEventListener('sc:toggle-tag-sel',   _onToggleTagSel);
   document.addEventListener('sc:item-undo',         _onItemUndo);
   document.addEventListener('sc:item-redo',         _onItemRedo);
   document.addEventListener('sc:restore-version',   _onRestoreVersion);
@@ -155,8 +153,8 @@ function _onBump(e) {
   if (_state.sortMode === 'bump') {
     State.reindexBumpOrder(_state);
     var active = _state.items
-      .filter(function (i) { return !i.deleted; })
-      .sort(function (a, b) { return a.bumpOrder - b.bumpOrder; });
+    .filter(function (i) { return !i.deleted; })
+    .sort(function (a, b) { return a.bumpOrder - b.bumpOrder; });
     var idx = active.findIndex(function (i) { return i.id === id; });
     if (idx < 0) return;
     var targetIdx = dir === 1 ? active.length - 1 : 0;
@@ -170,8 +168,8 @@ function _onBump(e) {
     var target = State.getItem(_state, id);
     if (!target) return;
     var activeNonBump = _state.items
-      .filter(function (i) { return !i.deleted; })
-      .sort(function (a, b) { return a.bumpOrder - b.bumpOrder; });
+    .filter(function (i) { return !i.deleted; })
+    .sort(function (a, b) { return a.bumpOrder - b.bumpOrder; });
     var curIdx = activeNonBump.findIndex(function (i) { return i.id === id; });
     if (curIdx < 0) return;
     var newIdx = dir === 1 ? activeNonBump.length - 1 : 0;
@@ -310,29 +308,6 @@ function _onDeleteTag(e) {
   State.saveState(_state);
   _refresh();
 }
-/* ====== TAG SELECTION MODE ====== */
-var _tagSelMode   = false;
-var _selectedTags = new Set(); // "tag|itemId"
-function getTagSelMode()   { return _tagSelMode; }
-function getSelectedTags() { return _selectedTags; }
-function _onEnterTagSelMode() {
-  var current = Render.getTagEditItemId();
-  if (current) { _finalizeTagEdit(current); Render.setTagEditItemId(null); }
-  _tagSelMode = true;
-  _selectedTags.clear();
-  _refresh();
-}
-function exitTagSelMode() {
-  _tagSelMode = false;
-  _selectedTags.clear();
-  _refresh();
-}
-function _onToggleTagSel(e) {
-  var key = e.detail.tag + '|' + e.detail.itemId;
-  if (_selectedTags.has(key)) _selectedTags.delete(key);
-  else                         _selectedTags.add(key);
-  _refresh();
-}
 /* ====== IMAGE PASTE ====== */
 function _onPaste(e) {
   var items = e.clipboardData ? e.clipboardData.items : [];
@@ -353,28 +328,6 @@ async function _createImageItem(blob) {
   _state.items.forEach(function (i) { if (!i.deleted) i.bumpOrder += 1; });
   item.bumpOrder = 0;
   _state.items.unshift(item);
-  State.saveState(_state);
-  _refresh();
-}
-async function bulkDeleteTags() {
-  if (!_selectedTags.size) return;
-  var ok = await Modals.confirm(
-    'Delete ' + _selectedTags.size + ' tag(s)?\nType "yes" to confirm.'
-  );
-  if (!ok) return;
-  State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
-  _selectedTags.forEach(function (key) {
-    var parts  = key.split('|');
-    var tag    = parts[0];
-    var itemId = parts[1];
-    var item   = State.getItem(_state, itemId);
-    if (item) {
-      item.tags       = item.tags.filter(function (t) { return t !== tag; });
-      item.modifiedAt = State.nowISO();
-    }
-  });
-  _selectedTags.clear();
-  _tagSelMode = false;
   State.saveState(_state);
   _refresh();
 }
@@ -524,10 +477,6 @@ window.Items = {
   setSelection,
   setSelectionSilent,
   bulkDelete,
-  bulkBurn,
-  getTagSelMode,
-  getSelectedTags,
-  exitTagSelMode,
-  bulkDeleteTags
+  bulkBurn
 };
 
