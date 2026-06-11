@@ -1210,7 +1210,7 @@ function _makeTagsRow(item, tagSelMode, selectedTags, isFiltered) {
         });
       } else {
         pill.addEventListener('click', function () {
-          document.dispatchEvent(new CustomEvent('sc:filter-tag', { detail: { tag: tag } }));
+          document.dispatchEvent(new CustomEvent('sc:filter-tag', { detail: { tag: tag, itemId: item.id } }));
         });
       }
       row.appendChild(pill);

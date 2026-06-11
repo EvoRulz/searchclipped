@@ -1,6 +1,6 @@
 'use strict';
-// @version 353
-var SC_VERSION = '@version 353';
+// @version 354
+var SC_VERSION = '@version 354';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -607,7 +607,7 @@ document.addEventListener('sc:reset-select-all', function () { _selectAllActive 
         return;
       }
       var q2 = (searchInput.value || '').trim();
-      if (q2) _commitSearch(q2);
+      if (q2) { _commitSearch(q2); document.getElementById('item-list').scrollTop = 0; }
       return;
     }
     if (e.key === 'ArrowUp' && document.activeElement === searchInput) {
@@ -832,17 +832,26 @@ document.addEventListener('sc:reset-select-all', function () { _selectAllActive 
   }
 document.addEventListener('sc:filter-tag', function (e) {
     if (searchInput.value === e.detail.tag && _tagFilterActive) {
+      var _exitItemId = e.detail.itemId || null;
+      var _exitItemEl = _exitItemId ? document.querySelector('.item[data-id="' + _exitItemId + '"]') : null;
+      var _exitItemTop = _exitItemEl ? _exitItemEl.getBoundingClientRect().top : null;
+      var _itemList = document.getElementById('item-list');
       searchInput.value = _savedQuery;
       query             = _savedQuery;
-      if (_tagFilterActive) {
-        searchItems            = _savedSearchItems;
-        searchTitles           = _savedSearchTitles;
-        searchTags             = _savedSearchTags;
-        cbSearchItems.checked  = searchItems;
-        cbSearchTitles.checked = searchTitles;
-        cbSearchTags.checked   = searchTags;
-        _tagFilterActive       = false;
-        _savedQuery            = '';
+      searchItems            = _savedSearchItems;
+      searchTitles           = _savedSearchTitles;
+      searchTags             = _savedSearchTags;
+      cbSearchItems.checked  = searchItems;
+      cbSearchTitles.checked = searchTitles;
+      cbSearchTags.checked   = searchTags;
+      _tagFilterActive       = false;
+      _savedQuery            = '';
+      refresh();
+      if (_exitItemId && _exitItemTop !== null && _itemList) {
+        requestAnimationFrame(function () {
+          var _newEl = document.querySelector('.item[data-id="' + _exitItemId + '"]');
+          if (_newEl) { _itemList.scrollTop += _newEl.getBoundingClientRect().top - _exitItemTop; }
+        });
       }
     } else {
       if (!_tagFilterActive) {
@@ -861,8 +870,9 @@ document.addEventListener('sc:filter-tag', function (e) {
       cbSearchItems.checked  = false;
       cbSearchTitles.checked = false;
       cbSearchTags.checked   = true;
+      refresh();
+      document.getElementById('item-list').scrollTop = 0;
     }
-    refresh();
     _saveUiState();
   });
   btnStarFilter.addEventListener('click', function () {
