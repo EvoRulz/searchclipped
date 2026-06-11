@@ -21,6 +21,9 @@ var _isAtAnchorBase   = false;
 var _versionSelectAll   = new Set();
 var _currentQuery       = '';
 var _tagFilterActive    = false;
+var _tagEditItemId      = null;
+var _tagRenameIdx       = null;
+var _refreshFn          = null;
 function _drawSelCanvas(canvas, total, selSet, emptySelected) {
   var ctx = canvas.getContext('2d');
   var w = canvas.width;
@@ -81,8 +84,9 @@ function _drawSelCanvas(canvas, total, selSet, emptySelected) {
     ctx.fillRect(0.75, y, w - 1.5, bandH);
   }
 }
-function init(state) {
+function init(state, refreshFn) {
   _state = state;
+  _refreshFn = refreshFn || null;
   _list  = document.getElementById('item-list');
   var _stored = parseInt(localStorage.getItem('sc_peek_threshold'), 10);
   if (!isNaN(_stored)) _peekThreshold = _stored;
@@ -1190,11 +1194,53 @@ rowWrap.appendChild(outerTrash);
 return rowWrap;
 }
 /* ====== TAGS ROW ====== */
+function _computeTagEntriesForItem(item) {
+  var showDel = document.getElementById('app').classList.contains('show-deleted');
+  var counts = {};
+  (_state.items || []).forEach(function (it) {
+    if (it.deleted && !showDel) return;
+    (it.tags || []).forEach(function (t) {
+      if (t) counts[t] = (counts[t] || 0) + 1;
+    });
+  });
+  var exclude = {};
+  (item.tags || []).forEach(function (t) { if (t) exclude[t] = true; });
+  var entries = Object.keys(counts).filter(function (t) { return !exclude[t]; }).map(function (t) {
+    return { tag: t, count: counts[t] };
+  });
+  entries.sort(function (a, b) {
+    if (b.count !== a.count) return b.count - a.count;
+    return a.tag.localeCompare(b.tag);
+  });
+  return entries;
+}
 function _makeTagsRow(item, tagSelMode, selectedTags, isFiltered) {
   var row = document.createElement('div');
-  row.className = 'tags-row' + (tagSelMode ? ' tag-sel-mode' : '');
+  var isEditing = (_tagEditItemId === item.id);
+  row.className = 'tags-row' + (tagSelMode ? ' tag-sel-mode' : '') + (isEditing ? ' tag-edit-mode' : '');
   if (item.tags && item.tags.length > 0) {
-    item.tags.forEach(function (tag) {
+    item.tags.forEach(function (tag, tagIdx) {
+      if (isEditing && _tagRenameIdx === tagIdx) {
+        var rIn = document.createElement('input');
+        rIn.type = 'text';
+        rIn.className = 'tag-pill-input';
+        rIn.value = tag;
+        rIn.addEventListener('keydown', function (ev) {
+          ev.stopPropagation();
+          if (ev.key === 'Enter') { ev.preventDefault(); rIn.blur(); }
+          if (ev.key === 'Escape') { ev.preventDefault(); _tagRenameIdx = null; if (_refreshFn) _refreshFn(); }
+        });
+        rIn.addEventListener('blur', function () {
+          if (_tagRenameIdx !== tagIdx) return;
+          _tagRenameIdx = null;
+          document.dispatchEvent(new CustomEvent('sc:rename-tag', {
+            detail: { id: item.id, idx: tagIdx, value: rIn.value }
+          }));
+        });
+        row.appendChild(rIn);
+        setTimeout(function () { rIn.focus(); rIn.select(); }, 0);
+        return;
+      }
       var pill = document.createElement('span');
       pill.className   = 'tag-pill' + ((selectedTags && selectedTags.has(tag + '|' + item.id)) ? ' selected' : '');
       var tagMatches = _currentQuery && tag.toLowerCase() === _currentQuery.toLowerCase();
@@ -1206,7 +1252,22 @@ function _makeTagsRow(item, tagSelMode, selectedTags, isFiltered) {
       } else {
         pill.textContent = tag;
       }
-      if (tagSelMode) {
+      if (isEditing) {
+        pill.classList.add('tag-editing');
+        pill.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          _tagRenameIdx = tagIdx;
+          if (_refreshFn) _refreshFn();
+        });
+        var xBtn = document.createElement('button');
+        xBtn.className = 'tag-pill-x';
+        xBtn.textContent = '\u00d7';
+        xBtn.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          document.dispatchEvent(new CustomEvent('sc:delete-tag', { detail: { id: item.id, idx: tagIdx } }));
+        });
+        pill.appendChild(xBtn);
+      } else if (tagSelMode) {
         pill.addEventListener('click', function () {
           document.dispatchEvent(new CustomEvent('sc:toggle-tag-sel', {
             detail: { itemId: item.id, tag: tag }
@@ -1222,10 +1283,10 @@ function _makeTagsRow(item, tagSelMode, selectedTags, isFiltered) {
   }
   if (!item.deleted) {
     var editBtn = document.createElement('button');
-    editBtn.className   = 'tags-edit-btn';
-    editBtn.textContent = 'tags';
+    editBtn.className   = 'tags-edit-btn' + (isEditing ? ' active' : '');
+    editBtn.textContent = (item.tags && item.tags.length > 0) ? '+/-' : '+tags';
     editBtn.addEventListener('click', function () {
-      document.dispatchEvent(new CustomEvent('sc:open-tags', { detail: { id: item.id } }));
+      document.dispatchEvent(new CustomEvent('sc:toggle-tag-edit', { detail: { id: item.id } }));
     });
     // Long-press on edit button enters tag-selection mode
     var _lpTagTimer = null;
@@ -1238,6 +1299,78 @@ function _makeTagsRow(item, tagSelMode, selectedTags, isFiltered) {
     editBtn.addEventListener('pointermove',  function () { clearTimeout(_lpTagTimer); });
     editBtn.addEventListener('pointercancel',function () { clearTimeout(_lpTagTimer); });
     row.appendChild(editBtn);
+    if (isEditing) {
+      var wrap = document.createElement('div');
+      wrap.className = 'tag-new-input-wrap';
+      var ghost = document.createElement('div');
+      ghost.className = 'tag-new-ghost';
+      var newInput = document.createElement('input');
+      newInput.type = 'text';
+      newInput.className = 'tag-new-input';
+      newInput.placeholder = 'new tag\u2026';
+      var entries = _computeTagEntriesForItem(item);
+      function _ghostText() {
+        var q = newInput.value;
+        if (!q) { ghost.textContent = ''; return; }
+        var ql = q.toLowerCase();
+        var best = null;
+        for (var i = 0; i < entries.length; i++) {
+          var en = entries[i];
+          if (en.tag.toLowerCase().indexOf(ql) === 0 && en.tag.length > q.length) { best = en; break; }
+        }
+        ghost.textContent = best ? (q + best.tag.slice(q.length)) : '';
+      }
+      function _ghostCompletion() {
+        var q = newInput.value;
+        if (!q) return null;
+        var ql = q.toLowerCase();
+        for (var i = 0; i < entries.length; i++) {
+          var en = entries[i];
+          if (en.tag.toLowerCase().indexOf(ql) === 0 && en.tag.length > q.length) return en.tag;
+        }
+        return null;
+      }
+      newInput.addEventListener('input', function () {
+        _ghostText();
+      });
+      newInput.addEventListener('keydown', function (ev) {
+        ev.stopPropagation();
+        if (ev.key === 'Tab') {
+          ev.preventDefault();
+          var c = _ghostCompletion();
+          if (c) { newInput.value = c; ghost.textContent = ''; }
+          return;
+        }
+        if (ev.key === 'Enter') {
+          ev.preventDefault();
+          var comp = _ghostCompletion();
+          if (comp) newInput.value = comp;
+          var val = (newInput.value || '').trim();
+          ghost.textContent = '';
+          if (!val) return;
+          document.dispatchEvent(new CustomEvent('sc:add-tag', { detail: { id: item.id, tag: val } }));
+          newInput.value = '';
+          entries = _computeTagEntriesForItem(item);
+          return;
+        }
+        if (ev.key === 'Escape') {
+          ev.preventDefault();
+          newInput.blur();
+        }
+      });
+      newInput.addEventListener('blur', function () {
+        setTimeout(function () {
+          if (_tagEditItemId !== item.id) return;
+          var liveRow = document.querySelector('.item[data-id="' + item.id + '"] .tags-row');
+          if (liveRow && document.activeElement && liveRow.contains(document.activeElement)) return;
+          document.dispatchEvent(new CustomEvent('sc:toggle-tag-edit', { detail: { id: item.id } }));
+        }, 150);
+      });
+      wrap.appendChild(ghost);
+      wrap.appendChild(newInput);
+      row.appendChild(wrap);
+      setTimeout(function () { newInput.focus(); }, 0);
+    }
   }
   return row;
 }
@@ -1531,5 +1664,10 @@ function ensureVersionPanelsOpen(ids) {
   if (!ids) return;
   ids.forEach(function (id) { _openVersionPanels.add(id); });
 }
-window.Render = { init, render, drawSelCanvas: _drawSelCanvas, setPeekThreshold, ensureVersionPanelsOpen };
+function getTagEditItemId() { return _tagEditItemId; }
+function setTagEditItemId(id) { _tagEditItemId = id; _tagRenameIdx = null; }
+window.Render = {
+  init, render, drawSelCanvas: _drawSelCanvas, setPeekThreshold, ensureVersionPanelsOpen,
+  getTagEditItemId, setTagEditItemId
+};
 

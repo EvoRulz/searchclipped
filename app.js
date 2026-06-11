@@ -1,6 +1,6 @@
 'use strict';
-// @version 366
-var SC_VERSION = '@version 366';
+// @version 367
+var SC_VERSION = '@version 367';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -11,7 +11,7 @@ var SC_VERSION = '@version 366';
   /* ===== INIT ===== */
   Perms.init(state);
   Modals.init();
-  Render.init(state);
+  Render.init(state, refresh);
   DB.openDB().catch(function (e) { console.error('IndexedDB open failed', e); });
   var _verEl = document.getElementById('sc-version');
   if (_verEl) _verEl.textContent = SC_VERSION;

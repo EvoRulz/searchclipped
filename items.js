@@ -18,7 +18,10 @@ function init(state, refreshFn) {
   document.addEventListener('sc:bump',           _onBump);
   document.addEventListener('sc:swipe-delete',   _onSwipeDelete);
   document.addEventListener('sc:restore-item',   _onRestore);
-  document.addEventListener('sc:open-tags',      _onOpenTags);
+  document.addEventListener('sc:toggle-tag-edit', _onToggleTagEdit);
+  document.addEventListener('sc:add-tag',         _onAddTag);
+  document.addEventListener('sc:rename-tag',      _onRenameTag);
+  document.addEventListener('sc:delete-tag',      _onDeleteTag);
   document.addEventListener('sc:enter-tag-sel-mode', _onEnterTagSelMode);
  document.addEventListener('sc:edit-title',         _onEditTitle);
   document.addEventListener('sc:create-image',       function (e) { _createImageItem(e.detail.blob); });
@@ -243,26 +246,69 @@ async function _onHardDelete(e) {
   _refresh();
 }
 /* ====== TAGS ====== */
-function _onOpenTags(e) {
+var _tagEditOldSnap = null;
+function _onToggleTagEdit(e) {
+  var id = e.detail.id;
+  var current = Render.getTagEditItemId();
+  if (current === id) {
+    _finalizeTagEdit(current);
+    Render.setTagEditItemId(null);
+  } else {
+    if (current) _finalizeTagEdit(current);
+    var item = State.getItem(_state, id);
+    if (!item) return;
+    _tagEditOldSnap = {
+      ts: item.modifiedAt, text: item.text, html: item.html,
+      title: item.title, tags: (item.tags || []).slice(), name: item.versionName || '', deleted: item.deleted || false
+    };
+    Render.setTagEditItemId(id);
+  }
+  _refresh();
+}
+function _finalizeTagEdit(id) {
+  var item = State.getItem(_state, id);
+  if (!item || !_tagEditOldSnap) { _tagEditOldSnap = null; return; }
+  var before = JSON.stringify(_tagEditOldSnap.tags);
+  item.tags = (item.tags || []).filter(function (t) { return (t || '').trim() !== ''; });
+  var after = JSON.stringify(item.tags);
+  if (before !== after) {
+    item.tags        = State._sortTagsCustom(item.tags);
+    item.modifiedAt  = State.nowISO();
+    item.versionName = '';
+    State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
+    State.pushItemUndo(item, _tagEditOldSnap);
+    State.addItemVersion(item, _tagEditOldSnap);
+  }
+  State.saveState(_state);
+  _tagEditOldSnap = null;
+}
+function _onAddTag(e) {
   var item = State.getItem(_state, e.detail.id);
   if (!item) return;
-  var oldSnap = {
-    ts: item.modifiedAt, text: item.text, html: item.html,
-    title: item.title, tags: (item.tags || []).slice(), name: item.versionName || '', deleted: item.deleted || false
-  };
-  Modals.openTagEditor(_state, e.detail.id, function (changedItem) {
-    var tagsChanged = JSON.stringify(oldSnap.tags) !== JSON.stringify(changedItem.tags);
-    if (tagsChanged) {
-      changedItem.tags        = State._sortTagsCustom(changedItem.tags);
-      changedItem.modifiedAt  = State.nowISO();
-      changedItem.versionName = '';
-      State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
-      State.pushItemUndo(changedItem, oldSnap);
-      State.addItemVersion(changedItem, oldSnap);
-    }
-    State.saveState(_state);
-    _refresh();
-  });
+  var raw = (e.detail.tag || '').trim();
+  if (!raw) return;
+  item.tags = item.tags || [];
+  if (item.tags.indexOf(raw) === -1) item.tags.push(raw);
+  State.saveState(_state);
+  _refresh();
+}
+function _onRenameTag(e) {
+  var item = State.getItem(_state, e.detail.id);
+  if (!item || !item.tags) return;
+  var idx = e.detail.idx;
+  if (idx < 0 || idx >= item.tags.length) return;
+  item.tags[idx] = (e.detail.value || '').trim();
+  State.saveState(_state);
+  _refresh();
+}
+function _onDeleteTag(e) {
+  var item = State.getItem(_state, e.detail.id);
+  if (!item || !item.tags) return;
+  var idx = e.detail.idx;
+  if (idx < 0 || idx >= item.tags.length) return;
+  item.tags.splice(idx, 1);
+  State.saveState(_state);
+  _refresh();
 }
 /* ====== TAG SELECTION MODE ====== */
 var _tagSelMode   = false;
@@ -270,6 +316,8 @@ var _selectedTags = new Set(); // "tag|itemId"
 function getTagSelMode()   { return _tagSelMode; }
 function getSelectedTags() { return _selectedTags; }
 function _onEnterTagSelMode() {
+  var current = Render.getTagEditItemId();
+  if (current) { _finalizeTagEdit(current); Render.setTagEditItemId(null); }
   _tagSelMode = true;
   _selectedTags.clear();
   _refresh();
