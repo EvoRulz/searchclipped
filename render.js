@@ -490,6 +490,7 @@ function _makeItem(item, isFiltered, selectedIds, tagSelMode, selectedTags) {
   });
   content.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); content.blur(); }
+    if (e.key === 'Tab') { e.preventDefault(); document.execCommand('insertText', false, '    '); return; }
     if (e.ctrlKey && e.shiftKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
       e.preventDefault();
       e.stopPropagation();
