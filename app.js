@@ -1,6 +1,6 @@
 'use strict';
-// @version 365
-var SC_VERSION = '@version 365';
+// @version 366
+var SC_VERSION = '@version 366';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -1718,7 +1718,7 @@ document.addEventListener('sc:filter-tag', function (e) {
       if (!raw) return;
       var p = JSON.parse(raw);
       var _a = document.getElementById('app');
-      if (p.query !== undefined)          { query = p.query; searchInput.value = p.query; }
+      if (p.query !== undefined)          { query = p.query; searchInput.value = p.query; btnClearSearch.style.display = p.query ? '' : 'none'; }
       if (p.showDeleted !== undefined)    { showDeleted = p.showDeleted; btnShowDeleted.classList.toggle('active', showDeleted); _a.classList.toggle('show-deleted', showDeleted); }
       if (p.hideActive !== undefined)     { hideActive = p.hideActive; btnHideActive.classList.toggle('active', hideActive); }
       if (p.hideItemContent !== undefined) {

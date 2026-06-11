@@ -186,6 +186,20 @@ function _sort(items, mode) {
       return aT - bT;
     });
   }
+  if (mode === 'copied-desc') {
+    return items.slice().sort(function (a, b) {
+      var aC = (window._copyCounts && window._copyCounts[a.id]) || 0;
+      var bC = (window._copyCounts && window._copyCounts[b.id]) || 0;
+      return bC - aC;
+    });
+  }
+  if (mode === 'copied-asc') {
+    return items.slice().sort(function (a, b) {
+      var aC = (window._copyCounts && window._copyCounts[a.id]) || 0;
+      var bC = (window._copyCounts && window._copyCounts[b.id]) || 0;
+      return aC - bC;
+    });
+  }
   // id sorts (and bump fallback)
   if (mode === 'id-desc') {
     return items.slice().sort(function (a, b) {
