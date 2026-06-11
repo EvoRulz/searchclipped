@@ -798,6 +798,20 @@ mark.sc-highlight {
 .version-drop-btn:hover,
 .version-drop-btn.active { color: var(--blue); }
 .version-drop-btn.no-versions { opacity: 0.35; }
+.version-drop-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-lo);
+  border-radius: 10px;
+  padding: 0 3px;
+  flex-shrink: 0;
+  transition: border-color var(--transition), background var(--transition);
+}
+.version-drop-box:hover {
+  border-color: var(--blue-dim);
+  background: rgba(92, 158, 219, 0.08);
+}
 .item-hist-btn {
   background: none;
   border: none;
