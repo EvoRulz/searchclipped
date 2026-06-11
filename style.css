@@ -1359,8 +1359,10 @@ mark.sc-highlight {
 [data-alt-filter]::after {
   content: attr(data-alt-filter);
   position: absolute;
-  top: -4px;
-  right: -4px;
+  top: 50%;
+  left: 4px;
+  right: auto;
+  transform: translateY(-50%);
   background: var(--orange);
   color: var(--bg-dark);
   font-size: 8px;
