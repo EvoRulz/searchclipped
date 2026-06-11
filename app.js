@@ -1,6 +1,6 @@
 'use strict';
-// @version 357
-var SC_VERSION = '@version 357';
+// @version 358
+var SC_VERSION = '@version 358';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -991,6 +991,11 @@ document.addEventListener('sc:filter-tag', function (e) {
         _altLevel = 1;
         _altFocusedItemId = null;
         document.getElementById('app').classList.remove('alt-level-2');
+        return;
+      }
+      if (document.activeElement !== searchInput && query) {
+        e.preventDefault();
+        searchInput.focus();
         return;
       }
       if (document.activeElement === searchInput && !searchInput.value) {

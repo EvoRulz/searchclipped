@@ -28,6 +28,12 @@
   --radius-lg:    10px;
   --transition:   0.14s ease;
   --header-h:     120px;
+  --star-top: -11px;
+  --star-right: -20px;
+  --item-undo-top: 0px;
+  --item-undo-left: 0px;
+  --global-undo-top: 0px;
+  --global-undo-left: 0px;
 }
 /* ===== STORAGE DISPLAY ===== */
 #storage-row {
@@ -219,8 +225,8 @@ button { font-family: var(--font); }
 }
 .search-input-wrap #btn-star-filter {
   position: absolute;
-  top: -11px;
-  right: -20px;
+  top: var(--star-top);
+  right: var(--star-right);
   background: none;
   border: none;
   border-radius: 0;
@@ -313,6 +319,7 @@ button { font-family: var(--font); }
 .icon-btn:hover, .icon-btn:active { color: var(--text); background: var(--surface); }
 .icon-btn.active                  { color: var(--yellow); }
 .icon-btn:disabled                { opacity: 0.28; cursor: default; pointer-events: none; }
+#btn-undo, #btn-redo { position: relative; top: var(--global-undo-top); left: var(--global-undo-left); }
 /* ===== SORT BUTTONS ===== */
 #sort-wrap {
   display: flex;
@@ -800,6 +807,9 @@ mark.sc-highlight {
   line-height: 1;
   transition: color var(--transition);
   flex-shrink: 0;
+  position: relative;
+  top: var(--item-undo-top);
+  left: var(--item-undo-left);
 }
 .item-hist-btn:hover         { color: var(--blue); }
 .item-hist-btn:disabled      { opacity: 0.25; cursor: default; pointer-events: none; }
