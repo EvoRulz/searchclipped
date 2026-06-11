@@ -28,8 +28,8 @@
   --radius-lg:    10px;
   --transition:   0.14s ease;
   --header-h:     120px;
-  --star-top: -11px;
-  --star-right: -20px;
+  --star-top: -12px;
+  --star-right: -28px;
   --item-undo-top: 0px;
   --item-undo-left: 0px;
   --global-undo-top: 0px;
@@ -319,7 +319,8 @@ button { font-family: var(--font); }
 .icon-btn:hover, .icon-btn:active { color: var(--text); background: var(--surface); }
 .icon-btn.active                  { color: var(--yellow); }
 .icon-btn:disabled                { opacity: 0.28; cursor: default; pointer-events: none; }
-#btn-undo, #btn-redo { position: relative; top: var(--global-undo-top); left: var(--global-undo-left); }
+#btn-undo { position: relative; top: var(--global-undo-top); left: var(--global-undo-left); }
+#btn-redo { position: relative; top: var(--global-undo-top); }
 /* ===== SORT BUTTONS ===== */
 #sort-wrap {
   display: flex;
