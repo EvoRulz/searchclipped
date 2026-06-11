@@ -678,10 +678,10 @@ if (_vDropTotalCount === 0) {
     vDropBtn.style.display = 'none';
 } else if (_vDropVisCount === 0) {
     vDropBtn.style.display = '';
-    vDropBtn.textContent = '\u2205 \u25be';
+    vDropBtn.textContent = '\u2205\u25be';
 } else {
     vDropBtn.style.display = '';
-    vDropBtn.textContent = _vDropVisCount + ' \u25be';
+    vDropBtn.textContent = _vDropVisCount + '\u25be';
 }
 var curNameInput = document.createElement('input');
 curNameInput.type = 'text';
@@ -1020,7 +1020,7 @@ tsModWrap.appendChild(vPanel);
       if (activePeekOnClose) { activePeekOnClose.click(); }
     }
     vPanel.classList.toggle('hidden', !_open);
-    vDropBtn.textContent = _open ? (_vDropVisCount + ' \u25b4') : (_vDropVisCount + ' \u25be');
+    vDropBtn.textContent = _open ? (_vDropVisCount + '\u25b4') : (_vDropVisCount + '\u25be');
     vDropBtn.classList.toggle('active', _open);
     if (_open) _openVersionPanels.add(item.id);
     else       _openVersionPanels.delete(item.id);
