@@ -1268,7 +1268,7 @@ function _makeTagsRow(item, isFiltered) {
     editBtn.addEventListener('click', function () {
       document.dispatchEvent(new CustomEvent('sc:toggle-tag-edit', { detail: { id: item.id } }));
     });
-    row.appendChild(editBtn);
+    if (!isEditing) row.appendChild(editBtn);
     if (isEditing) {
       var wrap = document.createElement('div');
       wrap.className = 'tag-new-input-wrap';
