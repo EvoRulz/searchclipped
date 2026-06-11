@@ -1,6 +1,6 @@
 'use strict';
-// @version 354
-var SC_VERSION = '@version 354';
+// @version 355
+var SC_VERSION = '@version 355';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -807,6 +807,9 @@ document.addEventListener('sc:reset-select-all', function () { _selectAllActive 
     hideFilterRow = !hideFilterRow;
     document.getElementById('filter-row').style.display = hideFilterRow ? 'none' : '';
     btnToggleFilterRow.textContent = hideFilterRow ? 'show more' : 'hide';
+    var _tfrApp = document.getElementById('app');
+    if (hideFilterRow) { _tfrApp.classList.remove('alt-filter-mode'); }
+    else if (_tfrApp.classList.contains('alt-mode')) { _tfrApp.classList.add('alt-filter-mode'); }
   });
   cbSearchItems.addEventListener('change', function () {
     searchItems = cbSearchItems.checked;
@@ -1003,7 +1006,9 @@ document.addEventListener('sc:filter-tag', function (e) {
     }
     if (e.key === 'Alt') {
       e.preventDefault();
-      document.getElementById('app').classList.add('alt-mode');
+      var _altAppEl = document.getElementById('app');
+      _altAppEl.classList.add('alt-mode');
+      if (!hideFilterRow) { _altAppEl.classList.add('alt-filter-mode'); }
     }
     if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown') && _focusedItemId) {
       e.preventDefault();
@@ -1078,6 +1083,31 @@ document.addEventListener('sc:filter-tag', function (e) {
     }
     if (e.altKey && !e.ctrlKey && !e.metaKey && e.code && e.code.startsWith('Key')) {
       var _ak = e.code.slice(3).toLowerCase();
+      if (!hideFilterRow) {
+        e.preventDefault();
+        if      (_ak === 'm') { btnToggleFilterRow.click(); }
+        else if (_ak === 'u') { btnHideActive.click(); }
+        else if (_ak === 'i') { btnHideItemContent.click(); }
+        else if (_ak === 't') { btnHideTitles.click(); }
+        else if (_ak === 'g') { btnHideTagsBtn.click(); }
+        else if (_ak === 'a') { btnHideArrows.click(); }
+        else if (_ak === 'd') { btnHideIds.click(); }
+        else if (_ak === 'c') { btnHideCopy.click(); }
+        else if (_ak === 's') { btnHideStars.click(); }
+        else if (_ak === 'r') { btnHideStarred.click(); }
+        else if (_ak === 'h') { btnHideTimestamps.click(); }
+        else if (_ak === 'e') { btnHideTsCreated.click(); }
+        else if (_ak === 'o') { btnHideTsModified.click(); }
+        else if (_ak === 'l') { btnHideTsDeleted.click(); }
+        else if (_ak === 'b') { btnHideTsRestored.click(); }
+        else if (_ak === 'x') { btnHideCheckboxes.click(); }
+        else if (_ak === 'k') { btnHideDelete.click(); }
+        else if (_ak === 'n') { btnHideTitleEntry.click(); }
+        else if (_ak === 'q') { btnHideItemEntry.click(); }
+        else if (_ak === 'j') { btnHideImgEntry.click(); }
+        else if (_ak === 'w') { btnShowNewlines.click(); }
+        return;
+      }
       if (_altLevel === 2 && _altFocusedItemId) {
         if (_ak === 'c') {
           e.preventDefault();
@@ -1164,12 +1194,14 @@ document.addEventListener('sc:filter-tag', function (e) {
       else if (_ak === 's') { e.preventDefault(); btnStarFilter.click(); }
       else if (_ak === 'e') { e.preventDefault(); btnExport.click(); }
       else if (_ak === 'j') { e.preventDefault(); if (btnJump.style.display !== 'none') btnJump.click(); }
+      else if (_ak === 'm') { e.preventDefault(); btnToggleFilterRow.click(); }
     }
   });
   document.addEventListener('keyup', function (e) {
     if (e.key === 'Alt') {
       document.getElementById('app').classList.remove('alt-mode');
       document.getElementById('app').classList.remove('alt-level-2');
+      document.getElementById('app').classList.remove('alt-filter-mode');
       if (_altFocusedItemId) {
         var _kuEl = document.querySelector('.item[data-id="' + _altFocusedItemId + '"]');
         if (_kuEl) {
@@ -1200,6 +1232,7 @@ document.addEventListener('sc:filter-tag', function (e) {
     if (document.hidden) {
       document.getElementById('app').classList.remove('alt-mode');
       document.getElementById('app').classList.remove('alt-level-2');
+      document.getElementById('app').classList.remove('alt-filter-mode');
       if (_altFocusedItemId) {
         var _vcEl = document.querySelector('.item[data-id="' + _altFocusedItemId + '"]');
         if (_vcEl) {

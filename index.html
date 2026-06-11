@@ -41,7 +41,7 @@
         <svg class="eye-closed" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 L4 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10 7 L13 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
         <span class="eye-label">deleted</span>
       </button>
-      <button id="btn-toggle-filter-row" class="action-btn">hide</button>
+      <button id="btn-toggle-filter-row" class="action-btn" data-alt="m" data-alt-filter="m">hide</button>
       <label class="cb-wrap" title="Search item content">
         <input type="checkbox" id="cb-search-items" checked>
         <span class="cb-mark"></span>
@@ -72,103 +72,103 @@
       </select></div>
       </div>
     <div id="filter-row">
-      <button id="btn-hide-undeleted" class="eye-btn" title="Hide undeleted">
+      <button id="btn-hide-undeleted" class="eye-btn" title="Hide undeleted" data-alt-filter="u">
         <svg class="eye-closed" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 7 Q4 4 7 4 Q10 4 13.5 7 Q10 10 7 10 Q4 10 0.5 7 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>
         <svg class="eye-open" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 L4 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10 7 L13 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
         <span class="eye-label">undeleted</span>
       </button>
-      <button id="btn-hide-item-content" class="eye-btn" title="Hide item content">
+      <button id="btn-hide-item-content" class="eye-btn" title="Hide item content" data-alt-filter="i">
         <svg class="eye-closed" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 7 Q4 4 7 4 Q10 4 13.5 7 Q10 10 7 10 Q4 10 0.5 7 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>
         <svg class="eye-open" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 L4 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10 7 L13 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
         <span class="eye-label">items</span>
       </button>
-      <button id="btn-hide-titles" class="eye-btn" title="Hide titles">
+      <button id="btn-hide-titles" class="eye-btn" title="Hide titles" data-alt-filter="t">
         <svg class="eye-closed" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 7 Q4 4 7 4 Q10 4 13.5 7 Q10 10 7 10 Q4 10 0.5 7 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>
         <svg class="eye-open" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 L4 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10 7 L13 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
         <span class="eye-label">titles</span>
       </button>
-      <button id="btn-hide-tags" class="eye-btn" title="Hide tags">
+      <button id="btn-hide-tags" class="eye-btn" title="Hide tags" data-alt-filter="g">
         <svg class="eye-closed" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 7 Q4 4 7 4 Q10 4 13.5 7 Q10 10 7 10 Q4 10 0.5 7 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>
         <svg class="eye-open" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 L4 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10 7 L13 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
         <span class="eye-label">tags</span>
       </button>
-      <button id="btn-hide-arrows" class="eye-btn" title="Hide arrows">
+      <button id="btn-hide-arrows" class="eye-btn" title="Hide arrows" data-alt-filter="a">
         <svg class="eye-closed" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 7 Q4 4 7 4 Q10 4 13.5 7 Q10 10 7 10 Q4 10 0.5 7 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>
         <svg class="eye-open" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 L4 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10 7 L13 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
         <span class="eye-label">arrows</span>
       </button>
-      <button id="btn-hide-ids" class="eye-btn" title="Hide ids">
+      <button id="btn-hide-ids" class="eye-btn" title="Hide ids" data-alt-filter="d">
         <svg class="eye-closed" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 7 Q4 4 7 4 Q10 4 13.5 7 Q10 10 7 10 Q4 10 0.5 7 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>
         <svg class="eye-open" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 L4 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10 7 L13 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
         <span class="eye-label">ids</span>
       </button>
-      <button id="btn-hide-copy" class="eye-btn" title="Hide copy buttons">
+      <button id="btn-hide-copy" class="eye-btn" title="Hide copy buttons" data-alt-filter="c">
         <svg class="eye-closed" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 7 Q4 4 7 4 Q10 4 13.5 7 Q10 10 7 10 Q4 10 0.5 7 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>
         <svg class="eye-open" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 L4 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10 7 L13 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
         <span class="eye-label">copy</span>
       </button>
-      <button id="btn-hide-stars" class="eye-btn" title="Hide star buttons">
+      <button id="btn-hide-stars" class="eye-btn" title="Hide star buttons" data-alt-filter="s">
         <svg class="eye-closed" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 7 Q4 4 7 4 Q10 4 13.5 7 Q10 10 7 10 Q4 10 0.5 7 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>
         <svg class="eye-open" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 L4 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10 7 L13 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
         <span class="eye-label">stars</span>
       </button>
-      <button id="btn-hide-starred" class="eye-btn" title="Hide starred items">
+      <button id="btn-hide-starred" class="eye-btn" title="Hide starred items" data-alt-filter="r">
         <svg class="eye-closed" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 7 Q4 4 7 4 Q10 4 13.5 7 Q10 10 7 10 Q4 10 0.5 7 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>
         <svg class="eye-open" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 L4 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10 7 L13 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
         <span class="eye-label">starred</span>
       </button>
-      <button id="btn-hide-timestamps" class="eye-btn" title="Hide timestamps">
+      <button id="btn-hide-timestamps" class="eye-btn" title="Hide timestamps" data-alt-filter="h">
         <svg class="eye-closed" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 7 Q4 4 7 4 Q10 4 13.5 7 Q10 10 7 10 Q4 10 0.5 7 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>
         <svg class="eye-open" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 L4 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10 7 L13 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
         <span class="eye-label">timestamps</span>
       </button>
-      <button id="btn-hide-ts-created" class="eye-btn" title="Hide created timestamps">
+      <button id="btn-hide-ts-created" class="eye-btn" title="Hide created timestamps" data-alt-filter="e">
         <svg class="eye-closed" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 7 Q4 4 7 4 Q10 4 13.5 7 Q10 10 7 10 Q4 10 0.5 7 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>
         <svg class="eye-open" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 L4 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10 7 L13 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
         <span class="eye-label">created</span>
       </button>
-      <button id="btn-hide-ts-modified" class="eye-btn" title="Hide modified timestamps">
+      <button id="btn-hide-ts-modified" class="eye-btn" title="Hide modified timestamps" data-alt-filter="o">
         <svg class="eye-closed" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 7 Q4 4 7 4 Q10 4 13.5 7 Q10 10 7 10 Q4 10 0.5 7 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>
         <svg class="eye-open" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 L4 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10 7 L13 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
         <span class="eye-label">modified</span>
       </button>
-      <button id="btn-hide-ts-deleted" class="eye-btn" title="Hide deleted timestamps">
+      <button id="btn-hide-ts-deleted" class="eye-btn" title="Hide deleted timestamps" data-alt-filter="l">
         <svg class="eye-closed" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 7 Q4 4 7 4 Q10 4 13.5 7 Q10 10 7 10 Q4 10 0.5 7 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>
         <svg class="eye-open" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 L4 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10 7 L13 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
         <span class="eye-label">deleted ts</span>
       </button>
-      <button id="btn-hide-ts-restored" class="eye-btn" title="Hide restored timestamps">
+      <button id="btn-hide-ts-restored" class="eye-btn" title="Hide restored timestamps" data-alt-filter="b">
         <svg class="eye-closed" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 7 Q4 4 7 4 Q10 4 13.5 7 Q10 10 7 10 Q4 10 0.5 7 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>
         <svg class="eye-open" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 L4 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10 7 L13 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
         <span class="eye-label">restored ts</span>
       </button>
       </button>
-      <button id="btn-hide-checkboxes" class="eye-btn" title="Hide checkboxes">
+      <button id="btn-hide-checkboxes" class="eye-btn" title="Hide checkboxes" data-alt-filter="x">
         <svg class="eye-closed" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 7 Q4 4 7 4 Q10 4 13.5 7 Q10 10 7 10 Q4 10 0.5 7 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>
         <svg class="eye-open" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 L4 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10 7 L13 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
         <span class="eye-label">checkboxes</span>
       </button>
-      <button id="btn-hide-delete" class="eye-btn" title="Hide delete buttons">
+      <button id="btn-hide-delete" class="eye-btn" title="Hide delete buttons" data-alt-filter="k">
         <svg class="eye-closed" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 7 Q4 4 7 4 Q10 4 13.5 7 Q10 10 7 10 Q4 10 0.5 7 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>
         <svg class="eye-open" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 L4 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10 7 L13 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
         <span class="eye-label">delete</span>
       </button>
-      <button id="btn-hide-title-entry" class="eye-btn" title="Hide title entry field">
+      <button id="btn-hide-title-entry" class="eye-btn" title="Hide title entry field" data-alt-filter="n">
         <svg class="eye-closed" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 7 Q4 4 7 4 Q10 4 13.5 7 Q10 10 7 10 Q4 10 0.5 7 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>
         <svg class="eye-open" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 L4 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10 7 L13 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
         <span class="eye-label">title entry</span>
       </button>
-      <button id="btn-hide-item-entry" class="eye-btn" title="Hide item entry field">
+      <button id="btn-hide-item-entry" class="eye-btn" title="Hide item entry field" data-alt-filter="q">
         <svg class="eye-closed" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 7 Q4 4 7 4 Q10 4 13.5 7 Q10 10 7 10 Q4 10 0.5 7 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>
         <svg class="eye-open" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 L4 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10 7 L13 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
         <span class="eye-label">item entry</span>
       </button>
-      <button id="btn-hide-img-entry" class="eye-btn" title="Hide image entry button">
+      <button id="btn-hide-img-entry" class="eye-btn" title="Hide image entry button" data-alt-filter="j">
         <svg class="eye-closed" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 7 Q4 4 7 4 Q10 4 13.5 7 Q10 10 7 10 Q4 10 0.5 7 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>
         <svg class="eye-open" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 L4 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10 7 L13 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
         <span class="eye-label">img entry</span>
       </button>
-      <button id="btn-show-newlines" class="eye-btn" title="Visualise newline characters in item content">
+      <button id="btn-show-newlines" class="eye-btn" title="Visualise newline characters in item content" data-alt-filter="w">
         <svg class="eye-open" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 7 Q4 4 7 4 Q10 4 13.5 7 Q10 10 7 10 Q4 10 0.5 7 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>
         <svg class="eye-closed" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 L4 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10 7 L13 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
         <span class="eye-label">newlines</span>
