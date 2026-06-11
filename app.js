@@ -1,6 +1,6 @@
 'use strict';
-// @version 370
-var SC_VERSION = '@version 370';
+// @version 371
+var SC_VERSION = '@version 371';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -307,6 +307,12 @@ var SC_VERSION = '@version 370';
     _updateStarBtn();
     _updateSortBtns();
     _lastFiltered = result.filtered;
+    (function () {
+      var _rc = document.getElementById('search-results-count');
+      if (!_rc) return;
+      var _tot = result.filtered.length + result.rest.length;
+      _rc.textContent = query ? (result.filtered.length + '\u00a0/\u00a0' + _tot) : _tot + '\u00a0items';
+    })();
     _altShortcuts = {};
     document.querySelectorAll('.item[data-shortcut]').forEach(function (el) {
       var digit = el.dataset.shortcut;

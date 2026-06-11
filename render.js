@@ -1204,6 +1204,15 @@ function _makeTagsRow(item, isFiltered) {
   var row = document.createElement('div');
   var isEditing = (_tagEditItemId === item.id);
   row.className = 'tags-row' + (isEditing ? ' tag-edit-mode' : '');
+  var _editTagCounts = (function () {
+    var _sd = document.getElementById('app').classList.contains('show-deleted');
+    var _c = {};
+    (_state.items || []).forEach(function (it) {
+      if (it.deleted && !_sd) return;
+      (it.tags || []).forEach(function (t) { if (t) _c[t] = (_c[t] || 0) + 1; });
+    });
+    return _c;
+  })();
   if (item.tags && item.tags.length > 0) {
     item.tags.forEach(function (tag, tagIdx) {
       if (isEditing && _tagRenameIdx === tagIdx) {
@@ -1245,6 +1254,10 @@ function _makeTagsRow(item, isFiltered) {
           _tagRenameIdx = tagIdx;
           if (_refreshFn) _refreshFn();
         });
+        var _cntBadge = document.createElement('span');
+        _cntBadge.className = 'tag-pill-count';
+        _cntBadge.textContent = _editTagCounts[tag] || 0;
+        pill.appendChild(_cntBadge);
         var xBtn = document.createElement('button');
         xBtn.className = 'tag-pill-x';
         xBtn.textContent = '\u00d7';
@@ -1336,6 +1349,7 @@ function _makeTagsRow(item, isFiltered) {
         _tagOverlayBelow = below;
       }
       function _openOrScrollTagHistory(dir) {
+        entries = _computeTagEntriesForItem(item);
         var q = newInput.value.toLowerCase();
         var filtered = entries.filter(function(e) { return e.tag.toLowerCase().indexOf(q) !== -1; });
         if (!filtered.length) return;

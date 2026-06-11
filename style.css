@@ -278,6 +278,12 @@ button { font-family: var(--font); }
   color: var(--text-muted);
   white-space: nowrap;
 }
+.search-results-count {
+  font-size: 10px;
+  color: var(--text-ph);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
 /* ===== EYE BUTTONS ===== */
 .eye-btn {
   display: flex;
@@ -1031,6 +1037,12 @@ mark.sc-highlight {
   line-height: 1;
 }
 .tag-pill-x:hover { color: var(--red); }
+.tag-pill-count {
+  font-size: 9px;
+  color: var(--text-ph);
+  flex-shrink: 0;
+  pointer-events: none;
+}
 .tag-pill-input {
   background: var(--surface);
   border: 1px solid var(--purple);
