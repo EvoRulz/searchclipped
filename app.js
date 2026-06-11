@@ -1,6 +1,6 @@
 'use strict';
-// @version 368
-var SC_VERSION = '@version 368';
+// @version 369
+var SC_VERSION = '@version 369';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -1160,7 +1160,23 @@ document.addEventListener('sc:filter-tag', function (e) {
         searchInput.value = '';
         query = '';
         btnClearSearch.style.display = 'none';
+        var _phTitleEl = document.querySelector('.new-placeholder .item-title');
+        var _phContentEl = document.querySelector('.new-placeholder .item-content[data-placeholder]');
+        var _savedPhTitle = _phTitleEl ? (_phTitleEl.textContent || '') : '';
+        var _savedPhContent = _phContentEl ? _phContentEl.innerHTML : '';
+        var _phContentIsDefault = _phContentEl ? _phContentEl.classList.contains('placeholder') : true;
         refresh();
+        if (_savedPhTitle) {
+          var _newPhTitleEl = document.querySelector('.new-placeholder .item-title');
+          if (_newPhTitleEl) _newPhTitleEl.textContent = _savedPhTitle;
+        }
+        if (!_phContentIsDefault && _savedPhContent) {
+          var _newPhContentEl = document.querySelector('.new-placeholder .item-content[data-placeholder]');
+          if (_newPhContentEl) {
+            _newPhContentEl.innerHTML = _savedPhContent;
+            _newPhContentEl.classList.remove('placeholder');
+          }
+        }
         searchInput.focus();
       }
     }
