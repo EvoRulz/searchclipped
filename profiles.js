@@ -29,6 +29,7 @@ var _deleteConfirmId = null;
 var _styleEditId          = null;
 var _cloudProfiles        = null;
 var _cloudProfilesLoading = false;
+var _cloudDeleteConfirmId = null;
 // ===== DEVICE DETECTION =====
 function _getDeviceType() {
   return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 'mobile' : 'computer';
@@ -226,14 +227,53 @@ function _renderCloudProfileSection() {
     pullBtn.className   = 'cloud-profile-pull-btn';
     pullBtn.textContent = 'pull';
     pullBtn.addEventListener('click', function() { _doPullProfile(cp.id, cpName, cp.data); });
-    var delCloudBtn = document.createElement('button');
-    delCloudBtn.className   = 'cloud-profile-del-btn';
-    delCloudBtn.textContent = '×';
-    delCloudBtn.addEventListener('click', function() { _doDeleteCloudProfile(cp.id, cpName); });
-    row.appendChild(nameEl);
-    row.appendChild(pullBtn);
-    row.appendChild(delCloudBtn);
-    itemsEl.appendChild(row);
+    if (_cloudDeleteConfirmId === cp.id) {
+      var confirmWrap = document.createElement('div');
+      confirmWrap.className = 'profile-delete-confirm';
+      var confirmInput = document.createElement('input');
+      confirmInput.type        = 'text';
+      confirmInput.placeholder = 'type "delete profile"';
+      confirmInput.className   = 'profile-delete-input';
+      var confirmBtn = document.createElement('button');
+      confirmBtn.textContent = 'Confirm';
+      confirmBtn.className   = 'profile-delete-confirm-btn';
+      confirmBtn.addEventListener('click', function() {
+        if ((confirmInput.value || '').trim().toLowerCase() === 'delete profile') {
+          _cloudDeleteConfirmId = null;
+          _doDeleteCloudProfile(cp.id, cpName);
+        } else {
+          confirmInput.classList.add('error');
+          setTimeout(function() { confirmInput.classList.remove('error'); }, 400);
+          confirmInput.focus();
+        }
+      });
+      confirmInput.addEventListener('keydown', function(e) {
+        e.stopPropagation();
+        if (e.key === 'Enter') confirmBtn.click();
+        if (e.key === 'Escape') { _cloudDeleteConfirmId = null; _renderCloudProfileSection(); }
+      });
+      var cancelConfirmBtn = document.createElement('button');
+      cancelConfirmBtn.textContent = 'Cancel';
+      cancelConfirmBtn.className   = 'profile-delete-cancel-btn';
+      cancelConfirmBtn.addEventListener('click', function() { _cloudDeleteConfirmId = null; _renderCloudProfileSection(); });
+      confirmWrap.appendChild(confirmInput);
+      confirmWrap.appendChild(confirmBtn);
+      confirmWrap.appendChild(cancelConfirmBtn);
+      row.appendChild(nameEl);
+      row.appendChild(pullBtn);
+      row.appendChild(confirmWrap);
+      itemsEl.appendChild(row);
+      setTimeout(function() { confirmInput.focus(); }, 30);
+    } else {
+      var delCloudBtn = document.createElement('button');
+      delCloudBtn.className   = 'cloud-profile-del-btn';
+      delCloudBtn.textContent = '×';
+      delCloudBtn.addEventListener('click', function() { _cloudDeleteConfirmId = cp.id; _renderCloudProfileSection(); });
+      row.appendChild(nameEl);
+      row.appendChild(pullBtn);
+      row.appendChild(delCloudBtn);
+      itemsEl.appendChild(row);
+    }
   });
 }
 async function _doPullProfile(cloudProfileId, cloudProfileName, cloudProfileData) {
@@ -277,8 +317,6 @@ async function _doPullProfile(cloudProfileId, cloudProfileName, cloudProfileData
   _showProfileStatus('Pulled ' + pulled + ' new item(s) into new profile "' + newProfile.name + '".');
 }
 async function _doDeleteCloudProfile(cloudProfileId, cloudProfileName) {
-  var ok = await Modals.confirm('Delete cloud profile "' + cloudProfileName + '" from the cloud? This cannot be undone.', 'delete');
-  if (!ok) return;
   if (!_currentUser || !_firestoreDb) return;
   _showProfileStatus('Deleting\u2026');
   try {
