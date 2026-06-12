@@ -273,16 +273,21 @@ async function createProfile(name, icon, color, deviceType, sourceProfileIds) {
   return p;
 }
 async function deleteProfile(profileId) {
-  var fallbackId = _profiles.filter(function(p) { return p.id !== profileId; }).length
-    ? _profiles.filter(function(p) { return p.id !== profileId; })[0].id
-    : null;
   _profiles = _profiles.filter(function(p) { return p.id !== profileId; });
   await DB.saveProfiles(_profiles);
+  var orphanedIds = new Set();
   _appState.items.forEach(function(item) {
     item.profileIds = (item.profileIds || []).filter(function(id) { return id !== profileId; });
-    // Items that now belong to no profile get assigned to the first remaining profile
-    if (!item.profileIds.length && fallbackId) item.profileIds = [fallbackId];
+    if (!item.profileIds.length) orphanedIds.add(item.id);
   });
+  orphanedIds.forEach(function(id) {
+    var item = State.getItem(_appState, id);
+    if (item && item.imageId) {
+      DB.deleteImage(item.imageId).catch(function(err) { console.warn('deleteImage failed', err); });
+    }
+  });
+  _appState.items = _appState.items.filter(function(item) { return !orphanedIds.has(item.id); });
+  await State.purgeAllBurnedFromStacks(_appState, orphanedIds);
   State.saveState(_appState);
   _activeIds.delete(profileId);
   _visibleIds.delete(profileId);
