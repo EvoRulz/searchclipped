@@ -301,14 +301,20 @@ async function deleteProfile(profileId) {
     item.profileIds = (item.profileIds || []).filter(function(id) { return id !== profileId; });
     if (!item.profileIds.length) orphanedIds.add(item.id);
   });
-  orphanedIds.forEach(function(id) {
-    var item = State.getItem(_appState, id);
-    if (item && item.imageId) {
-      DB.deleteImage(item.imageId).catch(function(err) { console.warn('deleteImage failed', err); });
+  if (orphanedIds.size > 0) {
+    var orphanProfile = _profiles.find(function(p) { return p.id === 'p_orphaned'; });
+    if (!orphanProfile) {
+      orphanProfile = { id: 'p_orphaned', name: 'Orphaned', icon: null, color: '#546370', deviceType: 'custom', createdAt: new Date().toISOString() };
+      _profiles.push(orphanProfile);
+      await DB.saveProfiles(_profiles);
     }
-  });
-  _appState.items = _appState.items.filter(function(item) { return !orphanedIds.has(item.id); });
-  await State.purgeAllBurnedFromStacks(_appState, orphanedIds);
+    orphanedIds.forEach(function(id) {
+      var item = State.getItem(_appState, id);
+      if (item) item.profileIds = ['p_orphaned'];
+    });
+    _activeIds.add('p_orphaned');
+    _visibleIds.add('p_orphaned');
+  }
   State.saveState(_appState);
   _activeIds.delete(profileId);
   _visibleIds.delete(profileId);
@@ -456,6 +462,10 @@ function _renderProfilePanel() {
   if (!listEl) return;
   listEl.innerHTML = '';
   _profiles.forEach(function(profile) {
+    if (profile.id === 'p_orphaned') {
+      var hasItems = _appState.items.some(function(item) { return (item.profileIds || []).indexOf('p_orphaned') !== -1; });
+      if (!hasItems) return;
+    }
     var isVisible = _visibleIds.has(profile.id);
     var isActive  = _activeIds.has(profile.id);
     var row = document.createElement('div');
