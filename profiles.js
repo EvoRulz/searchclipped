@@ -648,13 +648,13 @@ function _pencilSVG() {
   </svg>`;
 }
 function _cloudUpSVG() {
-  return `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  return `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M4.5 11.5a2.5 2.5 0 01-.5-4.95A3.5 3.5 0 0111 5.05 2.75 2.75 0 0112.5 11.5h-8z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
     <path d="M8 11.5V7M6 9l2-2 2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>`;
 }
 function _cloudDownSVG() {
-  return `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  return `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M4.5 11.5a2.5 2.5 0 01-.5-4.95A3.5 3.5 0 0111 5.05 2.75 2.75 0 0112.5 11.5h-8z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
     <path d="M8 7v4.5M6 9.5l2 2 2-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>`;
