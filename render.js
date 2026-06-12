@@ -163,7 +163,8 @@ function _makePlaceholder() {
       if (si) si.focus();
     }
   });
-  var imgInput = document.createElement('input');
+  titleEl.addEventListener('focus', function () { _titleFocused = true; });
+var imgInput = document.createElement('input');
   imgInput.type          = 'file';
   imgInput.accept        = 'image/*';
   imgInput.style.display = 'none';
@@ -279,11 +280,19 @@ content.addEventListener('paste', function (e) {
     }
 });
 content.addEventListener('keydown', function (e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); content.blur(); }
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    if (_titleFocused && _tagsFocused) { content.blur(); }
+    else if (!_titleFocused) { titleEl.focus(); }
+    else { phTagInput.focus(); }
+    return;
+  }
   if (e.key === 'Tab') { e.preventDefault(); phTagInput.focus(); }
 });
 var _phTags = [];
 var _created = false;
+var _titleFocused = false;
+var _tagsFocused = false;
 var _phOverlayAbove = null;
 var _phOverlayBelow = null;
 var _phHistIdx = 0;
@@ -409,6 +418,7 @@ function _phGhostCompletion() {
   return null;
 }
 var _phTagEnterArmed = false;
+phTagInput.addEventListener('focus', function () { _tagsFocused = true; });
 phTagInput.addEventListener('input', function () {
   _phTagEnterArmed = false;
   _closePhHist();
