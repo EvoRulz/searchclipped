@@ -2209,6 +2209,18 @@ mark.sc-highlight {
   transition: all var(--transition);
 }
 .cloud-profile-pull-btn:hover { background: var(--blue-dim); color: var(--bg-dark); border-color: var(--blue); }
+.cloud-profile-del-btn {
+  background: none;
+  border: none;
+  color: var(--text-ph);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0 3px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color var(--transition);
+}
+.cloud-profile-del-btn:hover { color: var(--red); }
 .cloud-profile-loading,
 .cloud-profile-empty {
   font-size: 10px;

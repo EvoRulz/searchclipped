@@ -226,8 +226,13 @@ function _renderCloudProfileSection() {
     pullBtn.className   = 'cloud-profile-pull-btn';
     pullBtn.textContent = 'pull';
     pullBtn.addEventListener('click', function() { _doPullProfile(cp.id, cpName, cp.data); });
+    var delCloudBtn = document.createElement('button');
+    delCloudBtn.className   = 'cloud-profile-del-btn';
+    delCloudBtn.textContent = '×';
+    delCloudBtn.addEventListener('click', function() { _doDeleteCloudProfile(cp.id, cpName); });
     row.appendChild(nameEl);
     row.appendChild(pullBtn);
+    row.appendChild(delCloudBtn);
     itemsEl.appendChild(row);
   });
 }
@@ -270,6 +275,27 @@ async function _doPullProfile(cloudProfileId, cloudProfileName, cloudProfileData
   _renderProfilePanel();
   if (_refreshFn) _refreshFn();
   _showProfileStatus('Pulled ' + pulled + ' new item(s) into new profile "' + newProfile.name + '".');
+}
+async function _doDeleteCloudProfile(cloudProfileId, cloudProfileName) {
+  var ok = await Modals.confirm('Delete cloud profile "' + cloudProfileName + '" from the cloud? This cannot be undone.', 'delete');
+  if (!ok) return;
+  if (!_currentUser || !_firestoreDb) return;
+  _showProfileStatus('Deleting\u2026');
+  try {
+    var uid      = _currentUser.uid;
+    var base     = _firestoreDb.collection('users').doc(uid).collection('profiles').doc(cloudProfileId);
+    var itemsSnap = await base.collection('items').get();
+    var batch    = _firestoreDb.batch();
+    itemsSnap.forEach(function(doc) { batch.delete(doc.ref); });
+    await batch.commit();
+    await base.delete();
+    _cloudProfiles = _cloudProfiles.filter(function(cp) { return cp.id !== cloudProfileId; });
+    _showProfileStatus('Cloud profile "' + cloudProfileName + '" deleted.');
+    _renderCloudProfileSection();
+  } catch(e) {
+    console.error('Delete cloud profile failed', e);
+    _showProfileStatus('Delete failed: ' + e.message);
+  }
 }
 // ===== PROFILE CRUD =====
 async function createProfile(name, icon, color, deviceType, sourceProfileIds) {
