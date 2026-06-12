@@ -452,15 +452,9 @@ function _renderProfilePanel() {
       var pushBtn = document.createElement('button');
       pushBtn.className = 'profile-sync-btn';
       pushBtn.title     = 'Push to cloud';
-      pushBtn.textContent = '↑';
+      pushBtn.innerHTML = _cloudUpSVG();
       pushBtn.addEventListener('click', function() { syncProfile(profile.id); });
       row.appendChild(pushBtn);
-      var pullBtn = document.createElement('button');
-      pullBtn.className   = 'profile-sync-btn';
-      pullBtn.title       = 'Pull from cloud';
-      pullBtn.textContent = '↓';
-      pullBtn.addEventListener('click', function() { pullProfile(profile.id); });
-      row.appendChild(pullBtn);
     }
     var eyeBtn = document.createElement('button');
     eyeBtn.className = 'profile-toggle-btn' + (isVisible ? ' active' : '');
@@ -521,6 +515,8 @@ function _renderProfilePanel() {
   var addForm = document.getElementById('add-profile-form');
   if (addBtn)  addBtn.style.display  = _addFormOpen ? 'none' : '';
   if (addForm) addForm.style.display = _addFormOpen ? ''     : 'none';
+  var pullCloudBtn = document.getElementById('btn-pull-cloud');
+  if (pullCloudBtn) pullCloudBtn.style.display = _currentUser ? '' : 'none';
   if (_addFormOpen) {
     var sourcesEl = document.getElementById('add-profile-sources');
     if (sourcesEl) {
@@ -548,6 +544,11 @@ function _wirePanel() {
   if (closeBtn) closeBtn.addEventListener('click', closePanel);
   var openBtn = document.getElementById('btn-profiles');
   if (openBtn) openBtn.addEventListener('click', openPanel);
+  var pullCloudBtn = document.getElementById('btn-pull-cloud');
+  if (pullCloudBtn) {
+    pullCloudBtn.innerHTML = _cloudDownSVG();
+    pullCloudBtn.addEventListener('click', function() { pullProfile(); });
+  }
   var addBtn = document.getElementById('btn-add-profile');
   if (addBtn) {
     addBtn.addEventListener('click', function() {
@@ -644,6 +645,18 @@ function _eyeClosedSVG() {
 function _pencilSVG() {
   return `<svg width="13" height="13" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M9.5 2.5L11.5 4.5L5 11H3V9L9.5 2.5Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+  </svg>`;
+}
+function _cloudUpSVG() {
+  return `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4.5 11.5a2.5 2.5 0 01-.5-4.95A3.5 3.5 0 0111 5.05 2.75 2.75 0 0112.5 11.5h-8z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+    <path d="M8 11.5V7M6 9l2-2 2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+}
+function _cloudDownSVG() {
+  return `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4.5 11.5a2.5 2.5 0 01-.5-4.95A3.5 3.5 0 0111 5.05 2.75 2.75 0 0112.5 11.5h-8z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+    <path d="M8 7v4.5M6 9.5l2 2 2-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>`;
 }
 window.Profiles = {

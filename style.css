@@ -2029,7 +2029,25 @@ mark.sc-highlight {
   justify-content: space-between;
   border-bottom: 1px solid var(--border-lo);
   padding-bottom: 8px;
+  position: relative;
 }
+.profile-panel-pull-btn {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  background: none;
+  border: 1px solid var(--border-lo);
+  border-radius: 3px;
+  color: var(--text-ph);
+  cursor: pointer;
+  padding: 2px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+}
+.profile-panel-pull-btn:hover { border-color: var(--blue-dim); color: var(--blue); }
 .profile-panel-title {
   font-size: 14px;
   font-weight: 600;
@@ -2092,6 +2110,9 @@ mark.sc-highlight {
   line-height: 1.4;
   transition: all var(--transition);
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .profile-sync-btn:hover { border-color: var(--blue-dim); color: var(--blue); }
 .profile-toggle-btn {
