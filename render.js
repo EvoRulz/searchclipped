@@ -1476,6 +1476,9 @@ function _makeTagsRow(item, isFiltered) {
       } else {
         pill.textContent = tag;
       }
+      var _showCount = (window._tagCountMode === 2) || (window._tagCountMode === 1 && isEditing);
+      var _showX     = (window._tagXMode === 2) || (window._tagXMode === 1 && isEditing);
+      if (_showCount || _showX) pill.classList.add('tag-pill-extras');
       if (isEditing) {
         pill.classList.add('tag-editing');
         pill.addEventListener('click', function (ev) {
@@ -1483,22 +1486,26 @@ function _makeTagsRow(item, isFiltered) {
           _tagRenameIdx = tagIdx;
           if (_refreshFn) _refreshFn();
         });
+      } else {
+        pill.addEventListener('click', function () {
+          document.dispatchEvent(new CustomEvent('sc:filter-tag', { detail: { tag: tag, itemId: item.id } }));
+        });
+      }
+      if (_showCount) {
         var _cntBadge = document.createElement('span');
-        _cntBadge.className = 'tag-pill-count';
+        _cntBadge.className = 'tag-pill-count' + (window._tagCountMode === 2 ? ' tag-pill-count-always' : '');
         _cntBadge.textContent = _editTagCounts[tag] || 0;
         pill.appendChild(_cntBadge);
+      }
+      if (_showX) {
         var xBtn = document.createElement('button');
-        xBtn.className = 'tag-pill-x';
+        xBtn.className = 'tag-pill-x' + (window._tagXMode === 2 ? ' tag-pill-x-always' : '');
         xBtn.textContent = '\u00d7';
         xBtn.addEventListener('click', function (ev) {
           ev.stopPropagation();
           document.dispatchEvent(new CustomEvent('sc:delete-tag', { detail: { id: item.id, idx: tagIdx } }));
         });
         pill.appendChild(xBtn);
-      } else {
-        pill.addEventListener('click', function () {
-          document.dispatchEvent(new CustomEvent('sc:filter-tag', { detail: { tag: tag, itemId: item.id } }));
-        });
       }
       row.appendChild(pill);
     });
