@@ -26,7 +26,9 @@ var _refreshFn       = null;
 var _panelOpen       = false;
 var _addFormOpen     = false;
 var _deleteConfirmId = null;
-var _styleEditId     = null;
+var _styleEditId          = null;
+var _cloudProfiles        = null;
+var _cloudProfilesLoading = false;
 // ===== DEVICE DETECTION =====
 function _getDeviceType() {
   return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 'mobile' : 'computer';
@@ -132,8 +134,11 @@ function _initFirebase() {
     _firestoreDb  = firebase.firestore();
     _authInstance.onAuthStateChanged(function(user) {
       _currentUser = user;
+      if (!user) { _cloudProfiles = null; _cloudProfilesLoading = false; }
       _updateAuthUI();
       _renderDeviceIcons();
+      _renderCloudProfileSection();
+      if (user && _panelOpen) _fetchAndRenderCloudProfiles();
     });
   } catch(e) { console.warn('Firebase init failed', e); }
 }
@@ -170,56 +175,61 @@ async function syncProfile(profileId) {
   await batch.commit();
   _showProfileStatus('Pushed ' + items.length + ' items to cloud for profile "' + profile.name + '".');
 }
-async function pullProfile(profileId) {
+async function pullProfile() {
   if (!_currentUser || !_firestoreDb) { _showProfileStatus('Sign in to sync.'); return; }
-  var uid = _currentUser.uid;
-  // List all cloud profiles for this account
-  var profilesSnap = await _firestoreDb.collection('users').doc(uid).collection('profiles').get();
-  if (profilesSnap.empty) { _showProfileStatus('No profiles found in cloud.'); return; }
-  // Build list of cloud profiles
-  var cloudProfiles = [];
-  profilesSnap.forEach(function(doc) {
-    cloudProfiles.push({ id: doc.id, data: doc.data() });
-  });
-  // Build picker UI
-  var overlay = document.createElement('div');
-  overlay.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,0.62);display:flex;align-items:center;
-    justify-content:center;z-index:2000;padding:16px;`;
-  var box = document.createElement('div');
-  box.style.cssText = `background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-lg);
-    padding:16px;width:100%;max-width:340px;display:flex;flex-direction:column;gap:10px;
-    box-shadow:0 12px 40px rgba(0,0,0,0.55);max-height:80vh;overflow-y:auto;`;
-  var title = document.createElement('div');
-  title.style.cssText = 'font-size:13px;font-weight:600;color:var(--blue);border-bottom:1px solid var(--border-lo);padding-bottom:8px;';
-  title.textContent = 'Select cloud profile to pull';
-  box.appendChild(title);
-  var list = document.createElement('div');
-  list.style.cssText = 'display:flex;flex-direction:column;gap:6px;';
-  cloudProfiles.forEach(function(cp) {
-    var btn = document.createElement('button');
-    btn.style.cssText = `background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-      color:var(--text);font-family:var(--font);font-size:12px;padding:8px 12px;cursor:pointer;
-      text-align:left;transition:border-color 0.14s ease;`;
+  await _fetchAndRenderCloudProfiles();
+}
+async function _fetchAndRenderCloudProfiles() {
+  if (!_currentUser || !_firestoreDb) return;
+  _cloudProfilesLoading = true;
+  _renderCloudProfileSection();
+  try {
+    var uid  = _currentUser.uid;
+    var snap = await _firestoreDb.collection('users').doc(uid).collection('profiles').get();
+    _cloudProfiles = [];
+    snap.forEach(function(doc) { _cloudProfiles.push({ id: doc.id, data: doc.data() }); });
+  } catch(e) {
+    _cloudProfiles = [];
+  }
+  _cloudProfilesLoading = false;
+  _renderCloudProfileSection();
+}
+function _renderCloudProfileSection() {
+  var section = document.getElementById('cloud-profile-section');
+  var itemsEl = document.getElementById('cloud-profile-items');
+  if (!section || !itemsEl) return;
+  if (!_currentUser) { section.style.display = 'none'; return; }
+  section.style.display = '';
+  itemsEl.innerHTML = '';
+  if (_cloudProfilesLoading) {
+    var loadEl = document.createElement('div');
+    loadEl.className = 'cloud-profile-loading';
+    loadEl.textContent = 'Loading\u2026';
+    itemsEl.appendChild(loadEl);
+    return;
+  }
+  if (!_cloudProfiles || !_cloudProfiles.length) {
+    var emptyEl = document.createElement('div');
+    emptyEl.className = 'cloud-profile-empty';
+    emptyEl.textContent = 'No cloud profiles found.';
+    itemsEl.appendChild(emptyEl);
+    return;
+  }
+  _cloudProfiles.forEach(function(cp) {
     var cpName = (cp.data && cp.data.name) ? cp.data.name : cp.id;
-    btn.textContent = cpName;
-    btn.addEventListener('mouseover', function() { btn.style.borderColor = 'var(--blue-dim)'; });
-    btn.addEventListener('mouseout',  function() { btn.style.borderColor = 'var(--border)'; });
-    btn.addEventListener('click', function() {
-      document.body.removeChild(overlay);
-      _doPullProfile(cp.id, cpName, cp.data);
-    });
-    list.appendChild(btn);
+    var row    = document.createElement('div');
+    row.className = 'cloud-profile-row';
+    var nameEl = document.createElement('span');
+    nameEl.className   = 'cloud-profile-name';
+    nameEl.textContent = cpName;
+    var pullBtn = document.createElement('button');
+    pullBtn.className   = 'cloud-profile-pull-btn';
+    pullBtn.textContent = 'pull';
+    pullBtn.addEventListener('click', function() { _doPullProfile(cp.id, cpName, cp.data); });
+    row.appendChild(nameEl);
+    row.appendChild(pullBtn);
+    itemsEl.appendChild(row);
   });
-  box.appendChild(list);
-  var cancelBtn = document.createElement('button');
-  cancelBtn.style.cssText = `background:none;border:1px solid var(--border);border-radius:var(--radius);
-    color:var(--text-muted);font-family:var(--font);font-size:12px;padding:6px 12px;cursor:pointer;`;
-  cancelBtn.textContent = 'Cancel';
-  cancelBtn.addEventListener('click', function() { document.body.removeChild(overlay); });
-  box.appendChild(cancelBtn);
-  overlay.appendChild(box);
-  overlay.addEventListener('click', function(e) { if (e.target === overlay) document.body.removeChild(overlay); });
-  document.body.appendChild(overlay);
 }
 async function _doPullProfile(cloudProfileId, cloudProfileName, cloudProfileData) {
   if (!_currentUser || !_firestoreDb) return;
@@ -446,6 +456,7 @@ function openPanel() {
   panel.classList.remove('hidden');
   _hideProfileStatus();
   _renderProfilePanel();
+  if (_currentUser) _fetchAndRenderCloudProfiles();
 }
 function closePanel() {
   var panel = document.getElementById('profile-panel');
@@ -607,6 +618,7 @@ function _renderProfilePanel() {
       });
     }
   }
+  _renderCloudProfileSection();
 }
 function _wirePanel() {
   // Stop all keydowns inside the panel from reaching global handlers
