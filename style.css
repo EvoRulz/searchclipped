@@ -2247,6 +2247,54 @@ mark.sc-highlight {
   transition: all var(--transition);
 }
 .profile-delete-cancel-btn:hover { border-color: var(--text-muted); color: var(--text); }
+.profile-style-edit {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  width: 100%;
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-lo);
+}
+.profile-style-icon-input {
+  flex: 1;
+  min-width: 120px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 11px;
+  padding: 4px 7px;
+  outline: none;
+  transition: border-color var(--transition);
+}
+.profile-style-icon-input:focus { border-color: var(--blue-dim); }
+.profile-style-color-input {
+  width: 34px;
+  height: 28px;
+  padding: 2px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.profile-style-apply-btn,
+.profile-style-close-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-family: var(--font);
+  font-size: 10px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.profile-style-apply-btn:hover { border-color: var(--blue-dim); color: var(--blue); }
+.profile-style-close-btn:hover { border-color: var(--text-muted); color: var(--text); }
 /* Item profile icons (item-left column) */
 .item-profile-icons {
   display: flex;

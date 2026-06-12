@@ -26,6 +26,7 @@ var _refreshFn       = null;
 var _panelOpen       = false;
 var _addFormOpen     = false;
 var _deleteConfirmId = null;
+var _styleEditId     = null;
 // ===== DEVICE DETECTION =====
 function _getDeviceType() {
   return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 'mobile' : 'computer';
@@ -423,6 +424,7 @@ function closePanel() {
   _panelOpen       = false;
   _addFormOpen     = false;
   _deleteConfirmId = null;
+  _styleEditId     = null;
 }
 function _renderProfilePanel() {
   if (!_panelOpen) return;
@@ -437,6 +439,13 @@ function _renderProfilePanel() {
     var iconEl = document.createElement('div');
     iconEl.className   = 'profile-icon-wrap';
     iconEl.innerHTML   = _profileIconHTML(profile, 28);
+    iconEl.style.cursor = 'pointer';
+    iconEl.title = 'Click to restyle';
+    iconEl.addEventListener('click', function() {
+      _styleEditId = (_styleEditId === profile.id) ? null : profile.id;
+      _deleteConfirmId = null;
+      _renderProfilePanel();
+    });
     row.appendChild(iconEl);
     var nameEl = document.createElement('input');
     nameEl.type      = 'text';
@@ -508,6 +517,37 @@ function _renderProfilePanel() {
       delBtn.textContent = '×';
       delBtn.addEventListener('click', function() { _deleteConfirmId = profile.id; _renderProfilePanel(); });
       row.appendChild(delBtn);
+    }
+    if (_styleEditId === profile.id) {
+      var styleWrap = document.createElement('div');
+      styleWrap.className = 'profile-style-edit';
+      var styleIconInput = document.createElement('input');
+      styleIconInput.type = 'text';
+      styleIconInput.placeholder = 'Icon: SVG, URL, or emoji';
+      styleIconInput.value = profile.icon || '';
+      styleIconInput.className = 'profile-style-icon-input';
+      var styleColorInput = document.createElement('input');
+      styleColorInput.type = 'color';
+      styleColorInput.value = profile.color || '#5c9edb';
+      styleColorInput.className = 'profile-style-color-input';
+      var styleApplyBtn = document.createElement('button');
+      styleApplyBtn.textContent = 'Apply';
+      styleApplyBtn.className = 'profile-style-apply-btn';
+      styleApplyBtn.addEventListener('click', function() {
+        updateProfile(profile.id, { icon: (styleIconInput.value || '').trim() || null, color: styleColorInput.value });
+        _styleEditId = null;
+        _renderProfilePanel();
+      });
+      var styleCloseBtn = document.createElement('button');
+      styleCloseBtn.textContent = 'Close';
+      styleCloseBtn.className = 'profile-style-close-btn';
+      styleCloseBtn.addEventListener('click', function() { _styleEditId = null; _renderProfilePanel(); });
+      styleIconInput.addEventListener('keydown', function(e) { e.stopPropagation(); if (e.key === 'Enter') styleApplyBtn.click(); });
+      styleWrap.appendChild(styleIconInput);
+      styleWrap.appendChild(styleColorInput);
+      styleWrap.appendChild(styleApplyBtn);
+      styleWrap.appendChild(styleCloseBtn);
+      row.appendChild(styleWrap);
     }
     listEl.appendChild(row);
   });
