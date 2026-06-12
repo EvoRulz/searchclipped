@@ -7,12 +7,12 @@
  */
 // ===== FIREBASE CONFIG — fill these in =====
 var FIREBASE_CONFIG = {
-  apiKey:            'YOUR_API_KEY',
-  authDomain:        'YOUR_AUTH_DOMAIN',
-  projectId:         'YOUR_PROJECT_ID',
-  storageBucket:     'YOUR_STORAGE_BUCKET',
-  messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-  appId:             'YOUR_APP_ID'
+  apiKey:            'AIzaSyDtVg2tw6lIfk3kNaibqlD1ha_jZGWuK50',
+  authDomain:        'searchclipped.firebaseapp.com',
+  projectId:         'searchclipped',
+  storageBucket:     'searchclipped.firebasestorage.app',
+  messagingSenderId: '514436177869',
+  appId:             '1:514436177869:web:2bb47014f78c0ac4c46e84'
 };
 // ===== MODULE STATE =====
 var _profiles        = [];
@@ -592,3 +592,4 @@ window.Profiles = {
   getItemProfileIconsHTML,
   _profileIconHTML
 };
+
