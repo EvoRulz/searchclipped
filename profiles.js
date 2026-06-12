@@ -78,9 +78,16 @@ async function init(appState, refreshFn) {
   }
   // Migrate any items that still have no profileIds
   var defaultId  = _profiles[0].id;
+  var _knownIds  = new Set(_profiles.map(function(p) { return p.id; }));
   var migrated   = false;
   _appState.items.forEach(function(item) {
-    if (!item.profileIds || !item.profileIds.length) { item.profileIds = [defaultId]; migrated = true; }
+    if (!item.profileIds || !item.profileIds.length) {
+      item.profileIds = [defaultId];
+      migrated = true;
+    } else if (!item.profileIds.some(function(id) { return _knownIds.has(id); })) {
+      item.profileIds.push(defaultId);
+      migrated = true;
+    }
   });
   if (migrated) State.saveState(_appState);
   _loadPrefs();
@@ -340,9 +347,11 @@ function getCurrentUser() { return _currentUser; }
 // ===== ITEM FILTERING =====
 function filterItems(items) {
   if (!_visibleIds.size) return items;
+  var _knownProfileIds = new Set(_profiles.map(function(p) { return p.id; }));
   return items.filter(function(item) {
     var pids = item.profileIds || [];
     if (!pids.length) return true; // untagged items always visible (migration safety)
+    if (!pids.some(function(id) { return _knownProfileIds.has(id); })) return true; // orphaned items always visible
     return pids.some(function(id) { return _visibleIds.has(id); });
   });
 }
