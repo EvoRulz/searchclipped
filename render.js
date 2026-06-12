@@ -152,10 +152,15 @@ function _makePlaceholder() {
   titleEl.contentEditable     = 'true';
   titleEl.dataset.placeholder = 'title (optional)';
   titleEl.setAttribute('aria-label', 'New item title');
-  titleEl.addEventListener('keydown', function (e) {
+  function _goToNextUnvisited() {
+    if (!_titleFocused) { titleEl.focus(); return; }
+    if (!_contentFocused) { content.focus(); return; }
+    if (!_tagsFocused) { phTagInput.focus(); return; }
+}
+titleEl.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      content.focus();
+      _goToNextUnvisited();
     }
     if (e.key === 'Tab') {
       e.preventDefault();
@@ -192,6 +197,7 @@ content.contentEditable     = 'true';
 content.dataset.placeholder = 'create new clipboard item…';
 content.setAttribute('aria-label', 'Create new item');
 content.addEventListener('focus', function () {
+  _contentFocused = true;
   if (_inHtmlEditMode) return;
   if (_phRawHtml !== null) {
     content.textContent = _phRawHtml;
@@ -292,6 +298,7 @@ content.addEventListener('keydown', function (e) {
 var _phTags = [];
 var _created = false;
 var _titleFocused = false;
+var _contentFocused = false;
 var _tagsFocused = false;
 var _phOverlayAbove = null;
 var _phOverlayBelow = null;
@@ -469,8 +476,12 @@ phTagInput.addEventListener('keydown', function (ev) {
     if (!val) {
       if (_phTagEnterArmed) {
         _phTagEnterArmed = false;
-        content.focus();
-        _doCreate();
+        if (_titleFocused && _contentFocused && _tagsFocused) {
+          content.focus();
+          _doCreate();
+        } else {
+          _goToNextUnvisited();
+        }
       } else {
         _phTagEnterArmed = true;
       }
@@ -717,7 +728,12 @@ function _makeItem(item, isFiltered, selectedIds) {
     document.execCommand('insertHTML', false, plain.replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/\n/g, '<br>'));
   });
   content.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); content.blur(); }
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (_titleFocused && _contentFocused && _tagsFocused) { content.blur(); }
+      else { _goToNextUnvisited(); }
+      return;
+    }
     if (e.key === 'Tab') { e.preventDefault(); document.execCommand('insertText', false, '    '); return; }
     if (e.ctrlKey && e.shiftKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
       e.preventDefault();
