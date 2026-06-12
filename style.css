@@ -314,12 +314,14 @@ button { font-family: var(--font); }
 .eye-btn .eye-wide { display: none; }
 .eye-btn.mode-edit .eye-open { display: block; }
 .eye-btn.mode-edit .eye-closed { display: none; }
-.eye-btn.mode-edit { color: var(--blue); }
-.eye-btn.mode-edit .eye-label { color: var(--blue); }
+.eye-btn.mode-edit { color: var(--text-muted); }
+.eye-btn.mode-edit .eye-label { color: var(--text-muted); }
 .eye-btn.mode-always .eye-wide { display: block; }
 .eye-btn.mode-always .eye-closed { display: none; }
 .eye-btn.mode-always { color: var(--green); }
 .eye-btn.mode-always .eye-label { color: var(--green); }
+.eye-btn.mode-hidden { color: var(--blue); }
+.eye-btn.mode-hidden .eye-label { color: var(--blue); }
 /* ===== ICON BUTTONS ===== */
 .icon-btn {
   background: none;
