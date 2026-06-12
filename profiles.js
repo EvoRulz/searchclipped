@@ -94,12 +94,15 @@ async function init(appState, refreshFn) {
     }
   });
   if (migrated) State.saveState(_appState);
+  var _wasPanelOpen = _panelOpen;
+  _panelOpen = false;
   _loadPrefs();
   _initFirebase();
   _wirePanel();
   _updateAuthUI();
   _renderDeviceIcons();
   if (_refreshFn) _refreshFn();
+  if (_wasPanelOpen) openPanel();
 }
 // ===== PREFS =====
 function _loadPrefs() {
@@ -112,13 +115,15 @@ function _loadPrefs() {
     var visible  = (p.visibleIds || []).filter(function(id) { return validIds.has(id); });
     _activeIds  = new Set(active.length  ? active  : [_profiles[0].id]);
     _visibleIds = new Set(visible.length ? visible : [_profiles[0].id]);
+    _panelOpen  = !!p.panelOpen;
   } catch(e) { _resetToDefaults(); }
 }
 function _savePrefs() {
   try {
     localStorage.setItem('sc_profile_prefs', JSON.stringify({
       activeIds:  Array.from(_activeIds),
-      visibleIds: Array.from(_visibleIds)
+      visibleIds: Array.from(_visibleIds),
+      panelOpen:  _panelOpen
     }));
   } catch(e) {}
 }
@@ -518,6 +523,7 @@ function openPanel() {
   var panel = document.getElementById('profile-panel');
   if (!panel) return;
   _panelOpen = true;
+  _savePrefs();
   panel.classList.remove('hidden');
   _hideProfileStatus();
   _renderProfilePanel();
@@ -531,6 +537,7 @@ function closePanel() {
   _deleteConfirmId = null;
   _styleEditId     = null;
   _hideProfileStatus();
+  _savePrefs();
 }
 function _renderProfilePanel() {
   if (!_panelOpen) return;
