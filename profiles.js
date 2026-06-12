@@ -32,6 +32,8 @@ var _cloudProfilesLoading = false;
 var _cloudDeleteConfirmId = null;
 var _selectedProfileIds   = new Set();
 var _bulkDeleteConfirmOpen = false;
+var _selectedCloudIds      = new Set();
+var _cloudBulkDeleteConfirmOpen = false;
 // ===== DEVICE DETECTION =====
 function _getDeviceType() {
   return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 'mobile' : 'computer';
@@ -223,10 +225,125 @@ function _renderCloudProfileSection() {
     itemsEl.appendChild(emptyEl);
     return;
   }
+  _selectedCloudIds.forEach(function(id) {
+    if (!_cloudProfiles.some(function(cp) { return cp.id === id; })) _selectedCloudIds.delete(id);
+  });
+  var cCtrlBar = document.createElement('div');
+  cCtrlBar.className = 'version-ctrl-bar profile-ctrl-bar';
+  var cSelAllCb = document.createElement('canvas');
+  cSelAllCb.className = 'version-sel-canvas';
+  cSelAllCb.width = 13;
+  cSelAllCb.height = 13;
+  cSelAllCb.title = 'Select all cloud profiles';
+  var cBulkPullBtn = document.createElement('button');
+  cBulkPullBtn.className = 'version-restore-ver-btn';
+  cBulkPullBtn.textContent = 'pull';
+  cBulkPullBtn.disabled = true;
+  var cBulkDelBtn = document.createElement('button');
+  cBulkDelBtn.className = 'version-del-ver-btn';
+  cBulkDelBtn.textContent = 'delete';
+  cBulkDelBtn.disabled = true;
+  function _updateCloudCtrl() {
+    var total = _cloudProfiles.length;
+    var selSet = new Set();
+    _cloudProfiles.forEach(function(cp, vi) {
+      if (_selectedCloudIds.has(cp.id)) selSet.add(total - 1 - vi);
+    });
+    Render.drawSelCanvas(cSelAllCb, total, selSet, false);
+    var count = _selectedCloudIds.size;
+    cBulkPullBtn.disabled = count === 0;
+    cBulkDelBtn.disabled  = count === 0;
+    if (count === 0) _cloudBulkDeleteConfirmOpen = false;
+  }
+  cSelAllCb.addEventListener('click', function() {
+    var allSel = _cloudProfiles.length > 0 && _cloudProfiles.every(function(cp) { return _selectedCloudIds.has(cp.id); });
+    if (allSel) { _cloudProfiles.forEach(function(cp) { _selectedCloudIds.delete(cp.id); }); }
+    else        { _cloudProfiles.forEach(function(cp) { _selectedCloudIds.add(cp.id);    }); }
+    itemsEl.querySelectorAll('.cloud-profile-row-cb').forEach(function(cb, vi) {
+      var cp = _cloudProfiles[vi];
+      Render.drawSelCanvas(cb, 1, (cp && _selectedCloudIds.has(cp.id)) ? new Set([0]) : new Set(), false);
+    });
+    _updateCloudCtrl();
+  });
+  cBulkPullBtn.addEventListener('click', async function() {
+    var toPull = _cloudProfiles.filter(function(cp) { return _selectedCloudIds.has(cp.id); });
+    for (var pi = 0; pi < toPull.length; pi++) {
+      var cpP = toPull[pi];
+      var cpPName = (cpP.data && cpP.data.name) ? cpP.data.name : cpP.id;
+      await _doPullProfile(cpP.id, cpPName, cpP.data);
+    }
+    _selectedCloudIds.clear();
+    _renderCloudProfileSection();
+  });
+  cBulkDelBtn.addEventListener('click', function() {
+    _cloudBulkDeleteConfirmOpen = true;
+    _renderCloudProfileSection();
+  });
+  cCtrlBar.appendChild(cSelAllCb);
+  cCtrlBar.appendChild(cBulkPullBtn);
+  cCtrlBar.appendChild(cBulkDelBtn);
+  itemsEl.appendChild(cCtrlBar);
+  _updateCloudCtrl();
+  if (_cloudBulkDeleteConfirmOpen && _selectedCloudIds.size > 0) {
+    var cBulkConfirmWrap = document.createElement('div');
+    cBulkConfirmWrap.className = 'profile-delete-confirm';
+    var cBulkConfirmInput = document.createElement('input');
+    cBulkConfirmInput.type        = 'text';
+    cBulkConfirmInput.placeholder = 'type "delete profile(s)"';
+    cBulkConfirmInput.className   = 'profile-delete-input';
+    var cBulkConfirmBtn = document.createElement('button');
+    cBulkConfirmBtn.textContent = 'Confirm';
+    cBulkConfirmBtn.className   = 'profile-delete-confirm-btn';
+    cBulkConfirmBtn.addEventListener('click', async function() {
+      if ((cBulkConfirmInput.value || '').trim().toLowerCase() === 'delete profile(s)') {
+        var toDelete = _cloudProfiles.filter(function(cp) { return _selectedCloudIds.has(cp.id); });
+        _selectedCloudIds.clear();
+        _cloudBulkDeleteConfirmOpen = false;
+        for (var di = 0; di < toDelete.length; di++) {
+          var cpD = toDelete[di];
+          var cpDName = (cpD.data && cpD.data.name) ? cpD.data.name : cpD.id;
+          await _doDeleteCloudProfile(cpD.id, cpDName);
+        }
+      } else {
+        cBulkConfirmInput.classList.add('error');
+        setTimeout(function() { cBulkConfirmInput.classList.remove('error'); }, 400);
+        cBulkConfirmInput.focus();
+      }
+    });
+    cBulkConfirmInput.addEventListener('keydown', function(e) {
+      e.stopPropagation();
+      if (e.key === 'Enter') cBulkConfirmBtn.click();
+      if (e.key === 'Escape') { _cloudBulkDeleteConfirmOpen = false; _renderCloudProfileSection(); }
+    });
+    var cBulkCancelBtn = document.createElement('button');
+    cBulkCancelBtn.textContent = 'Cancel';
+    cBulkCancelBtn.className   = 'profile-delete-cancel-btn';
+    cBulkCancelBtn.addEventListener('click', function() { _cloudBulkDeleteConfirmOpen = false; _renderCloudProfileSection(); });
+    cBulkConfirmWrap.appendChild(cBulkConfirmInput);
+    cBulkConfirmWrap.appendChild(cBulkConfirmBtn);
+    cBulkConfirmWrap.appendChild(cBulkCancelBtn);
+    itemsEl.appendChild(cBulkConfirmWrap);
+    setTimeout(function() { cBulkConfirmInput.focus(); }, 30);
+  }
   _cloudProfiles.forEach(function(cp) {
     var cpName = (cp.data && cp.data.name) ? cp.data.name : cp.id;
     var row    = document.createElement('div');
     row.className = 'cloud-profile-row';
+    var rowCb = document.createElement('canvas');
+    rowCb.className = 'version-sel-canvas cloud-profile-row-cb';
+    rowCb.width  = 13;
+    rowCb.height = 13;
+    rowCb.title  = 'Select';
+    (function(cpId, canvas) {
+      Render.drawSelCanvas(canvas, 1, _selectedCloudIds.has(cpId) ? new Set([0]) : new Set(), false);
+      canvas.addEventListener('click', function() {
+        if (_selectedCloudIds.has(cpId)) _selectedCloudIds.delete(cpId);
+        else _selectedCloudIds.add(cpId);
+        Render.drawSelCanvas(canvas, 1, _selectedCloudIds.has(cpId) ? new Set([0]) : new Set(), false);
+        _updateCloudCtrl();
+      });
+    })(cp.id, rowCb);
+    row.appendChild(rowCb);
     var nameEl = document.createElement('span');
     nameEl.className   = 'cloud-profile-name';
     nameEl.textContent = cpName;
