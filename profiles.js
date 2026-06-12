@@ -30,6 +30,7 @@ var _styleEditId          = null;
 var _cloudProfiles        = null;
 var _cloudProfilesLoading = false;
 var _cloudDeleteConfirmId = null;
+var _selectedProfileIds   = new Set();
 // ===== DEVICE DETECTION =====
 function _getDeviceType() {
   return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 'mobile' : 'computer';
@@ -536,11 +537,107 @@ function _renderProfilePanel() {
   var listEl = document.getElementById('profile-list');
   if (!listEl) return;
   listEl.innerHTML = '';
-  _profiles.forEach(function(profile) {
-    if (profile.id === 'p_orphaned') {
-      var hasItems = _appState.items.some(function(item) { return (item.profileIds || []).indexOf('p_orphaned') !== -1; });
-      if (!hasItems) return;
+  var _visibleProfiles = _profiles.filter(function(p) {
+    if (p.id === 'p_orphaned') {
+      return _appState.items.some(function(item) { return (item.profileIds || []).indexOf('p_orphaned') !== -1; });
     }
+    return true;
+  });
+  _selectedProfileIds.forEach(function(id) {
+    if (!_visibleProfiles.some(function(p) { return p.id === id; })) _selectedProfileIds.delete(id);
+  });
+  var pCtrlBar       = document.createElement('div');
+  pCtrlBar.className = 'version-ctrl-bar profile-ctrl-bar';
+  var pSelAllCb      = document.createElement('canvas');
+  pSelAllCb.className = 'version-sel-canvas';
+  pSelAllCb.width    = 13;
+  pSelAllCb.height   = 13;
+  pSelAllCb.title    = 'Select all profiles';
+  var pBulkShowBtn       = document.createElement('button');
+  pBulkShowBtn.className   = 'version-restore-btn';
+  pBulkShowBtn.textContent = 'show';
+  pBulkShowBtn.disabled    = true;
+  var pBulkHideBtn       = document.createElement('button');
+  pBulkHideBtn.className   = 'version-del-ver-btn';
+  pBulkHideBtn.textContent = 'hide';
+  pBulkHideBtn.disabled    = true;
+  var pBulkWriteOnBtn       = document.createElement('button');
+  pBulkWriteOnBtn.className   = 'version-restore-ver-btn';
+  pBulkWriteOnBtn.textContent = 'write +';
+  pBulkWriteOnBtn.disabled    = true;
+  var pBulkWriteOffBtn       = document.createElement('button');
+  pBulkWriteOffBtn.className   = 'version-del-ver-btn';
+  pBulkWriteOffBtn.textContent = 'write -';
+  pBulkWriteOffBtn.disabled    = true;
+  var pBulkDelBtn       = document.createElement('button');
+  pBulkDelBtn.className   = 'version-del-ver-btn';
+  pBulkDelBtn.textContent = 'delete';
+  pBulkDelBtn.disabled    = true;
+  function _updateProfileCtrl() {
+    var total  = _visibleProfiles.length;
+    var selSet = new Set();
+    _visibleProfiles.forEach(function(p, vi) {
+      if (_selectedProfileIds.has(p.id)) selSet.add(total - 1 - vi);
+    });
+    Render.drawSelCanvas(pSelAllCb, total, selSet, false);
+    var count = _selectedProfileIds.size;
+    pBulkShowBtn.disabled     = count === 0;
+    pBulkHideBtn.disabled     = count === 0;
+    pBulkWriteOnBtn.disabled  = count === 0;
+    pBulkWriteOffBtn.disabled = count === 0;
+    pBulkDelBtn.disabled      = count === 0;
+  }
+  pSelAllCb.addEventListener('click', function() {
+    var allSel = _visibleProfiles.length > 0 && _visibleProfiles.every(function(p) { return _selectedProfileIds.has(p.id); });
+    if (allSel) { _visibleProfiles.forEach(function(p) { _selectedProfileIds.delete(p.id); }); }
+    else        { _visibleProfiles.forEach(function(p) { _selectedProfileIds.add(p.id);    }); }
+    listEl.querySelectorAll('.profile-row-cb').forEach(function(cb, vi) {
+      var p = _visibleProfiles[vi];
+      Render.drawSelCanvas(cb, 1, (p && _selectedProfileIds.has(p.id)) ? new Set([0]) : new Set(), false);
+    });
+    _updateProfileCtrl();
+  });
+  pBulkShowBtn.addEventListener('click', function() {
+    Array.from(_selectedProfileIds).forEach(function(id) { _visibleIds.add(id); });
+    _savePrefs();
+    if (_refreshFn) _refreshFn();
+    _renderProfilePanel();
+  });
+  pBulkHideBtn.addEventListener('click', function() {
+    Array.from(_selectedProfileIds).forEach(function(id) { _visibleIds.delete(id); });
+    if (!_visibleIds.size && _profiles.length) _visibleIds.add(_profiles[0].id);
+    _savePrefs();
+    if (_refreshFn) _refreshFn();
+    _renderProfilePanel();
+  });
+  pBulkWriteOnBtn.addEventListener('click', function() {
+    Array.from(_selectedProfileIds).forEach(function(id) { _activeIds.add(id); });
+    if (!_activeIds.size && _profiles.length) _activeIds.add(_profiles[0].id);
+    _savePrefs();
+    _renderProfilePanel();
+  });
+  pBulkWriteOffBtn.addEventListener('click', function() {
+    Array.from(_selectedProfileIds).forEach(function(id) { _activeIds.delete(id); });
+    if (!_activeIds.size && _profiles.length) _activeIds.add(_profiles[0].id);
+    _savePrefs();
+    _renderProfilePanel();
+  });
+  pBulkDelBtn.addEventListener('click', async function() {
+    var ok = await Modals.confirm('Delete ' + _selectedProfileIds.size + ' profile(s)? Type "yes" to confirm.');
+    if (!ok) return;
+    var toDelete = Array.from(_selectedProfileIds);
+    _selectedProfileIds.clear();
+    for (var di = 0; di < toDelete.length; di++) { await deleteProfile(toDelete[di]); }
+  });
+  pCtrlBar.appendChild(pSelAllCb);
+  pCtrlBar.appendChild(pBulkShowBtn);
+  pCtrlBar.appendChild(pBulkHideBtn);
+  pCtrlBar.appendChild(pBulkWriteOnBtn);
+  pCtrlBar.appendChild(pBulkWriteOffBtn);
+  pCtrlBar.appendChild(pBulkDelBtn);
+  listEl.appendChild(pCtrlBar);
+  _updateProfileCtrl();
+  _visibleProfiles.forEach(function(profile, vi) {
     var isVisible = _visibleIds.has(profile.id);
     var isActive  = _activeIds.has(profile.id);
     var row = document.createElement('div');
@@ -555,6 +652,21 @@ function _renderProfilePanel() {
       _deleteConfirmId = null;
       _renderProfilePanel();
     });
+    var rowCb       = document.createElement('canvas');
+    rowCb.className = 'version-sel-canvas profile-row-cb';
+    rowCb.width     = 13;
+    rowCb.height    = 13;
+    rowCb.title     = 'Select';
+    (function(pId, canvas) {
+      Render.drawSelCanvas(canvas, 1, _selectedProfileIds.has(pId) ? new Set([0]) : new Set(), false);
+      canvas.addEventListener('click', function() {
+        if (_selectedProfileIds.has(pId)) _selectedProfileIds.delete(pId);
+        else _selectedProfileIds.add(pId);
+        Render.drawSelCanvas(canvas, 1, _selectedProfileIds.has(pId) ? new Set([0]) : new Set(), false);
+        _updateProfileCtrl();
+      });
+    })(profile.id, rowCb);
+    row.appendChild(rowCb);
     row.appendChild(iconEl);
     var nameEl = document.createElement('input');
     nameEl.type      = 'text';
