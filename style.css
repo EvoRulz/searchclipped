@@ -1081,8 +1081,6 @@ mark.sc-highlight {
   align-items: center;
   gap: 4px;
 }
-.tag-pill-count.tag-pill-count-always { color: var(--green); }
-.tag-pill-x.tag-pill-x-always { color: var(--green); }
 .tag-pill-x.tag-pill-x-always:hover { color: var(--red); }
 .tag-pill-x {
   background: none;
