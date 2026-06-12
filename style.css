@@ -2316,6 +2316,34 @@ mark.sc-highlight {
   align-items: center;
   gap: 2px;
   padding-bottom: 3px;
+  overflow: hidden;
+  position: relative;
+  transition: max-height 0.12s ease;
+}
+.item-profile-icons.has-overflow {
+  cursor: pointer;
+}
+.item-profile-icon-hidden {
+  display: none;
+}
+.item-profile-icons.has-overflow:hover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: visible;
+  max-height: none !important;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 3px;
+  z-index: 20;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.45);
+}
+.item-profile-icons.has-overflow:hover .item-profile-icon-hidden {
+  display: flex;
+}
+.item-profile-icons.has-overflow:hover .item-profile-icon-overflow {
+  opacity: 1;
 }
 .item-profile-icon {
   display: flex;
@@ -2326,6 +2354,7 @@ mark.sc-highlight {
   overflow: hidden;
 }
 .item-profile-icon-dim { opacity: 0.3; }
+.item-profile-icon-overflow { opacity: 0.35; }
 .profile-icon-initials {
   display: inline-flex;
   align-items: center;

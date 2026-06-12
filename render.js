@@ -138,6 +138,7 @@ function render(filtered, rest, selectedIds, query, tagFilterActive) {
   _list.appendChild(frag);
   if (_storageRow) _list.appendChild(_storageRow);
   requestAnimationFrame(_updateCopyBtnPositions);
+  requestAnimationFrame(_updateProfileIconStacks);
 }
 /* ====== PLACEHOLDER ====== */
 function _makePlaceholder() {
@@ -1971,6 +1972,39 @@ function _updateCopyBtnPositions() {
     group.style.top = topOffset + 'px';
     hitArea.dataset.hct = Math.max(0, listTop + marginTop - hitAreaRect.top);
     hitArea.dataset.hcb = Math.max(0, hitAreaRect.bottom - (listBottom - marginBottom));
+  });
+}
+function _updateProfileIconStacks() {
+  if (!_list) return;
+  var STEP = 14;       // icon size (12px) + gap (2px)
+  var PAD  = 3;        // .item-profile-icons padding-bottom
+  var CONTROLS_H = 64; // approx natural height of .item-controls
+  var stacks = _list.querySelectorAll('.item-profile-icons');
+  stacks.forEach(function (stack) {
+    var icons = Array.from(stack.children).filter(function (c) { return c.classList.contains('item-profile-icon'); });
+    if (!icons.length) return;
+    var itemEl = stack.closest('.item');
+    if (!itemEl) return;
+    var prevDisplay = stack.style.display;
+    stack.style.display = 'none';
+    var naturalH = itemEl.clientHeight;
+    stack.style.display = prevDisplay || '';
+    var available = naturalH - CONTROLS_H;
+    var maxIcons  = Math.max(1, Math.floor((available - PAD + 2) / STEP));
+    icons.forEach(function (ic) {
+      ic.classList.remove('item-profile-icon-overflow', 'item-profile-icon-hidden');
+    });
+    if (icons.length > maxIcons) {
+      icons.forEach(function (ic, idx) {
+        if (idx === maxIcons - 1) ic.classList.add('item-profile-icon-overflow');
+        else if (idx >= maxIcons) ic.classList.add('item-profile-icon-hidden');
+      });
+      stack.style.maxHeight = (maxIcons * STEP - 2 + PAD) + 'px';
+      stack.classList.add('has-overflow');
+    } else {
+      stack.style.maxHeight = '';
+      stack.classList.remove('has-overflow');
+    }
   });
 }
 function ensureVersionPanelsOpen(ids) {
