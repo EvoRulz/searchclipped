@@ -151,36 +151,90 @@ async function syncProfile(profileId) {
 }
 async function pullProfile(profileId) {
   if (!_currentUser || !_firestoreDb) { alert('Sign in to sync.'); return; }
+  var uid = _currentUser.uid;
+  // List all cloud profiles for this account
+  var profilesSnap = await _firestoreDb.collection('users').doc(uid).collection('profiles').get();
+  if (profilesSnap.empty) { alert('No profiles found in cloud.'); return; }
+  // Build list of cloud profiles
+  var cloudProfiles = [];
+  profilesSnap.forEach(function(doc) {
+    cloudProfiles.push({ id: doc.id, data: doc.data() });
+  });
+  // Build picker UI
+  var overlay = document.createElement('div');
+  overlay.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,0.62);display:flex;align-items:center;
+    justify-content:center;z-index:2000;padding:16px;`;
+  var box = document.createElement('div');
+  box.style.cssText = `background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-lg);
+    padding:16px;width:100%;max-width:340px;display:flex;flex-direction:column;gap:10px;
+    box-shadow:0 12px 40px rgba(0,0,0,0.55);max-height:80vh;overflow-y:auto;`;
+  var title = document.createElement('div');
+  title.style.cssText = 'font-size:13px;font-weight:600;color:var(--blue);border-bottom:1px solid var(--border-lo);padding-bottom:8px;';
+  title.textContent = 'Select cloud profile to pull';
+  box.appendChild(title);
+  var list = document.createElement('div');
+  list.style.cssText = 'display:flex;flex-direction:column;gap:6px;';
+  cloudProfiles.forEach(function(cp) {
+    var btn = document.createElement('button');
+    btn.style.cssText = `background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+      color:var(--text);font-family:var(--font);font-size:12px;padding:8px 12px;cursor:pointer;
+      text-align:left;transition:border-color 0.14s ease;`;
+    var cpName = (cp.data && cp.data.name) ? cp.data.name : cp.id;
+    btn.textContent = cpName;
+    btn.addEventListener('mouseover', function() { btn.style.borderColor = 'var(--blue-dim)'; });
+    btn.addEventListener('mouseout',  function() { btn.style.borderColor = 'var(--border)'; });
+    btn.addEventListener('click', function() {
+      document.body.removeChild(overlay);
+      _doPullProfile(cp.id, cpName);
+    });
+    list.appendChild(btn);
+  });
+  box.appendChild(list);
+  var cancelBtn = document.createElement('button');
+  cancelBtn.style.cssText = `background:none;border:1px solid var(--border);border-radius:var(--radius);
+    color:var(--text-muted);font-family:var(--font);font-size:12px;padding:6px 12px;cursor:pointer;`;
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.addEventListener('click', function() { document.body.removeChild(overlay); });
+  box.appendChild(cancelBtn);
+  overlay.appendChild(box);
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) document.body.removeChild(overlay); });
+  document.body.appendChild(overlay);
+}
+async function _doPullProfile(cloudProfileId, cloudProfileName) {
+  if (!_currentUser || !_firestoreDb) return;
   var uid  = _currentUser.uid;
-  var base = _firestoreDb.collection('users').doc(uid).collection('profiles').doc(profileId);
+  var base = _firestoreDb.collection('users').doc(uid).collection('profiles').doc(cloudProfileId);
   var snap = await base.collection('items').get();
+  if (snap.empty) { alert('No items found in cloud for "' + cloudProfileName + '".'); return; }
+  // Create a new local profile for these items
+  var newProfile = _makeProfile(cloudProfileName + ' (from cloud)', null, '#5c9edb', 'custom');
+  _profiles.push(newProfile);
+  await DB.saveProfiles(_profiles);
+  _activeIds.add(newProfile.id);
+  _visibleIds.add(newProfile.id);
+  _savePrefs();
   var pulled = 0;
   snap.forEach(function(doc) {
     var remote = doc.data();
     var local  = State.getItem(_appState, remote.id);
     if (!local) {
-      if (!remote.profileIds)    remote.profileIds    = [profileId];
       if (!remote.versions)      remote.versions      = [];
       if (!remote.itemUndoStack) remote.itemUndoStack = [];
       if (!remote.itemRedoStack) remote.itemRedoStack = [];
+      remote.profileIds = [newProfile.id];
       _appState.items.push(remote);
       pulled++;
     } else {
-      // Merge profileIds
-      (remote.profileIds || []).forEach(function(id) {
-        if ((local.profileIds || []).indexOf(id) === -1) local.profileIds = (local.profileIds || []).concat([id]);
-      });
-      // Merge version history (add remote versions not present locally)
-      (remote.versions || []).forEach(function(rv) {
-        var exists = (local.versions || []).some(function(lv) { return lv.ts === rv.ts; });
-        if (!exists) (local.versions = local.versions || []).push(rv);
-      });
+      // Item already exists locally - just assign it to the new profile too
+      if ((local.profileIds || []).indexOf(newProfile.id) === -1) {
+        local.profileIds = (local.profileIds || []).concat([newProfile.id]);
+      }
     }
   });
   State.saveState(_appState);
+  _renderProfilePanel();
   if (_refreshFn) _refreshFn();
-  alert('Pulled ' + pulled + ' new item(s) from cloud for profile "' +
-    ((_profiles.find(function(p) { return p.id === profileId; }) || {}).name || profileId) + '".');
+  alert('Pulled ' + pulled + ' new item(s) into new profile "' + newProfile.name + '".');
 }
 // ===== PROFILE CRUD =====
 async function createProfile(name, icon, color, deviceType, sourceProfileIds) {
