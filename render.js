@@ -408,7 +408,9 @@ function _phGhostCompletion() {
   }
   return null;
 }
+var _phTagEnterArmed = false;
 phTagInput.addEventListener('input', function () {
+  _phTagEnterArmed = false;
   _closePhHist();
   _phHistIdx = 0;
   _phGhostText();
@@ -454,7 +456,17 @@ phTagInput.addEventListener('keydown', function (ev) {
     if (comp) phTagInput.value = comp;
     var val = (phTagInput.value || '').trim();
     phTagGhost.textContent = '';
-    if (!val) return;
+    if (!val) {
+      if (_phTagEnterArmed) {
+        _phTagEnterArmed = false;
+        content.focus();
+        _doCreate();
+      } else {
+        _phTagEnterArmed = true;
+      }
+      return;
+    }
+    _phTagEnterArmed = false;
     if (_phTags.indexOf(val) === -1) _phTags.push(val);
     phTagInput.value = '';
     _renderPhPills();
@@ -1620,7 +1632,9 @@ function _makeTagsRow(item, isFiltered) {
         }
         return null;
       }
+      var _newInputEnterArmed = false;
       newInput.addEventListener('input', function () {
+        _newInputEnterArmed = false;
         _closeTagHistory();
         _ghostText();
       });
@@ -1667,7 +1681,16 @@ function _makeTagsRow(item, isFiltered) {
           if (comp) newInput.value = comp;
           var val = (newInput.value || '').trim();
           ghost.textContent = '';
-          if (!val) return;
+          if (!val) {
+            if (_newInputEnterArmed) {
+              _newInputEnterArmed = false;
+              document.dispatchEvent(new CustomEvent('sc:toggle-tag-edit', { detail: { id: item.id } }));
+            } else {
+              _newInputEnterArmed = true;
+            }
+            return;
+          }
+          _newInputEnterArmed = false;
           document.dispatchEvent(new CustomEvent('sc:add-tag', { detail: { id: item.id, tag: val } }));
           newInput.value = '';
           entries = _computeTagEntriesForItem(item);
