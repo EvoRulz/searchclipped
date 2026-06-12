@@ -58,7 +58,8 @@ function _onEdit(e) {
   if (!item || item.deleted) return;
   var oldSnap = {
     ts: item.modifiedAt, text: item.text, html: item.html,
-    title: item.title, tags: (item.tags || []).slice(), name: item.versionName || '', deleted: item.deleted || false
+    title: item.title, tags: (item.tags || []).slice(), name: item.versionName || '',
+    deleted: item.deleted || false, profileIds: (item.profileIds || []).slice()
   };
   State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
   item.text        = e.detail.text || '';
@@ -76,7 +77,8 @@ function _onEditTitle(e) {
   if (!item || item.deleted) return;
   var oldSnap = {
     ts: item.modifiedAt, text: item.text, html: item.html,
-    title: item.title, tags: (item.tags || []).slice(), name: item.versionName || '', deleted: item.deleted || false
+    title: item.title, tags: (item.tags || []).slice(), name: item.versionName || '',
+    deleted: item.deleted || false, profileIds: (item.profileIds || []).slice()
   };
   State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
   item.title       = e.detail.title || '';
@@ -259,7 +261,8 @@ function _onToggleTagEdit(e) {
     if (!item) return;
     _tagEditOldSnap = {
       ts: item.modifiedAt, text: item.text, html: item.html,
-      title: item.title, tags: (item.tags || []).slice(), name: item.versionName || '', deleted: item.deleted || false
+      title: item.title, tags: (item.tags || []).slice(), name: item.versionName || '',
+      deleted: item.deleted || false, profileIds: (item.profileIds || []).slice()
     };
     Render.setTagEditItemId(id);
   }
@@ -342,6 +345,7 @@ function _onItemUndo(e) {
     ts: item.modifiedAt, text: item.text, html: item.html,
     title: item.title, tags: (item.tags || []).slice(), name: item.versionName || '', deleted: item.deleted || false
   };
+  oldSnap.profileIds = (item.profileIds || []).slice();
   State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
   State.itemUndo(item);
   State.addItemVersion(item, oldSnap);
@@ -355,6 +359,7 @@ function _onItemRedo(e) {
     ts: item.modifiedAt, text: item.text, html: item.html,
     title: item.title, tags: (item.tags || []).slice(), name: item.versionName || '', deleted: item.deleted || false
   };
+  oldSnap.profileIds = (item.profileIds || []).slice();
   State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
   State.itemRedo(item);
   State.addItemVersion(item, oldSnap);
@@ -371,7 +376,8 @@ function _onRestoreVersion(e) {
   var ver = versions[vIdx];
   State.addItemVersion(item, {
     ts: item.modifiedAt, text: item.text, html: item.html,
-    title: item.title, tags: (item.tags || []).slice(), name: item.versionName || ''
+    title: item.title, tags: (item.tags || []).slice(), name: item.versionName || '',
+    profileIds: (item.profileIds || []).slice()
   });
   State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
   item.text          = ver.text;

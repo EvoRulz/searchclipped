@@ -185,7 +185,7 @@ async function pullProfile(profileId) {
     btn.addEventListener('mouseout',  function() { btn.style.borderColor = 'var(--border)'; });
     btn.addEventListener('click', function() {
       document.body.removeChild(overlay);
-      _doPullProfile(cp.id, cpName);
+      _doPullProfile(cp.id, cpName, cp.data);
     });
     list.appendChild(btn);
   });
@@ -200,14 +200,18 @@ async function pullProfile(profileId) {
   overlay.addEventListener('click', function(e) { if (e.target === overlay) document.body.removeChild(overlay); });
   document.body.appendChild(overlay);
 }
-async function _doPullProfile(cloudProfileId, cloudProfileName) {
+async function _doPullProfile(cloudProfileId, cloudProfileName, cloudProfileData) {
   if (!_currentUser || !_firestoreDb) return;
   var uid  = _currentUser.uid;
   var base = _firestoreDb.collection('users').doc(uid).collection('profiles').doc(cloudProfileId);
   var snap = await base.collection('items').get();
   if (snap.empty) { alert('No items found in cloud for "' + cloudProfileName + '".'); return; }
   // Create a new local profile for these items
-  var newProfile = _makeProfile(cloudProfileName + ' (from cloud)', null, '#5c9edb', 'custom');
+  var _cloudDevType = (cloudProfileData && cloudProfileData.deviceType) || 'custom';
+  var _typeConflict = (_cloudDevType === 'mobile' || _cloudDevType === 'computer') &&
+    _profiles.some(function(p) { return p.deviceType === _cloudDevType; });
+  var _useDevType = _typeConflict ? 'custom' : _cloudDevType;
+  var newProfile = _makeProfile(cloudProfileName, null, (cloudProfileData && cloudProfileData.color) || '#5c9edb', _useDevType);
   _profiles.push(newProfile);
   await DB.saveProfiles(_profiles);
   _activeIds.add(newProfile.id);
@@ -369,6 +373,18 @@ function _showAuthMenu() {
   }, 0);
 }
 // ===== DEVICE ICONS =====
+function _toggleDeviceTypeVisibility(deviceType) {
+  var matching = _profiles.filter(function(p) { return p.deviceType === deviceType; });
+  if (!matching.length) return;
+  var anyVisible = matching.some(function(p) { return _visibleIds.has(p.id); });
+  matching.forEach(function(p) {
+    if (anyVisible) _visibleIds.delete(p.id);
+    else            _visibleIds.add(p.id);
+  });
+  if (!_visibleIds.size && _profiles.length) _visibleIds.add(_profiles[0].id);
+  _savePrefs();
+  if (_refreshFn) _refreshFn();
+}
 function _renderDeviceIcons() {
   var wrap = document.getElementById('profile-device-icons');
   if (!wrap) return;
@@ -379,13 +395,13 @@ function _renderDeviceIcons() {
   computerBtn.className = 'profile-device-btn' + (deviceType === 'computer' ? ' active' : '');
   computerBtn.title     = 'Computer';
   computerBtn.innerHTML = _computerSVG();
-  computerBtn.addEventListener('click', openPanel);
+  computerBtn.addEventListener('click', function() { _toggleDeviceTypeVisibility('computer'); });
   wrap.appendChild(computerBtn);
   var mobileBtn = document.createElement('button');
   mobileBtn.className = 'profile-device-btn' + (deviceType === 'mobile' ? ' active' : '');
   mobileBtn.title     = 'Mobile';
   mobileBtn.innerHTML = _mobileSVG();
-  mobileBtn.addEventListener('click', openPanel);
+  mobileBtn.addEventListener('click', function() { _toggleDeviceTypeVisibility('mobile'); });
   wrap.appendChild(mobileBtn);
 }
 // ===== PROFILE PANEL =====

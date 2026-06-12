@@ -995,6 +995,20 @@ mark.sc-highlight {
 .version-restore-ver-btn:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
 .version-entry.version-deleted .version-entry-ts,
 .version-entry.version-deleted .version-name-input { text-decoration: line-through; opacity: 0.55; }
+.version-profile-icons {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.version-profile-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+}
 .version-empty {
   font-size: 10px;
   color: var(--text-ph);

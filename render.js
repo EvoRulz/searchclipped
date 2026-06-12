@@ -1193,8 +1193,21 @@ _versions.slice().reverse().forEach(function (ver, rIdx) {
     vRowInner.style.alignItems = 'center';
     vRowInner.style.gap = '4px';
     vRowInner.style.width = '100%';
+    var vProfileIcons = document.createElement('span');
+    vProfileIcons.className = 'version-profile-icons';
+    (ver.profileIds || []).forEach(function(pid) {
+      var _pList = window.Profiles ? Profiles.getProfiles() : [];
+      var _p = _pList.find(function(pr) { return pr.id === pid; });
+      if (!_p) return;
+      var _badge = document.createElement('span');
+      _badge.className = 'version-profile-badge';
+      _badge.title = _p.name;
+      _badge.innerHTML = Profiles._profileIconHTML(_p, 10);
+      vProfileIcons.appendChild(_badge);
+    });
     vRowInner.appendChild(vCb);
     vRowInner.appendChild(vTs);
+    vRowInner.appendChild(vProfileIcons);
     vRowInner.appendChild(vNameInp);
     vRow.appendChild(vRowInner);
   })(realIdx);
