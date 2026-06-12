@@ -31,6 +31,7 @@ var _cloudProfiles        = null;
 var _cloudProfilesLoading = false;
 var _cloudDeleteConfirmId = null;
 var _selectedProfileIds   = new Set();
+var _bulkDeleteConfirmOpen = false;
 // ===== DEVICE DETECTION =====
 function _getDeviceType() {
   return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 'mobile' : 'computer';
@@ -593,6 +594,7 @@ function _renderProfilePanel() {
     pBulkWriteOnBtn.disabled  = count === 0;
     pBulkWriteOffBtn.disabled = count === 0;
     pBulkDelBtn.disabled      = count === 0;
+    if (count === 0) _bulkDeleteConfirmOpen = false;
   }
   pSelAllCb.addEventListener('click', function() {
     var allSel = _visibleProfiles.length > 0 && _visibleProfiles.every(function(p) { return _selectedProfileIds.has(p.id); });
@@ -629,12 +631,9 @@ function _renderProfilePanel() {
     _savePrefs();
     _renderProfilePanel();
   });
-  pBulkDelBtn.addEventListener('click', async function() {
-    var ok = await Modals.confirm('Delete ' + _selectedProfileIds.size + ' profile(s)? Type "yes" to confirm.');
-    if (!ok) return;
-    var toDelete = Array.from(_selectedProfileIds);
-    _selectedProfileIds.clear();
-    for (var di = 0; di < toDelete.length; di++) { await deleteProfile(toDelete[di]); }
+  pBulkDelBtn.addEventListener('click', function() {
+    _bulkDeleteConfirmOpen = true;
+    _renderProfilePanel();
   });
   pCtrlBar.appendChild(pSelAllCb);
   pCtrlBar.appendChild(pBulkShowBtn);
@@ -644,6 +643,43 @@ function _renderProfilePanel() {
   pCtrlBar.appendChild(pBulkDelBtn);
   listEl.appendChild(pCtrlBar);
   _updateProfileCtrl();
+  if (_bulkDeleteConfirmOpen && _selectedProfileIds.size > 0) {
+    var bulkConfirmWrap = document.createElement('div');
+    bulkConfirmWrap.className = 'profile-delete-confirm';
+    var bulkConfirmInput = document.createElement('input');
+    bulkConfirmInput.type        = 'text';
+    bulkConfirmInput.placeholder = 'type "delete profile(s)"';
+    bulkConfirmInput.className   = 'profile-delete-input';
+    var bulkConfirmBtn = document.createElement('button');
+    bulkConfirmBtn.textContent = 'Confirm';
+    bulkConfirmBtn.className   = 'profile-delete-confirm-btn';
+    bulkConfirmBtn.addEventListener('click', async function() {
+      if ((bulkConfirmInput.value || '').trim().toLowerCase() === 'delete profile(s)') {
+        var toDelete = Array.from(_selectedProfileIds);
+        _selectedProfileIds.clear();
+        _bulkDeleteConfirmOpen = false;
+        for (var di = 0; di < toDelete.length; di++) { await deleteProfile(toDelete[di]); }
+      } else {
+        bulkConfirmInput.classList.add('error');
+        setTimeout(function() { bulkConfirmInput.classList.remove('error'); }, 400);
+        bulkConfirmInput.focus();
+      }
+    });
+    bulkConfirmInput.addEventListener('keydown', function(e) {
+      e.stopPropagation();
+      if (e.key === 'Enter') bulkConfirmBtn.click();
+      if (e.key === 'Escape') { _bulkDeleteConfirmOpen = false; _renderProfilePanel(); }
+    });
+    var bulkCancelBtn = document.createElement('button');
+    bulkCancelBtn.textContent = 'Cancel';
+    bulkCancelBtn.className   = 'profile-delete-cancel-btn';
+    bulkCancelBtn.addEventListener('click', function() { _bulkDeleteConfirmOpen = false; _renderProfilePanel(); });
+    bulkConfirmWrap.appendChild(bulkConfirmInput);
+    bulkConfirmWrap.appendChild(bulkConfirmBtn);
+    bulkConfirmWrap.appendChild(bulkCancelBtn);
+    listEl.appendChild(bulkConfirmWrap);
+    setTimeout(function() { bulkConfirmInput.focus(); }, 30);
+  }
   _visibleProfiles.forEach(function(profile, vi) {
     var isVisible = _visibleIds.has(profile.id);
     var isActive  = _activeIds.has(profile.id);

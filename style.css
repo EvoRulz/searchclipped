@@ -2097,13 +2097,6 @@ mark.sc-highlight {
 }
 .profile-ctrl-bar { margin-bottom: 2px; }
 .profile-row-cb   { flex-shrink: 0; cursor: pointer; align-self: center; }
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--border-lo);
-  flex-wrap: wrap;
-}
 .profile-icon-wrap {
   flex-shrink: 0;
   display: flex;
