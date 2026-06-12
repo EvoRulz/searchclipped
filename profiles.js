@@ -42,6 +42,19 @@ function _makeProfile(name, icon, color, deviceType) {
     createdAt:  new Date().toISOString()
   };
 }
+// ===== STATUS MESSAGE =====
+function _showProfileStatus(msg) {
+  var el = document.getElementById('profile-status-msg');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+function _hideProfileStatus() {
+  var el = document.getElementById('profile-status-msg');
+  if (!el) return;
+  el.style.display = 'none';
+  el.textContent = '';
+}
 // ===== INIT =====
 async function init(appState, refreshFn) {
   _appState  = appState;
@@ -130,7 +143,7 @@ async function signOut() {
 }
 // ===== FIRESTORE SYNC =====
 async function syncProfile(profileId) {
-  if (!_currentUser || !_firestoreDb) { alert('Sign in to sync.'); return; }
+  if (!_currentUser || !_firestoreDb) { _showProfileStatus('Sign in to sync.'); return; }
   var profile = _profiles.find(function(p) { return p.id === profileId; });
   if (!profile) return;
   var uid  = _currentUser.uid;
@@ -148,14 +161,14 @@ async function syncProfile(profileId) {
     batch.set(base.collection('items').doc(item.id), copy, { merge: true });
   });
   await batch.commit();
-  alert('Pushed ' + items.length + ' items to cloud for profile "' + profile.name + '".');
+  _showProfileStatus('Pushed ' + items.length + ' items to cloud for profile "' + profile.name + '".');
 }
 async function pullProfile(profileId) {
-  if (!_currentUser || !_firestoreDb) { alert('Sign in to sync.'); return; }
+  if (!_currentUser || !_firestoreDb) { _showProfileStatus('Sign in to sync.'); return; }
   var uid = _currentUser.uid;
   // List all cloud profiles for this account
   var profilesSnap = await _firestoreDb.collection('users').doc(uid).collection('profiles').get();
-  if (profilesSnap.empty) { alert('No profiles found in cloud.'); return; }
+  if (profilesSnap.empty) { _showProfileStatus('No profiles found in cloud.'); return; }
   // Build list of cloud profiles
   var cloudProfiles = [];
   profilesSnap.forEach(function(doc) {
@@ -206,7 +219,7 @@ async function _doPullProfile(cloudProfileId, cloudProfileName, cloudProfileData
   var uid  = _currentUser.uid;
   var base = _firestoreDb.collection('users').doc(uid).collection('profiles').doc(cloudProfileId);
   var snap = await base.collection('items').get();
-  if (snap.empty) { alert('No items found in cloud for "' + cloudProfileName + '".'); return; }
+  if (snap.empty) { _showProfileStatus('No items found in cloud for "' + cloudProfileName + '".'); return; }
   // Create a new local profile for these items
   var _cloudDevType = (cloudProfileData && cloudProfileData.deviceType) || 'custom';
   var _typeConflict = (_cloudDevType === 'mobile' || _cloudDevType === 'computer') &&
@@ -239,7 +252,7 @@ async function _doPullProfile(cloudProfileId, cloudProfileName, cloudProfileData
   State.saveState(_appState);
   _renderProfilePanel();
   if (_refreshFn) _refreshFn();
-  alert('Pulled ' + pulled + ' new item(s) into new profile "' + newProfile.name + '".');
+  _showProfileStatus('Pulled ' + pulled + ' new item(s) into new profile "' + newProfile.name + '".');
 }
 // ===== PROFILE CRUD =====
 async function createProfile(name, icon, color, deviceType, sourceProfileIds) {
@@ -416,6 +429,7 @@ function openPanel() {
   if (!panel) return;
   _panelOpen = true;
   panel.classList.remove('hidden');
+  _hideProfileStatus();
   _renderProfilePanel();
 }
 function closePanel() {
@@ -425,6 +439,7 @@ function closePanel() {
   _addFormOpen     = false;
   _deleteConfirmId = null;
   _styleEditId     = null;
+  _hideProfileStatus();
 }
 function _renderProfilePanel() {
   if (!_panelOpen) return;
@@ -578,6 +593,8 @@ function _wirePanel() {
   // Stop all keydowns inside the panel from reaching global handlers
   var box = document.querySelector('.profile-panel-box');
   if (box) box.addEventListener('keydown', function(e) { e.stopPropagation(); });
+  var statusEl = document.getElementById('profile-status-msg');
+  if (statusEl) statusEl.addEventListener('click', _hideProfileStatus);
   var overlay = document.getElementById('profile-panel');
   if (overlay) overlay.addEventListener('click', function(e) { if (e.target === overlay) closePanel(); });
   var closeBtn = document.getElementById('profile-panel-close');

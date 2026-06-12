@@ -2144,7 +2144,21 @@ mark.sc-highlight {
   flex-shrink: 0;
 }
 .profile-del-btn:hover { color: var(--red); }
-.profile-panel-footer { display: flex; justify-content: flex-start; }
+.profile-panel-footer { display: flex; justify-content: flex-start; align-items: center; gap: 8px; }
+.profile-status-msg {
+  flex: 1;
+  font-size: 11px;
+  color: var(--green);
+  cursor: pointer;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-align: right;
+  word-break: break-word;
+  transition: border-color var(--transition);
+}
+.profile-status-msg:hover { border-color: var(--blue-dim); }
 .add-profile-form {
   display: flex;
   flex-direction: column;
