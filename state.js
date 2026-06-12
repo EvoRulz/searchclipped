@@ -325,6 +325,7 @@ function createItem(text, html, imageId) {
     restoredAt:    null,
     versions:      [],
     versionName:   '',
+    profileIds:    [],
     itemUndoStack: [],
     itemRedoStack: []
   };

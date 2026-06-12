@@ -561,6 +561,12 @@ function _makeItem(item, isFiltered, selectedIds) {
     _phantomBtn.style.pointerEvents = 'none';
     controls.appendChild(_phantomBtn);
   }
+  if (window.Profiles) {
+    var _pIconsEl = document.createElement('div');
+    _pIconsEl.className = 'item-profile-icons';
+    _pIconsEl.innerHTML = Profiles.getItemProfileIconsHTML(item);
+    if (_pIconsEl.innerHTML) left.appendChild(_pIconsEl);
+  }
   left.appendChild(controls);
   el.appendChild(left);
   // --- Content ---

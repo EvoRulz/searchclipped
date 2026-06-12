@@ -19,6 +19,16 @@
     <div id="title-row">
     <span id="sc-title">SearchClipped</span>
     <span id="sc-version"></span>
+    <div class="title-row-right">
+      <button id="btn-profiles" class="profile-open-btn" title="Profiles">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div id="profile-device-icons" class="profile-device-icons"></div>
+      <button id="auth-btn" class="auth-circle" title="Sign in with Google"></button>
+    </div>
   </div>
   <div id="search-row">
       <div class="cb-wrap" id="cb-select-filtered-wrap" title="Select filtered results only">
@@ -261,7 +271,38 @@
       </div>
     </div>
   </div>
+<!-- ===== PROFILE PANEL ===== -->
+  <div id="profile-panel" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="profile-panel-box">
+      <div class="profile-panel-header">
+        <span class="profile-panel-title">Profiles</span>
+        <button id="profile-panel-close" class="profile-panel-close-btn">×</button>
+      </div>
+      <div id="profile-list" class="profile-list"></div>
+      <div class="profile-panel-footer">
+        <button id="btn-add-profile" class="action-btn">+ Add Profile</button>
+      </div>
+      <div id="add-profile-form" class="add-profile-form" style="display:none">
+        <input type="text" id="new-profile-name" placeholder="Profile name..." autocomplete="off">
+        <div class="add-profile-icon-row">
+          <input type="text" id="new-profile-icon" placeholder="Icon: SVG string, URL, or emoji (optional)..." autocomplete="off">
+          <input type="color" id="new-profile-color" value="#5c9edb" title="Fallback colour for initials">
+        </div>
+        <div class="add-profile-source-wrap">
+          <span class="add-profile-source-label">Copy items from (optional):</span>
+          <div id="add-profile-sources" class="add-profile-sources"></div>
+        </div>
+        <div class="add-profile-form-btns">
+          <button id="confirm-add-profile" class="action-btn">Create</button>
+          <button id="cancel-add-profile" class="action-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div><!-- #app -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="db.js"></script>
 <script src="state.js"></script>
 <script src="permissions.js"></script>
@@ -269,6 +310,7 @@
 <script src="search.js"></script>
 <script src="render.js"></script>
 <script src="modals.js"></script>
+<script src="profiles.js"></script>
 <script src="items.js"></script>
 <script src="app.js"></script>
 </body>

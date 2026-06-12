@@ -144,6 +144,25 @@ async function saveCopyCounts(counts) {
     tx.onerror    = function (e) { reject(e.target.error); };
   });
 }
+async function loadProfiles() {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx  = db.transaction('undostacks', 'readonly');
+    const req = tx.objectStore('undostacks').get('profiles');
+    req.onsuccess = function(e) { resolve(e.target.result ? e.target.result.data : null); };
+    req.onerror   = function(e) { reject(e.target.error); };
+  });
+}
+async function saveProfiles(profiles) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx    = db.transaction('undostacks', 'readwrite');
+    const store = tx.objectStore('undostacks');
+    const req   = store.put({ id: 'profiles', data: profiles });
+    req.onsuccess = function() { resolve(); };
+    tx.onerror    = function(e) { reject(e.target.error); };
+  });
+}
 async function loadCopyCounts() {
   const db = await openDB();
   return new Promise((resolve, reject) => {
@@ -166,6 +185,8 @@ window.DB = {
   saveSearchHistory,
   loadSearchHistory,
   saveCopyCounts,
-  loadCopyCounts
+  loadCopyCounts,
+  loadProfiles,
+  saveProfiles
 };
 

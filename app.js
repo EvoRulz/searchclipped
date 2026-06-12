@@ -1,6 +1,6 @@
 'use strict';
-// @version 372
-var SC_VERSION = '@version 372';
+// @version 373
+var SC_VERSION = '@version 373';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -295,6 +295,10 @@ var SC_VERSION = '@version 372';
       searchTags:    searchTags,
       starFilter:    state.starFilter
     });
+    if (window.Profiles) {
+      result.filtered = Profiles.filterItems(result.filtered);
+      result.rest     = Profiles.filterItems(result.rest);
+    }
     Render.ensureVersionPanelsOpen(result.autoOpenIds);
     Render.render(
       result.filtered,
@@ -370,6 +374,7 @@ var SC_VERSION = '@version 372';
   btnToggleFilterRow.textContent = hideFilterRow ? 'show more' : 'hide';
   document.addEventListener('sc:toggle-select', function () { State.pushUndo(state, _snapshotUi()); }, true);
   Items.init(state, refresh);
+  Profiles.init(state, refresh).catch(function(e) { console.error('Profiles.init failed', e); });
   document.addEventListener('sc:toggle-select', function () { _selectAllActive = false; });
   document.addEventListener('sc:reset-select-all', function () { _selectAllActive = false; });
   document.getElementById('header').addEventListener('click', function () { State.pushUndo(state, _snapshotUi()); }, true);

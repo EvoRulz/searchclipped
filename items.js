@@ -40,6 +40,7 @@ function _onCreate(e) {
   if (!text) return;
   State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
   var item = State.createItem(text, e.detail.html || text, null);
+  item.profileIds = window.Profiles ? Array.from(Profiles.getActiveIds()) : [];
   if (e.detail.title) item.title = e.detail.title.trim();
   if (e.detail.tags && e.detail.tags.length) item.tags = State._sortTagsCustom(e.detail.tags.slice());
   // Give it the next bumpOrder slot at the top
@@ -326,6 +327,7 @@ async function _createImageItem(blob) {
   await DB.saveImage(id, blob);
   State.pushUndo(_state, window.AppUi ? window.AppUi.snapshotUi() : null);
   var item = State.createItem('Image', '', id);
+  item.profileIds = window.Profiles ? Array.from(Profiles.getActiveIds()) : [];
   _state.items.forEach(function (i) { if (!i.deleted) i.bumpOrder += 1; });
   item.bumpOrder = 0;
   _state.items.unshift(item);
