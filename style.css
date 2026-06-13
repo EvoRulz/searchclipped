@@ -1652,6 +1652,7 @@ mark.sc-highlight {
 #app.hide-ts-modified .item:not(.new-placeholder) .item-ts-modified-wrap { display: none; }
 #app.hide-ts-deleted .item:not(.new-placeholder) .item-ts-deleted { display: none; }
 #app.hide-ts-restored .item:not(.new-placeholder) .item-ts-restored { display: none; }
+#app.hide-profile-ids .profile-id-display { display: none; }
 .version-entry.version-deleted { display: none; }
 #app.show-deleted .version-entry.version-deleted { display: flex; }
 .html-code-block-wrap {

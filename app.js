@@ -1,6 +1,6 @@
 'use strict';
-// @version 427
-var SC_VERSION = '@version 427';
+// @version 428
+var SC_VERSION = '@version 428';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -38,6 +38,7 @@ var SC_VERSION = '@version 427';
   var hideTitleEntry   = false;
   var hideItemEntry    = false;
   var hideImgEntry     = false;
+  var hideProfileIds   = false;
   var hideFilterRow    = true;
   var showNewlines     = false;
   var tagCountMode     = 1; // 0=hidden, 1=edit-mode only, 2=always shown
@@ -102,6 +103,7 @@ var SC_VERSION = '@version 427';
   var btnHideTitleEntry  = document.getElementById('btn-hide-title-entry');
   var btnHideItemEntry   = document.getElementById('btn-hide-item-entry');
   var btnHideImgEntry    = document.getElementById('btn-hide-img-entry');
+  var btnHideProfileIds  = document.getElementById('btn-hide-profile-ids');
   var btnShowNewlines    = document.getElementById('btn-show-newlines');
   var btnTagCountMode    = document.getElementById('btn-tag-count-mode');
   var btnTagXMode        = document.getElementById('btn-tag-x-mode');
@@ -134,7 +136,7 @@ var SC_VERSION = '@version 427';
       hideTsModified: hideTsModified, hideTsDeleted: hideTsDeleted,
       hideTsRestored: hideTsRestored, hideCheckboxes: hideCheckboxes,
       hideDelete: hideDelete, hideTitleEntry: hideTitleEntry,
-      hideItemEntry: hideItemEntry, hideImgEntry: hideImgEntry,
+      hideItemEntry: hideItemEntry, hideImgEntry: hideImgEntry, hideProfileIds: hideProfileIds,
       hideFilterRow: hideFilterRow, showNewlines: showNewlines,
       searchItems: searchItems, searchTitles: searchTitles, searchTags: searchTags,
       tagFilterActive: _tagFilterActive, savedSearchItems: _savedSearchItems,
@@ -249,6 +251,11 @@ var SC_VERSION = '@version 427';
       hideImgEntry = p.hideImgEntry;
       btnHideImgEntry.classList.toggle('active', hideImgEntry);
       _a.classList.toggle('hide-img-entry', hideImgEntry);
+    }
+    if (p.hideProfileIds !== undefined) {
+      hideProfileIds = p.hideProfileIds;
+      btnHideProfileIds.classList.toggle('active', hideProfileIds);
+      _a.classList.toggle('hide-profile-ids', hideProfileIds);
     }
     if (p.hideFilterRow !== undefined) {
       hideFilterRow = p.hideFilterRow;
@@ -966,6 +973,11 @@ var SC_VERSION = '@version 427';
     btnHideImgEntry.classList.toggle('active', hideImgEntry);
     document.getElementById('app').classList.toggle('hide-img-entry', hideImgEntry);
   });
+  btnHideProfileIds.addEventListener('click', function () {
+    hideProfileIds = !hideProfileIds;
+    btnHideProfileIds.classList.toggle('active', hideProfileIds);
+    document.getElementById('app').classList.toggle('hide-profile-ids', hideProfileIds);
+  });
   btnShowNewlines.addEventListener('click', function () {
     showNewlines = !showNewlines;
     btnShowNewlines.classList.toggle('active', showNewlines);
@@ -1322,6 +1334,7 @@ document.addEventListener('sc:filter-tag', function (e) {
         else if (_ak === 'n') { btnHideTitleEntry.click(); }
         else if (_ak === 'q') { btnHideItemEntry.click(); }
         else if (_ak === 'j') { btnHideImgEntry.click(); }
+        else if (_ak === 'y') { btnHideProfileIds.click(); }
         else if (_ak === 'w') { btnShowNewlines.click(); }
         else if (_ak === 'p') { btnTagCountMode.click(); }
         else if (_ak === 'v') { btnTagXMode.click(); }
@@ -1759,7 +1772,7 @@ document.addEventListener('sc:filter-tag', function (e) {
         hideTsDeleted: hideTsDeleted, hideTsRestored: hideTsRestored,
         hideCheckboxes: hideCheckboxes, hideDelete: hideDelete,
         hideTitleEntry: hideTitleEntry, hideItemEntry: hideItemEntry,
-        hideImgEntry: hideImgEntry, hideFilterRow: hideFilterRow, showNewlines: showNewlines,
+        hideImgEntry: hideImgEntry, hideProfileIds: hideProfileIds, hideFilterRow: hideFilterRow, showNewlines: showNewlines,
         searchItems: searchItems, searchTitles: searchTitles, searchTags: searchTags,
         tagFilterActive: _tagFilterActive, savedSearchItems: _savedSearchItems, savedSearchTitles: _savedSearchTitles, savedSearchTags: _savedSearchTags, savedQuery: _savedQuery,
         tagCountMode: tagCountMode, tagXMode: tagXMode
@@ -1829,6 +1842,7 @@ document.addEventListener('sc:filter-tag', function (e) {
         _a.classList.toggle('hide-item-entry', hideItemEntry);
       }
       if (p.hideImgEntry !== undefined)   { hideImgEntry = p.hideImgEntry; btnHideImgEntry.classList.toggle('active', hideImgEntry); _a.classList.toggle('hide-img-entry', hideImgEntry); }
+      if (p.hideProfileIds !== undefined) { hideProfileIds = p.hideProfileIds; btnHideProfileIds.classList.toggle('active', hideProfileIds); _a.classList.toggle('hide-profile-ids', hideProfileIds); }
       if (p.showNewlines !== undefined)   { showNewlines = p.showNewlines; window._showNewlines = showNewlines; btnShowNewlines.classList.toggle('active', showNewlines); }
       if (p.searchItems !== undefined)    { searchItems = p.searchItems; cbSearchItems.checked = searchItems; }
       if (p.searchTitles !== undefined)   { searchTitles = p.searchTitles; cbSearchTitles.checked = searchTitles; }
