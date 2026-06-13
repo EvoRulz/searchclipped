@@ -79,7 +79,7 @@ async function init(appState, refreshFn) {
     var devType = _getDeviceType();
     var p = _makeProfile(
       devType === 'mobile' ? 'Mobile' : 'Computer',
-      null,
+      devType === 'mobile' ? _mobileSVG() : _computerSVG(),
       devType === 'mobile' ? '#99c794' : '#5c9edb',
       devType
     );
@@ -1455,6 +1455,15 @@ function _renderProfilePanel() {
       styleCloseBtn.addEventListener('click', function() { _styleEditId = null; _renderProfilePanel(); });
       styleIconInput.addEventListener('keydown', function(e) { e.stopPropagation(); if (e.key === 'Enter') styleApplyBtn.click(); });
       styleWrap.appendChild(styleIconInput);
+      [{ title: 'Mobile', svg: _mobileSVG() }, { title: 'Laptop', svg: _laptopSVG() }, { title: 'PC', svg: _computerSVG() }].forEach(function(def) {
+        var pickBtn = document.createElement('button');
+        pickBtn.type = 'button';
+        pickBtn.className = 'profile-icon-pick-btn';
+        pickBtn.title = def.title;
+        pickBtn.innerHTML = def.svg;
+        pickBtn.addEventListener('click', function() { styleIconInput.value = def.svg; });
+        styleWrap.appendChild(pickBtn);
+      });
       styleWrap.appendChild(styleColorInput);
       styleWrap.appendChild(styleApplyBtn);
       styleWrap.appendChild(styleCloseBtn);
@@ -1523,6 +1532,19 @@ function _wirePanel() {
   if (cancelAddBtn) {
     cancelAddBtn.addEventListener('click', function() { _addFormOpen = false; _renderProfilePanel(); });
   }
+  var _iconInp   = document.getElementById('new-profile-icon');
+  var _colorInp  = document.getElementById('new-profile-color');
+  if (_iconInp && _colorInp && _colorInp.parentElement) {
+    [{ title: 'Mobile', svg: _mobileSVG() }, { title: 'Laptop', svg: _laptopSVG() }, { title: 'PC', svg: _computerSVG() }].forEach(function(def) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'profile-icon-pick-btn';
+      b.title = def.title;
+      b.innerHTML = def.svg;
+      b.addEventListener('click', function() { _iconInp.value = def.svg; });
+      _colorInp.parentElement.insertBefore(b, _colorInp);
+    });
+  }
 }
 // ===== ITEM PROFILE ICONS (called from render.js) =====
 function getItemProfileIconsHTML(item) {
@@ -1567,6 +1589,12 @@ function _computerSVG() {
   return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
     <path d="M8 21h8M12 17v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  </svg>`;
+}
+function _laptopSVG() {
+  return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="3" y="2" width="18" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+    <rect x="1" y="15" width="22" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
   </svg>`;
 }
 function _mobileSVG() {
