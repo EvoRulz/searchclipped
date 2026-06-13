@@ -529,7 +529,7 @@ mark.sc-highlight {
   background: var(--yellow);
   color: var(--bg-dark);
   border-radius: 2px;
-  padding: 0 1px;
+  box-shadow: 0 0 0 1px var(--yellow);
   font-style: normal;
 }
 .item.keyboard-focused.copy-flash { border-color: var(--blue); outline-color: var(--blue); background: var(--surface); }
