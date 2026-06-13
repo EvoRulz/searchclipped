@@ -1991,6 +1991,24 @@ mark.sc-highlight {
 }
 .profile-device-btn.active { color: var(--blue); }
 .profile-device-btn:hover  { color: var(--text); background: var(--surface); }
+.profile-header-icon-btn {
+  background: none;
+  border: 1.5px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+  flex-shrink: 0;
+  opacity: 1;
+}
+.profile-header-icon-btn:hover { background: var(--surface); }
+.profile-header-state-hidden  { border-color: var(--border); opacity: 0.45; filter: grayscale(1); }
+.profile-header-state-visible { border-color: var(--blue-dim); box-shadow: 0 0 0 1px var(--blue-dim); }
+.profile-header-state-writing { border-color: var(--yellow);   box-shadow: 0 0 0 1px var(--yellow); }
+.profile-header-state-synced  { border-color: var(--green);    box-shadow: 0 0 0 1px var(--green); }
 .auth-circle {
   width: 30px;
   height: 30px;
@@ -2171,7 +2189,8 @@ mark.sc-highlight {
   color: var(--text-muted);
   font-family: var(--font);
   font-size: 10px;
-  padding: 2px 4px;
+  padding: 0 4px;
+  height: 28px;
   outline: none;
   cursor: pointer;
   flex-shrink: 0;
@@ -2179,8 +2198,8 @@ mark.sc-highlight {
 }
 .profile-device-select:focus { border-color: var(--blue-dim); color: var(--text); }
 .profile-sync-toggle-btn {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   padding: 0;
   display: flex;
   align-items: center;
@@ -2189,10 +2208,12 @@ mark.sc-highlight {
 .profile-sync-btn {
   background: none;
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: var(--radius);
   color: var(--text-ph);
   cursor: pointer;
-  padding: 2px 4px;
+  padding: 0;
+  width: 28px;
+  height: 28px;
   line-height: 1;
   transition: all var(--transition);
   flex-shrink: 0;
@@ -2204,10 +2225,12 @@ mark.sc-highlight {
 .profile-toggle-btn {
   background: none;
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: var(--radius);
   color: var(--text-ph);
   cursor: pointer;
-  padding: 2px 4px;
+  padding: 0;
+  width: 28px;
+  height: 28px;
   line-height: 1;
   display: flex;
   align-items: center;
@@ -2216,7 +2239,7 @@ mark.sc-highlight {
   flex-shrink: 0;
 }
 .profile-toggle-btn.active       { border-color: var(--blue-dim); color: var(--blue); }
-.profile-toggle-btn.active-write { border-color: var(--green);    color: var(--green); }
+.profile-toggle-btn.active-write { border-color: var(--yellow);   color: var(--yellow); }
 .profile-toggle-btn:hover        { border-color: var(--text-muted); color: var(--text); }
 .profile-del-btn {
   background: none;

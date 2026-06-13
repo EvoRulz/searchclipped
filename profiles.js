@@ -1052,23 +1052,65 @@ function _toggleDeviceTypeVisibility(deviceType) {
 function _anyVisibleOfType(deviceType) {
   return _profiles.some(function(p) { return p.deviceType === deviceType && _visibleIds.has(p.id); });
 }
+function _getProfileHeaderState(profile) {
+  var isVisible = _visibleIds.has(profile.id);
+  var isActive  = _activeIds.has(profile.id);
+  var isSynced  = _syncEnabled[profile.id] && _syncStatus[profile.id] === 'synced';
+  if (!isVisible) return 'hidden';
+  if (isVisible && isActive && isSynced) return 'synced';
+  if (isVisible && isActive) return 'writing';
+  return 'visible';
+}
+function _cycleProfileHeaderState(profile) {
+  var state = _getProfileHeaderState(profile);
+  if (state === 'hidden') {
+    _visibleIds.add(profile.id);
+    _activeIds.delete(profile.id);
+  } else if (state === 'visible') {
+    _visibleIds.add(profile.id);
+    _activeIds.add(profile.id);
+  } else if (state === 'writing') {
+    if (_syncEnabled[profile.id]) {
+      _visibleIds.add(profile.id);
+      _activeIds.add(profile.id);
+      _syncStatus[profile.id] = 'synced';
+    } else {
+      _visibleIds.delete(profile.id);
+      _activeIds.delete(profile.id);
+    }
+  } else if (state === 'synced') {
+    _visibleIds.delete(profile.id);
+    _activeIds.delete(profile.id);
+  }
+  if (!_visibleIds.size && _profiles.length) _visibleIds.add(_profiles[0].id);
+  if (!_activeIds.size && _profiles.length) {
+    var _firstVis = _profiles.find(function(p) { return _visibleIds.has(p.id); });
+    _activeIds.add(_firstVis ? _firstVis.id : _profiles[0].id);
+  }
+  _savePrefs();
+  if (_refreshFn) _refreshFn();
+  _renderDeviceIcons();
+  if (_panelOpen) _renderProfilePanel();
+}
 function _renderDeviceIcons() {
   var wrap = document.getElementById('profile-device-icons');
   if (!wrap) return;
-  if (!_currentUser) { wrap.innerHTML = ''; return; }
   wrap.innerHTML = '';
-  var computerBtn = document.createElement('button');
-  computerBtn.className = 'profile-device-btn' + (_anyVisibleOfType('computer') ? ' active' : '');
-  computerBtn.title     = 'Computer';
-  computerBtn.innerHTML = _computerSVG();
-  computerBtn.addEventListener('click', function() { _toggleDeviceTypeVisibility('computer'); });
-  wrap.appendChild(computerBtn);
-  var mobileBtn = document.createElement('button');
-  mobileBtn.className = 'profile-device-btn' + (_anyVisibleOfType('mobile') ? ' active' : '');
-  mobileBtn.title     = 'Mobile';
-  mobileBtn.innerHTML = _mobileSVG();
-  mobileBtn.addEventListener('click', function() { _toggleDeviceTypeVisibility('mobile'); });
-  wrap.appendChild(mobileBtn);
+  var visibleProfiles = _profiles.filter(function(p) {
+    if (p.id === 'p_orphaned') return false;
+    return true;
+  });
+  visibleProfiles.forEach(function(profile) {
+    var state = _getProfileHeaderState(profile);
+    var btn = document.createElement('button');
+    btn.className = 'profile-header-icon-btn profile-header-state-' + state;
+    btn.title = profile.name + ' (' + state + ')';
+    btn.innerHTML = _profileIconHTML(profile, 16);
+    (function(p) {
+      btn.addEventListener('click', function() { _cycleProfileHeaderState(p); });
+    })(profile);
+    wrap.appendChild(btn);
+  });
 }
 // ===== PROFILE PANEL =====
 function openPanel() {
