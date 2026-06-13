@@ -696,6 +696,8 @@ mark.sc-highlight {
   padding-left: 3px;
   flex-shrink: 0;
   min-width: 24px;
+  height: 100%;
+  align-self: stretch;
 }
 .item-title-row {
   display: flex;
