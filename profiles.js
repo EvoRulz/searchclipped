@@ -34,6 +34,7 @@ var _selectedProfileIds   = new Set();
 var _bulkDeleteConfirmOpen = false;
 var _selectedCloudIds      = new Set();
 var _cloudBulkDeleteConfirmOpen = false;
+var _cloudStyleEditId           = null;
 var _syncEnabled   = {};      // profileId → boolean
 var _pullQueue        = [];   // [{cloudProfileId, cloudProfileName, cloudProfileData}]
 var _pullQueueActive  = false;
@@ -104,6 +105,14 @@ async function init(appState, refreshFn) {
     }
   });
   if (migrated) State.saveState(_appState);
+  var _iconMigrated = false;
+  _profiles.forEach(function(p) {
+    if (!p.icon) {
+      if (p.deviceType === 'mobile')        { p.icon = _mobileSVG();   _iconMigrated = true; }
+      else if (p.deviceType === 'computer') { p.icon = _computerSVG(); _iconMigrated = true; }
+    }
+  });
+  if (_iconMigrated) await DB.saveProfiles(_profiles);
   var _wasPanelOpen = _panelOpen;
   _panelOpen = false;
   _loadPrefs();
@@ -506,6 +515,19 @@ function _renderCloudProfileSection() {
       });
     })(cp.id, rowCb);
     row.appendChild(rowCb);
+    var cpIconEl       = document.createElement('div');
+    cpIconEl.className = 'profile-icon-wrap';
+    cpIconEl.style.cursor = 'pointer';
+    cpIconEl.title    = 'Click to restyle';
+    cpIconEl.innerHTML = _profileIconHTML({ name: cpName, icon: (cp.data && cp.data.icon) || null, color: (cp.data && cp.data.color) || '#5c9edb' }, 28);
+    (function(cpId) {
+      cpIconEl.addEventListener('click', function() {
+        _cloudStyleEditId     = (_cloudStyleEditId === cpId) ? null : cpId;
+        _cloudDeleteConfirmId = null;
+        _renderCloudProfileSection();
+      });
+    })(cp.id);
+    row.appendChild(cpIconEl);
     var nameEl = document.createElement('span');
     nameEl.className   = 'cloud-profile-name';
     nameEl.textContent = cpName;
@@ -559,12 +581,64 @@ function _renderCloudProfileSection() {
       var delCloudBtn = document.createElement('button');
       delCloudBtn.className   = 'cloud-profile-del-btn';
       delCloudBtn.textContent = '×';
-      delCloudBtn.addEventListener('click', function() { _cloudDeleteConfirmId = cp.id; _renderCloudProfileSection(); });
+      delCloudBtn.addEventListener('click', function() { _cloudDeleteConfirmId = cp.id; _cloudStyleEditId = null; _renderCloudProfileSection(); });
       row.appendChild(nameEl);
       row.appendChild(idEl);
       row.appendChild(pullBtn);
       row.appendChild(delCloudBtn);
       itemsEl.appendChild(row);
+    }
+    if (_cloudStyleEditId === cp.id && _cloudDeleteConfirmId !== cp.id) {
+      var styleWrap             = document.createElement('div');
+      styleWrap.className       = 'profile-style-edit';
+      var styleIconInput        = document.createElement('input');
+      styleIconInput.type        = 'text';
+      styleIconInput.placeholder = 'Icon: SVG, URL, or emoji';
+      styleIconInput.value       = (cp.data && cp.data.icon) || '';
+      styleIconInput.className   = 'profile-style-icon-input';
+      var styleColorInput       = document.createElement('input');
+      styleColorInput.type      = 'color';
+      styleColorInput.value     = (cp.data && cp.data.color) || '#5c9edb';
+      styleColorInput.className = 'profile-style-color-input';
+      var styleApplyBtn         = document.createElement('button');
+      styleApplyBtn.textContent  = 'Apply';
+      styleApplyBtn.className    = 'profile-style-apply-btn';
+      var styleCloseBtn         = document.createElement('button');
+      styleCloseBtn.textContent  = 'Close';
+      styleCloseBtn.className    = 'profile-style-close-btn';
+      styleApplyBtn.addEventListener('click', async function() {
+        var newIcon  = (styleIconInput.value || '').trim() || null;
+        var newColor = styleColorInput.value;
+        if (!cp.data) cp.data = {};
+        cp.data.icon  = newIcon;
+        cp.data.color = newColor;
+        if (_currentUser && _firestoreDb) {
+          try {
+            await _firestoreDb.collection('users').doc(_currentUser.uid).collection('profiles').doc(cp.id).set(
+              { icon: newIcon, color: newColor }, { merge: true }
+            );
+          } catch(e) { console.warn('cloud style save failed', e); }
+        }
+        _cloudStyleEditId = null;
+        _renderCloudProfileSection();
+      });
+      styleCloseBtn.addEventListener('click', function() { _cloudStyleEditId = null; _renderCloudProfileSection(); });
+      styleIconInput.addEventListener('keydown', function(e) { e.stopPropagation(); if (e.key === 'Enter') styleApplyBtn.click(); });
+      styleWrap.appendChild(styleIconInput);
+      [{ title: 'Mobile', svg: _mobileSVG() }, { title: 'Laptop', svg: _laptopSVG() }, { title: 'PC', svg: _computerSVG() }].forEach(function(def) {
+        var pickBtn       = document.createElement('button');
+        pickBtn.type      = 'button';
+        pickBtn.className = 'profile-icon-pick-btn';
+        pickBtn.title     = def.title;
+        pickBtn.innerHTML = def.svg;
+        pickBtn.addEventListener('click', function() { styleIconInput.value = def.svg; });
+        styleWrap.appendChild(pickBtn);
+      });
+      styleWrap.appendChild(styleColorInput);
+      styleWrap.appendChild(styleApplyBtn);
+      styleWrap.appendChild(styleCloseBtn);
+      row.appendChild(styleWrap);
+      setTimeout(function() { styleIconInput.focus(); }, 30);
     }
   });
 }
@@ -1569,7 +1643,10 @@ function _profileIconHTML(profile, size) {
   if (profile.icon) {
     var icon = profile.icon.trim();
     if (icon.startsWith('<svg') || icon.startsWith('<SVG')) {
-      return `<span class="profile-icon-svg" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;">${icon}</span>`;
+      var resized = icon
+        .replace(/(<svg[^>]*?)\bwidth="[^"]*"/, `$1width="${size}"`)
+        .replace(/(<svg[^>]*?)\bheight="[^"]*"/, `$1height="${size}"`);
+      return `<span class="profile-icon-svg" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;">${resized}</span>`;
     }
     if (icon.startsWith('http') || icon.startsWith('data:') || icon.startsWith('/')) {
       return `<img src="${icon}" class="profile-icon-img" style="width:${size}px;height:${size}px;" alt="${profile.name || ''}">`;

@@ -2281,6 +2281,7 @@ mark.sc-highlight {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 6px;
   padding: 5px 0;
   border-bottom: 1px solid var(--border-lo);
