@@ -582,6 +582,21 @@ if (window.Profiles) {
   });
   if (_phProfIcons.children.length) el.appendChild(_phProfIcons);
 }
+if (window.Profiles) {
+  var _phProfIcons = document.createElement('div');
+  _phProfIcons.className = 'ph-active-profile-icons';
+  Array.from(Profiles.getActiveIds()).forEach(function(pid) {
+    var _pList = Profiles.getProfiles();
+    var _p = _pList.find(function(pr) { return pr.id === pid; });
+    if (!_p) return;
+    var _iconSpan = document.createElement('span');
+    _iconSpan.className = 'item-profile-icon';
+    _iconSpan.title = _p.name;
+    _iconSpan.innerHTML = Profiles._profileIconHTML(_p, 12);
+    _phProfIcons.appendChild(_iconSpan);
+  });
+  if (_phProfIcons.children.length) el.appendChild(_phProfIcons);
+}
 return el;
 }
 /* ====== ITEM ELEMENT ====== */
