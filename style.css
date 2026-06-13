@@ -1130,7 +1130,10 @@ mark.sc-highlight {
 }
 .tag-new-ghost {
   position: absolute;
-  inset: 0;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  min-width: 100%;
   display: flex;
   align-items: center;
   padding: 1px 7px;
@@ -1138,7 +1141,7 @@ mark.sc-highlight {
   font-size: 10px;
   color: var(--text-ph);
   white-space: nowrap;
-  overflow: hidden;
+  overflow: visible;
   pointer-events: none;
   border-radius: 10px;
 }

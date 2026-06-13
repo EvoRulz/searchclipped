@@ -84,6 +84,25 @@ function _drawSelCanvas(canvas, total, selSet, emptySelected) {
     ctx.fillRect(0.75, y, w - 1.5, bandH);
   }
 }
+function _attachFixedOverlay(above, below, anchorEl) {
+  var rect = anchorEl.getBoundingClientRect();
+  var w = Math.max(rect.width, 180);
+  var left = Math.max(0, Math.min(rect.right - w, window.innerWidth - w - 4));
+  [above, below].forEach(function(el) {
+    el.classList.add('sc-tag-overlay');
+    el.style.position = 'fixed';
+    el.style.left = left + 'px';
+    el.style.right = '';
+    el.style.width = w + 'px';
+    el.style.zIndex = '9999';
+  });
+  above.style.bottom = (window.innerHeight - rect.top) + 'px';
+  above.style.top = '';
+  below.style.top = rect.bottom + 'px';
+  below.style.bottom = '';
+  document.body.appendChild(above);
+  document.body.appendChild(below);
+}
 function init(state, refreshFn) {
   _state = state;
   _refreshFn = refreshFn || null;
@@ -94,6 +113,9 @@ function init(state, refreshFn) {
     _openVersionPanels.delete(e.detail.id);
   });
   _list.addEventListener('scroll', _rafUpdateCopyBtns, { passive: true });
+  _list.addEventListener('scroll', function() {
+    document.querySelectorAll('.sc-tag-overlay').forEach(function(el) { el.remove(); });
+  }, { passive: true });
   window.addEventListener('resize', _rafUpdateCopyBtns);
 }
 /*
@@ -395,10 +417,9 @@ function _renderPhHist() {
   below.appendChild(_makePhSlot(filtered[fi], true));
   if (n > 1) below.appendChild(_makePhSlot(filtered[(fi - 1 + n) % n], false));
   if (n > 2) below.appendChild(_makePhSlot(filtered[(fi - 2 + n) % n], false));
-  phTagWrap.appendChild(above);
-  phTagWrap.appendChild(below);
   _phOverlayAbove = above;
   _phOverlayBelow = below;
+  _attachFixedOverlay(above, below, phTagInput);
   _phHistOpen = true;
 }
 function _phGhostText() {
@@ -1617,10 +1638,9 @@ function _makeTagsRow(item, isFiltered) {
         below.appendChild(_makeTagSlotEl(filtered[focusedIdx], true));
         if (n > 1) below.appendChild(_makeTagSlotEl(filtered[below1Idx], false));
         if (n > 2) below.appendChild(_makeTagSlotEl(filtered[below2Idx], false));
-        wrap.appendChild(above);
-        wrap.appendChild(below);
         _tagOverlayAbove = above;
         _tagOverlayBelow = below;
+        _attachFixedOverlay(above, below, newInput);
       }
       function _openOrScrollTagHistory(dir) {
         entries = _computeTagEntriesForItem(item);
