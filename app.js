@@ -1,6 +1,6 @@
 'use strict';
-// @version 442
-var SC_VERSION = '@version 442';
+// @version 443
+var SC_VERSION = '@version 443';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -254,7 +254,7 @@ var SC_VERSION = '@version 442';
     }
     if (p.hideProfileIds !== undefined) {
       hideProfileIds = p.hideProfileIds;
-      btnHideProfileIds.classList.toggle('active', !hideProfileIds);
+      btnHideProfileIds.classList.toggle('active', hideProfileIds);
       _a.classList.toggle('hide-profile-ids', hideProfileIds);
     }
     if (p.hideFilterRow !== undefined) {
@@ -975,7 +975,7 @@ var SC_VERSION = '@version 442';
   });
   btnHideProfileIds.addEventListener('click', function () {
     hideProfileIds = !hideProfileIds;
-    btnHideProfileIds.classList.toggle('active', !hideProfileIds);
+    btnHideProfileIds.classList.toggle('active', hideProfileIds);
     document.getElementById('app').classList.toggle('hide-profile-ids', hideProfileIds);
   });
   btnShowNewlines.addEventListener('click', function () {
@@ -1850,7 +1850,7 @@ document.addEventListener('sc:filter-tag', function (e) {
         _a.classList.toggle('hide-item-entry', hideItemEntry);
       }
       if (p.hideImgEntry !== undefined)   { hideImgEntry = p.hideImgEntry; btnHideImgEntry.classList.toggle('active', hideImgEntry); _a.classList.toggle('hide-img-entry', hideImgEntry); }
-      if (p.hideProfileIds !== undefined) { hideProfileIds = p.hideProfileIds; btnHideProfileIds.classList.toggle('active', !hideProfileIds); _a.classList.toggle('hide-profile-ids', hideProfileIds); }
+      if (p.hideProfileIds !== undefined) { hideProfileIds = p.hideProfileIds; btnHideProfileIds.classList.toggle('active', hideProfileIds); _a.classList.toggle('hide-profile-ids', hideProfileIds); }
       if (p.showNewlines !== undefined)   { showNewlines = p.showNewlines; window._showNewlines = showNewlines; btnShowNewlines.classList.toggle('active', showNewlines); }
       if (p.searchItems !== undefined)    { searchItems = p.searchItems; cbSearchItems.checked = searchItems; }
       if (p.searchTitles !== undefined)   { searchTitles = p.searchTitles; cbSearchTitles.checked = searchTitles; }
