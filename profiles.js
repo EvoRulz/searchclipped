@@ -35,6 +35,9 @@ var _bulkDeleteConfirmOpen = false;
 var _selectedCloudIds      = new Set();
 var _cloudBulkDeleteConfirmOpen = false;
 var _syncEnabled   = {};      // profileId → boolean
+var _pullQueue        = [];   // [{cloudProfileId, cloudProfileName, cloudProfileData}]
+var _pullQueueActive  = false;
+var _pullQueueCancelled = false;
 var _syncTimers    = {};      // profileId → debounce timer id
 var _syncStatus    = {};      // profileId → 'synced' | 'unsynced' | 'never'
 var _syncListeners = {};      // profileId → unsubscribe function
@@ -409,15 +412,14 @@ function _renderCloudProfileSection() {
     });
     _updateCloudCtrl();
   });
-  cBulkPullBtn.addEventListener('click', async function() {
+  cBulkPullBtn.addEventListener('click', function() {
     var toPull = _cloudProfiles.filter(function(cp) { return _selectedCloudIds.has(cp.id); });
-    for (var pi = 0; pi < toPull.length; pi++) {
-      var cpP = toPull[pi];
-      var cpPName = (cpP.data && cpP.data.name) ? cpP.data.name : cpP.id;
-      await _doPullProfile(cpP.id, cpPName, cpP.data);
-    }
+    var queue  = toPull.map(function(cp) {
+      return { cloudProfileId: cp.id, cloudProfileName: (cp.data && cp.data.name) ? cp.data.name : cp.id, cloudProfileData: cp.data };
+    });
     _selectedCloudIds.clear();
     _renderCloudProfileSection();
+    _enqueuePull(queue);
   });
   cBulkDelBtn.addEventListener('click', function() {
     _cloudBulkDeleteConfirmOpen = true;
@@ -550,23 +552,233 @@ function _renderCloudProfileSection() {
     }
   });
 }
-async function _doPullProfile(cloudProfileId, cloudProfileName, cloudProfileData) {
-  if (!_currentUser || !_firestoreDb) return;
+function _enqueuePull(profiles) {
+  _pullQueue = _pullQueue.concat(profiles);
+  if (!_pullQueueActive) _processNextPull();
+}
+async function _processNextPull() {
+  if (!_pullQueue.length) {
+    _pullQueueActive    = false;
+    _pullQueueCancelled = false;
+    _renderPullConflictUI(null);
+    return;
+  }
+  _pullQueueActive = true;
+  var next = _pullQueue.shift();
+  if (_pullQueueCancelled) { _processNextPull(); return; }
+  var existingLocal = _profiles.find(function(p) { return p.id === next.cloudProfileId; });
+  var deviceType    = (next.cloudProfileData && next.cloudProfileData.deviceType) || 'custom';
+  var typeConflict  = (deviceType === 'mobile' || deviceType === 'computer') &&
+    _profiles.some(function(p) { return p.deviceType === deviceType && p.id !== next.cloudProfileId; });
+  _renderPullConflictUI({
+    cloudProfileId:   next.cloudProfileId,
+    cloudProfileName: next.cloudProfileName,
+    cloudProfileData: next.cloudProfileData,
+    existingLocal:    existingLocal,
+    typeConflict:     typeConflict,
+    deviceType:       deviceType
+  });
+}
+function _renderPullConflictUI(ctx) {
+  var container = document.getElementById('pull-conflict-container');
+  if (!container) return;
+  container.innerHTML = '';
+  if (!ctx) return;
+  var box = document.createElement('div');
+  box.className = 'pull-conflict-box';
+  var header = document.createElement('div');
+  header.className   = 'pull-conflict-header';
+  header.textContent = 'Pulling: ' + ctx.cloudProfileName + ' (' + ctx.cloudProfileId + ')';
+  box.appendChild(header);
+  var remaining = _pullQueue.length;
+  if (remaining > 0) {
+    var queueNote = document.createElement('div');
+    queueNote.className   = 'pull-conflict-queue-note';
+    queueNote.textContent = remaining + ' more profile' + (remaining > 1 ? 's' : '') + ' queued after this.';
+    box.appendChild(queueNote);
+  }
+  var desc = document.createElement('div');
+  desc.className = 'pull-conflict-desc';
+  if (ctx.existingLocal) {
+    desc.textContent = 'A local profile with this ID already exists ("' + ctx.existingLocal.name + '"). How do you want to handle this?';
+  } else if (ctx.typeConflict) {
+    desc.textContent = 'No local profile with this ID exists, but you already have a local "' + ctx.deviceType + '" profile. How do you want to handle the device type?';
+  } else {
+    desc.textContent = 'No local profile with this ID exists. A new local profile will be created using the cloud data.';
+  }
+  box.appendChild(desc);
+  var _editFields = null;
+  function _makeEditFields(prefilledData) {
+    var wrap = document.createElement('div');
+    wrap.className = 'pull-conflict-edit-fields';
+    var nameInp = document.createElement('input');
+    nameInp.type        = 'text';
+    nameInp.className   = 'pull-conflict-field';
+    nameInp.placeholder = 'Profile name...';
+    nameInp.value       = (prefilledData && prefilledData.name)  || ctx.cloudProfileName || '';
+    var iconInp = document.createElement('input');
+    iconInp.type        = 'text';
+    iconInp.className   = 'pull-conflict-field';
+    iconInp.placeholder = 'Icon: SVG string, URL, or emoji (optional)...';
+    iconInp.value       = (prefilledData && prefilledData.icon)  || (ctx.cloudProfileData && ctx.cloudProfileData.icon) || '';
+    var colorInp = document.createElement('input');
+    colorInp.type  = 'color';
+    colorInp.value = (prefilledData && prefilledData.color) || (ctx.cloudProfileData && ctx.cloudProfileData.color) || '#5c9edb';
+    var dtSel = document.createElement('select');
+    dtSel.className = 'pull-conflict-field';
+    ['mobile', 'computer', 'custom'].forEach(function(opt) {
+      var o = document.createElement('option');
+      o.value       = opt;
+      o.textContent = opt;
+      if (opt === ((prefilledData && prefilledData.deviceType) || ctx.deviceType || 'custom')) o.selected = true;
+      dtSel.appendChild(o);
+    });
+    var colorRow = document.createElement('div');
+    colorRow.className = 'pull-conflict-color-row';
+    var colorLabel = document.createElement('span');
+    colorLabel.textContent = 'Colour:';
+    colorLabel.className   = 'pull-conflict-color-label';
+    colorRow.appendChild(colorLabel);
+    colorRow.appendChild(colorInp);
+    wrap.appendChild(nameInp);
+    wrap.appendChild(iconInp);
+    wrap.appendChild(colorRow);
+    wrap.appendChild(dtSel);
+    _editFields = { nameInp: nameInp, iconInp: iconInp, colorInp: colorInp, dtSel: dtSel };
+    return wrap;
+  }
+  function _getEditedMeta() {
+    if (!_editFields) return null;
+    return {
+      name:       (_editFields.nameInp.value  || '').trim() || ctx.cloudProfileName,
+      icon:       (_editFields.iconInp.value  || '').trim() || null,
+      color:      _editFields.colorInp.value  || '#5c9edb',
+      deviceType: _editFields.dtSel.value     || 'custom'
+    };
+  }
+  var btnRow = document.createElement('div');
+  btnRow.className = 'pull-conflict-btn-row';
+  function _skipBtn(label) {
+    var b = document.createElement('button');
+    b.className   = 'pull-conflict-btn pull-conflict-btn-skip';
+    b.textContent = label;
+    b.addEventListener('click', function() { _processNextPull(); });
+    return b;
+  }
+  function _cancelAllBtn() {
+    var b = document.createElement('button');
+    b.className   = 'pull-conflict-btn pull-conflict-btn-cancel';
+    b.textContent = 'Cancel all remaining';
+    b.addEventListener('click', function() {
+      _pullQueueCancelled = true;
+      _pullQueue          = [];
+      _renderPullConflictUI(null);
+      _pullQueueActive    = false;
+    });
+    return b;
+  }
+  if (ctx.existingLocal) {
+    var mergeItemsOnlyBtn = document.createElement('button');
+    mergeItemsOnlyBtn.className   = 'pull-conflict-btn pull-conflict-btn-primary';
+    mergeItemsOnlyBtn.textContent = 'Merge items only (keep local name and style)';
+    mergeItemsOnlyBtn.addEventListener('click', async function() {
+      await _executePull(ctx.cloudProfileId, ctx.cloudProfileName, ctx.cloudProfileData, ctx.existingLocal, null);
+      _processNextPull();
+    });
+    var mergeAndUpdateWrap = document.createElement('div');
+    mergeAndUpdateWrap.className = 'pull-conflict-expand-wrap';
+    var mergeAndUpdateBtn = document.createElement('button');
+    mergeAndUpdateBtn.className   = 'pull-conflict-btn pull-conflict-btn-secondary';
+    mergeAndUpdateBtn.textContent = 'Merge items and update name / style from cloud (click to expand)';
+    var editFieldsContainer = document.createElement('div');
+    editFieldsContainer.style.display = 'none';
+    var fieldsEl = _makeEditFields(ctx.cloudProfileData);
+    editFieldsContainer.appendChild(fieldsEl);
+    var confirmUpdateBtn = document.createElement('button');
+    confirmUpdateBtn.className   = 'pull-conflict-btn pull-conflict-btn-primary';
+    confirmUpdateBtn.textContent = 'Confirm merge and update style';
+    confirmUpdateBtn.addEventListener('click', async function() {
+      var meta = _getEditedMeta();
+      await _executePull(ctx.cloudProfileId, ctx.cloudProfileName, ctx.cloudProfileData, ctx.existingLocal, meta);
+      _processNextPull();
+    });
+    editFieldsContainer.appendChild(confirmUpdateBtn);
+    mergeAndUpdateBtn.addEventListener('click', function() {
+      editFieldsContainer.style.display = editFieldsContainer.style.display === 'none' ? '' : 'none';
+    });
+    mergeAndUpdateWrap.appendChild(mergeAndUpdateBtn);
+    mergeAndUpdateWrap.appendChild(editFieldsContainer);
+    btnRow.appendChild(mergeItemsOnlyBtn);
+    btnRow.appendChild(mergeAndUpdateWrap);
+    btnRow.appendChild(_skipBtn('Skip this profile'));
+    if (_pullQueue.length > 0) btnRow.appendChild(_cancelAllBtn());
+  } else if (ctx.typeConflict) {
+    var asCustomBtn = document.createElement('button');
+    asCustomBtn.className   = 'pull-conflict-btn pull-conflict-btn-primary';
+    asCustomBtn.textContent = 'Create as "custom" device type (avoids having two "' + ctx.deviceType + '" profiles)';
+    asCustomBtn.addEventListener('click', async function() {
+      var data = Object.assign({}, ctx.cloudProfileData, { deviceType: 'custom' });
+      await _executePull(ctx.cloudProfileId, ctx.cloudProfileName, data, null, null);
+      _processNextPull();
+    });
+    var asOriginalBtn = document.createElement('button');
+    asOriginalBtn.className   = 'pull-conflict-btn pull-conflict-btn-secondary';
+    asOriginalBtn.textContent = 'Create as "' + ctx.deviceType + '" anyway (you will have two "' + ctx.deviceType + '" profiles)';
+    asOriginalBtn.addEventListener('click', async function() {
+      await _executePull(ctx.cloudProfileId, ctx.cloudProfileName, ctx.cloudProfileData, null, null);
+      _processNextPull();
+    });
+    btnRow.appendChild(asCustomBtn);
+    btnRow.appendChild(asOriginalBtn);
+    btnRow.appendChild(_skipBtn('Skip this profile'));
+    if (_pullQueue.length > 0) btnRow.appendChild(_cancelAllBtn());
+  } else {
+    var createBtn = document.createElement('button');
+    createBtn.className   = 'pull-conflict-btn pull-conflict-btn-primary';
+    createBtn.textContent = 'Create local profile and pull items';
+    createBtn.addEventListener('click', async function() {
+      await _executePull(ctx.cloudProfileId, ctx.cloudProfileName, ctx.cloudProfileData, null, null);
+      _processNextPull();
+    });
+    btnRow.appendChild(createBtn);
+    btnRow.appendChild(_skipBtn('Skip this profile'));
+    if (_pullQueue.length > 0) btnRow.appendChild(_cancelAllBtn());
+  }
+  box.appendChild(btnRow);
+  container.appendChild(box);
+}
+async function _executePull(cloudProfileId, cloudProfileName, cloudProfileData, existingLocal, metaOverride) {
+  if (!_currentUser || !_firestoreDb) { _showProfileStatus('Sign in to sync.'); return; }
   var uid  = _currentUser.uid;
   var base = _firestoreDb.collection('users').doc(uid).collection('profiles').doc(cloudProfileId);
   var snap = await base.collection('items').get();
   if (snap.empty) { _showProfileStatus('No items found in cloud for "' + cloudProfileName + '".'); return; }
-  // Create a new local profile for these items
-  var _cloudDevType = (cloudProfileData && cloudProfileData.deviceType) || 'custom';
-  var _typeConflict = (_cloudDevType === 'mobile' || _cloudDevType === 'computer') &&
-    _profiles.some(function(p) { return p.deviceType === _cloudDevType; });
-  var _useDevType = _typeConflict ? 'custom' : _cloudDevType;
-  var newProfile = _makeProfile(cloudProfileName, null, (cloudProfileData && cloudProfileData.color) || '#5c9edb', _useDevType);
-  _profiles.push(newProfile);
-  await DB.saveProfiles(_profiles);
-  _activeIds.add(newProfile.id);
-  _visibleIds.add(newProfile.id);
-  _savePrefs();
+  var targetProfile;
+  if (existingLocal) {
+    targetProfile = existingLocal;
+    if (metaOverride) {
+      targetProfile.name       = metaOverride.name       || targetProfile.name;
+      targetProfile.icon       = metaOverride.icon       !== undefined ? metaOverride.icon : targetProfile.icon;
+      targetProfile.color      = metaOverride.color      || targetProfile.color;
+      targetProfile.deviceType = metaOverride.deviceType || targetProfile.deviceType;
+      await DB.saveProfiles(_profiles);
+    }
+  } else {
+    var resolvedDeviceType = (cloudProfileData && cloudProfileData.deviceType) || 'custom';
+    targetProfile = {
+      id:         cloudProfileId,
+      name:       (metaOverride && metaOverride.name)       || (cloudProfileData && cloudProfileData.name)       || cloudProfileName,
+      icon:       (metaOverride && metaOverride.icon)       || (cloudProfileData && cloudProfileData.icon)       || null,
+      color:      (metaOverride && metaOverride.color)      || (cloudProfileData && cloudProfileData.color)      || '#5c9edb',
+      deviceType: (metaOverride && metaOverride.deviceType) || resolvedDeviceType,
+      createdAt:  (cloudProfileData && cloudProfileData.createdAt) || new Date().toISOString()
+    };
+    _profiles.push(targetProfile);
+    await DB.saveProfiles(_profiles);
+    _activeIds.add(targetProfile.id);
+    _visibleIds.add(targetProfile.id);
+    _savePrefs();
+  }
   var pulled = 0;
   snap.forEach(function(doc) {
     var remote = doc.data();
@@ -575,22 +787,40 @@ async function _doPullProfile(cloudProfileId, cloudProfileName, cloudProfileData
       if (!remote.versions)      remote.versions      = [];
       if (!remote.itemUndoStack) remote.itemUndoStack = [];
       if (!remote.itemRedoStack) remote.itemRedoStack = [];
-      remote.profileIds = [newProfile.id];
+      remote.profileIds = [targetProfile.id];
       _appState.items.push(remote);
       pulled++;
     } else {
-      // Item already exists locally - just assign it to the new profile too
-      if ((local.profileIds || []).indexOf(newProfile.id) === -1) {
-        local.profileIds = (local.profileIds || []).concat([newProfile.id]);
+      if ((local.profileIds || []).indexOf(targetProfile.id) === -1) {
+        local.profileIds = (local.profileIds || []).concat([targetProfile.id]);
+      }
+      if (remote.modifiedAt > (local.modifiedAt || '')) {
+        var localSnap = {
+          ts: local.modifiedAt, text: local.text, html: local.html,
+          title: local.title, tags: (local.tags || []).slice(),
+          name: local.versionName || '', deleted: local.deleted || false,
+          profileIds: (local.profileIds || []).slice()
+        };
+        State.addItemVersion(local, localSnap);
+        (remote.versions || []).forEach(function(rv) { State.addItemVersion(local, rv); });
+        var preserved = { itemUndoStack: local.itemUndoStack || [], itemRedoStack: local.itemRedoStack || [] };
+        Object.assign(local, remote, preserved);
+        if ((local.profileIds || []).indexOf(targetProfile.id) === -1) {
+          local.profileIds = (local.profileIds || []).concat([targetProfile.id]);
+        }
       }
     }
   });
   State.saveState(_appState);
+  _syncStatus[targetProfile.id] = 'synced';
+  _savePrefs();
   _renderProfilePanel();
   if (_refreshFn) _refreshFn();
-  _syncStatus[newProfile.id] = 'synced';
-  _savePrefs();
-  _showProfileStatus('Pulled ' + pulled + ' new item(s) into new profile "' + newProfile.name + '".');
+  _showProfileStatus('Pulled ' + pulled + ' new item(s) into profile "' + targetProfile.name + '".');
+}
+async function _doPullProfile(cloudProfileId, cloudProfileName, cloudProfileData) {
+  if (!_currentUser || !_firestoreDb) return;
+  _enqueuePull([{ cloudProfileId: cloudProfileId, cloudProfileName: cloudProfileName, cloudProfileData: cloudProfileData }]);
 }
 async function _doDeleteCloudProfile(cloudProfileId, cloudProfileName) {
   if (!_currentUser || !_firestoreDb) return;
