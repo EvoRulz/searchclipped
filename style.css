@@ -1139,7 +1139,7 @@ mark.sc-highlight {
   min-width: 100%;
   display: flex;
   align-items: center;
-  padding: 1px 7px;
+  padding: 2px 7px 0;
   font-family: var(--font);
   font-size: 10px;
   color: var(--text-ph);
