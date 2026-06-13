@@ -2247,7 +2247,8 @@ mark.sc-highlight {
   flex-shrink: 0;
 }
 .profile-toggle-btn.active       { border-color: var(--blue-dim); color: var(--blue); }
-.profile-toggle-btn.active-write { border-color: var(--yellow);   color: var(--yellow); }
+.profile-toggle-btn.active-write { border-color: var(--yellow); color: var(--yellow); }
+.profile-sync-toggle-btn.active-write { border-color: var(--green); color: var(--green); }
 .profile-toggle-btn:hover        { border-color: var(--text-muted); color: var(--text); }
 .profile-del-btn {
   background: none;
