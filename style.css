@@ -2142,6 +2142,20 @@ mark.sc-highlight {
   flex-shrink: 0;
   letter-spacing: 0.02em;
 }
+.profile-device-select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-family: var(--font);
+  font-size: 10px;
+  padding: 2px 4px;
+  outline: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color var(--transition), color var(--transition);
+}
+.profile-device-select:focus { border-color: var(--blue-dim); color: var(--text); }
 .profile-sync-toggle-btn {
   width: 24px;
   height: 24px;

@@ -448,13 +448,13 @@ function _renderCloudProfileSection() {
     cBulkConfirmWrap.className = 'profile-delete-confirm';
     var cBulkConfirmInput = document.createElement('input');
     cBulkConfirmInput.type        = 'text';
-    cBulkConfirmInput.placeholder = 'type "delete profile(s)"';
+    cBulkConfirmInput.placeholder = 'type "del profiles"';
     cBulkConfirmInput.className   = 'profile-delete-input';
     var cBulkConfirmBtn = document.createElement('button');
     cBulkConfirmBtn.textContent = 'Confirm';
     cBulkConfirmBtn.className   = 'profile-delete-confirm-btn';
     cBulkConfirmBtn.addEventListener('click', async function() {
-      if ((cBulkConfirmInput.value || '').trim().toLowerCase() === 'delete profile(s)') {
+      if ((cBulkConfirmInput.value || '').trim().toLowerCase() === 'del profiles') {
         var toDelete = _cloudProfiles.filter(function(cp) { return _selectedCloudIds.has(cp.id); });
         _selectedCloudIds.clear();
         _cloudBulkDeleteConfirmOpen = false;
@@ -519,13 +519,13 @@ function _renderCloudProfileSection() {
       confirmWrap.className = 'profile-delete-confirm';
       var confirmInput = document.createElement('input');
       confirmInput.type        = 'text';
-      confirmInput.placeholder = 'type "delete profile"';
+      confirmInput.placeholder = 'type "del profile"';
       confirmInput.className   = 'profile-delete-input';
       var confirmBtn = document.createElement('button');
       confirmBtn.textContent = 'Confirm';
       confirmBtn.className   = 'profile-delete-confirm-btn';
       confirmBtn.addEventListener('click', function() {
-        if ((confirmInput.value || '').trim().toLowerCase() === 'delete profile') {
+        if ((confirmInput.value || '').trim().toLowerCase() === 'del profile') {
           _cloudDeleteConfirmId = null;
           _doDeleteCloudProfile(cp.id, cpName);
         } else {
@@ -939,17 +939,32 @@ async function updateProfile(profileId, changes) {
 }
 // ===== VISIBILITY / ACTIVE =====
 function setVisible(profileId, visible) {
-  if (visible) _visibleIds.add(profileId);
-  else         _visibleIds.delete(profileId);
+  if (visible) {
+    _visibleIds.add(profileId);
+  } else {
+    _visibleIds.delete(profileId);
+    _activeIds.delete(profileId);
+  }
   if (!_visibleIds.size && _profiles.length) _visibleIds.add(_profiles[0].id);
+  if (!_activeIds.size && _profiles.length) {
+    var _firstVisible = _profiles.find(function(p) { return _visibleIds.has(p.id); });
+    _activeIds.add(_firstVisible ? _firstVisible.id : _profiles[0].id);
+  }
   _savePrefs();
   if (_refreshFn) _refreshFn();
+  _renderDeviceIcons();
 }
 function setActive(profileId, active) {
-  if (active) _activeIds.add(profileId);
-  else        _activeIds.delete(profileId);
+  if (active) {
+    _activeIds.add(profileId);
+    _visibleIds.add(profileId);
+  } else {
+    _activeIds.delete(profileId);
+  }
   if (!_activeIds.size && _profiles.length) _activeIds.add(_profiles[0].id);
   _savePrefs();
+  if (_refreshFn) _refreshFn();
+  _renderDeviceIcons();
 }
 function getActiveIds()   { return _activeIds; }
 function getVisibleIds()  { return _visibleIds; }
@@ -1017,27 +1032,39 @@ function _toggleDeviceTypeVisibility(deviceType) {
   if (!matching.length) return;
   var anyVisible = matching.some(function(p) { return _visibleIds.has(p.id); });
   matching.forEach(function(p) {
-    if (anyVisible) _visibleIds.delete(p.id);
-    else            _visibleIds.add(p.id);
+    if (anyVisible) {
+      _visibleIds.delete(p.id);
+      _activeIds.delete(p.id);
+    } else {
+      _visibleIds.add(p.id);
+    }
   });
   if (!_visibleIds.size && _profiles.length) _visibleIds.add(_profiles[0].id);
+  if (!_activeIds.size && _profiles.length) {
+    var _firstVisible = _profiles.find(function(p) { return _visibleIds.has(p.id); });
+    _activeIds.add(_firstVisible ? _firstVisible.id : _profiles[0].id);
+  }
   _savePrefs();
   if (_refreshFn) _refreshFn();
+  _renderDeviceIcons();
+  if (_panelOpen) _renderProfilePanel();
+}
+function _anyVisibleOfType(deviceType) {
+  return _profiles.some(function(p) { return p.deviceType === deviceType && _visibleIds.has(p.id); });
 }
 function _renderDeviceIcons() {
   var wrap = document.getElementById('profile-device-icons');
   if (!wrap) return;
   if (!_currentUser) { wrap.innerHTML = ''; return; }
-  var deviceType = _getDeviceType();
   wrap.innerHTML = '';
   var computerBtn = document.createElement('button');
-  computerBtn.className = 'profile-device-btn' + (deviceType === 'computer' ? ' active' : '');
+  computerBtn.className = 'profile-device-btn' + (_anyVisibleOfType('computer') ? ' active' : '');
   computerBtn.title     = 'Computer';
   computerBtn.innerHTML = _computerSVG();
   computerBtn.addEventListener('click', function() { _toggleDeviceTypeVisibility('computer'); });
   wrap.appendChild(computerBtn);
   var mobileBtn = document.createElement('button');
-  mobileBtn.className = 'profile-device-btn' + (deviceType === 'mobile' ? ' active' : '');
+  mobileBtn.className = 'profile-device-btn' + (_anyVisibleOfType('mobile') ? ' active' : '');
   mobileBtn.title     = 'Mobile';
   mobileBtn.innerHTML = _mobileSVG();
   mobileBtn.addEventListener('click', function() { _toggleDeviceTypeVisibility('mobile'); });
@@ -1181,13 +1208,13 @@ function _renderProfilePanel() {
     bulkConfirmWrap.className = 'profile-delete-confirm';
     var bulkConfirmInput = document.createElement('input');
     bulkConfirmInput.type        = 'text';
-    bulkConfirmInput.placeholder = 'type "delete profile(s)"';
+    bulkConfirmInput.placeholder = 'type "del profiles"';
     bulkConfirmInput.className   = 'profile-delete-input';
     var bulkConfirmBtn = document.createElement('button');
     bulkConfirmBtn.textContent = 'Confirm';
     bulkConfirmBtn.className   = 'profile-delete-confirm-btn';
     bulkConfirmBtn.addEventListener('click', async function() {
-      if ((bulkConfirmInput.value || '').trim().toLowerCase() === 'delete profile(s)') {
+      if ((bulkConfirmInput.value || '').trim().toLowerCase() === 'del profiles') {
         var toDelete = Array.from(_selectedProfileIds);
         _selectedProfileIds.clear();
         _bulkDeleteConfirmOpen = false;
@@ -1258,6 +1285,23 @@ function _renderProfilePanel() {
     idDispEl.className   = 'profile-id-display';
     idDispEl.textContent = profile.id;
     row.appendChild(idDispEl);
+    var dtSel = document.createElement('select');
+    dtSel.className = 'profile-device-select';
+    dtSel.title = 'Device type';
+    ['mobile', 'computer', 'custom'].forEach(function(opt) {
+      var o = document.createElement('option');
+      o.value       = opt;
+      o.textContent = opt;
+      if (opt === (profile.deviceType || 'custom')) o.selected = true;
+      dtSel.appendChild(o);
+    });
+    dtSel.addEventListener('click', function(e) { e.stopPropagation(); });
+    dtSel.addEventListener('change', function() {
+      updateProfile(profile.id, { deviceType: dtSel.value });
+      _renderDeviceIcons();
+      _renderProfilePanel();
+    });
+    row.appendChild(dtSel);
     if (_currentUser) {
       var pushBtn = document.createElement('button');
       pushBtn.className = 'profile-sync-btn';
@@ -1307,7 +1351,7 @@ function _renderProfilePanel() {
       confirmWrap.className = 'profile-delete-confirm';
       var confirmInput = document.createElement('input');
       confirmInput.type        = 'text';
-      confirmInput.placeholder = 'type "delete profile"';
+      confirmInput.placeholder = 'type "del profile"';
       confirmInput.className   = 'profile-delete-input';
       confirmInput.addEventListener('keydown', function(e) {
         e.stopPropagation();
@@ -1318,7 +1362,7 @@ function _renderProfilePanel() {
       confirmBtn.textContent = 'Confirm';
       confirmBtn.className   = 'profile-delete-confirm-btn';
       confirmBtn.addEventListener('click', function() {
-        if ((confirmInput.value || '').trim().toLowerCase() === 'delete profile') {
+        if ((confirmInput.value || '').trim().toLowerCase() === 'del profile') {
           deleteProfile(profile.id);
         } else {
           confirmInput.classList.add('error');
