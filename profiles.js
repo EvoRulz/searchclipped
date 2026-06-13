@@ -227,7 +227,7 @@ function _triggerAutoSync(profileId) {
     _syncStatus[profileId] = 'synced';
     _savePrefs();
     if (_panelOpen) _renderProfilePanel();
-  }, 5 * 60 * 1000);
+  }, 10 * 1000);
 }
 function notifyItemChanged() {
   _profiles.forEach(function(profile) {
