@@ -2043,7 +2043,7 @@ mark.sc-highlight {
   border-radius: var(--radius-lg);
   padding: 16px;
   width: 100%;
-  max-width: 400px;
+  max-width: 450px;
   display: flex;
   flex-direction: column;
   gap: 10px;
