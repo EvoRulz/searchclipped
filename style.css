@@ -1797,20 +1797,21 @@ mark.sc-highlight {
   display: flex;
   flex-direction: column;
 }
-.search-history-slot {
-  pointer-events: all;
-  background: var(--bg-panel);
-  border-radius: var(--radius);
-  padding: 4px 8px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: var(--text-muted);
-  overflow: hidden;
-  position: relative;
-  margin: 1px 0;
-  transition: color 0.08s ease;
+.sc-tag-overlay .search-history-slot {
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-size: 10px;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.sc-tag-overlay .search-history-slot.focused {
+  background: var(--purple);
+  color: var(--bg-dark);
+  border-color: var(--purple);
+}
+.sc-tag-overlay .search-history-slot-count {
+  font-size: 9px;
 }
 .search-history-slot.focused {
   color: var(--orange);
