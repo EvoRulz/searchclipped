@@ -2014,7 +2014,7 @@ function _updateCopyBtnPositions() {
     var itemRightRect = itemRight.getBoundingClientRect();
     var _tagsRow = itemEl.querySelector('.tags-row');
     var _tagsOffset = _tagsRow ? Math.round(_tagsRow.offsetHeight / 2) : 0;
-    hitArea.style.height = (itemRect.bottom - itemRightRect.top - _tagsOffset) + 'px';
+    hitArea.style.height = (itemRect.bottom - itemRightRect.top - _tagsOffset + 3) + 'px';
     var hitAreaRect = hitArea.getBoundingClientRect();
     var btnH = btn.offsetHeight;
     var groupH = group.offsetHeight;

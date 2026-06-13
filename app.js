@@ -1,6 +1,6 @@
 'use strict';
-// @version 412
-var SC_VERSION = '@version 412';
+// @version 413
+var SC_VERSION = '@version 413';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -1669,11 +1669,11 @@ document.addEventListener('sc:filter-tag', function (e) {
       }, { passive: false });
       var startY = 0, startScroll = 0, dragging = false;
       el.addEventListener('pointerdown', function (e) {
+        if (!e.isPrimary) return;
         dragging = true;
         startY = e.clientY;
         startScroll = list.scrollTop;
         el.setPointerCapture(e.pointerId);
-        e.preventDefault();
       });
       el.addEventListener('pointermove', function (e) {
         if (!dragging) return;
