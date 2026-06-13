@@ -1,6 +1,6 @@
 'use strict';
-// @version 428
-var SC_VERSION = '@version 428';
+// @version 429
+var SC_VERSION = '@version 429';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -38,7 +38,7 @@ var SC_VERSION = '@version 428';
   var hideTitleEntry   = false;
   var hideItemEntry    = false;
   var hideImgEntry     = false;
-  var hideProfileIds   = false;
+  var hideProfileIds   = true;
   var hideFilterRow    = true;
   var showNewlines     = false;
   var tagCountMode     = 1; // 0=hidden, 1=edit-mode only, 2=always shown
@@ -254,7 +254,7 @@ var SC_VERSION = '@version 428';
     }
     if (p.hideProfileIds !== undefined) {
       hideProfileIds = p.hideProfileIds;
-      btnHideProfileIds.classList.toggle('active', hideProfileIds);
+      btnHideProfileIds.classList.toggle('active', !hideProfileIds);
       _a.classList.toggle('hide-profile-ids', hideProfileIds);
     }
     if (p.hideFilterRow !== undefined) {
@@ -975,7 +975,7 @@ var SC_VERSION = '@version 428';
   });
   btnHideProfileIds.addEventListener('click', function () {
     hideProfileIds = !hideProfileIds;
-    btnHideProfileIds.classList.toggle('active', hideProfileIds);
+    btnHideProfileIds.classList.toggle('active', !hideProfileIds);
     document.getElementById('app').classList.toggle('hide-profile-ids', hideProfileIds);
   });
   btnShowNewlines.addEventListener('click', function () {
@@ -1842,7 +1842,7 @@ document.addEventListener('sc:filter-tag', function (e) {
         _a.classList.toggle('hide-item-entry', hideItemEntry);
       }
       if (p.hideImgEntry !== undefined)   { hideImgEntry = p.hideImgEntry; btnHideImgEntry.classList.toggle('active', hideImgEntry); _a.classList.toggle('hide-img-entry', hideImgEntry); }
-      if (p.hideProfileIds !== undefined) { hideProfileIds = p.hideProfileIds; btnHideProfileIds.classList.toggle('active', hideProfileIds); _a.classList.toggle('hide-profile-ids', hideProfileIds); }
+      if (p.hideProfileIds !== undefined) { hideProfileIds = p.hideProfileIds; btnHideProfileIds.classList.toggle('active', !hideProfileIds); _a.classList.toggle('hide-profile-ids', hideProfileIds); }
       if (p.showNewlines !== undefined)   { showNewlines = p.showNewlines; window._showNewlines = showNewlines; btnShowNewlines.classList.toggle('active', showNewlines); }
       if (p.searchItems !== undefined)    { searchItems = p.searchItems; cbSearchItems.checked = searchItems; }
       if (p.searchTitles !== undefined)   { searchTitles = p.searchTitles; cbSearchTitles.checked = searchTitles; }
