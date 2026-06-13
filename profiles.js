@@ -936,8 +936,6 @@ function _renderProfilePanel() {
   var addForm = document.getElementById('add-profile-form');
   if (addBtn)  addBtn.style.display  = _addFormOpen ? 'none' : '';
   if (addForm) addForm.style.display = _addFormOpen ? ''     : 'none';
-  var pullCloudBtn = document.getElementById('btn-pull-cloud');
-  if (pullCloudBtn) pullCloudBtn.style.display = _currentUser ? '' : 'none';
   if (_addFormOpen) {
     var sourcesEl = document.getElementById('add-profile-sources');
     if (sourcesEl) {
@@ -968,11 +966,6 @@ function _wirePanel() {
   if (closeBtn) closeBtn.addEventListener('click', closePanel);
   var openBtn = document.getElementById('btn-profiles');
   if (openBtn) openBtn.addEventListener('click', openPanel);
-  var pullCloudBtn = document.getElementById('btn-pull-cloud');
-  if (pullCloudBtn) {
-    pullCloudBtn.innerHTML = _cloudDownSVG();
-    pullCloudBtn.addEventListener('click', function() { pullProfile(); });
-  }
   var addBtn = document.getElementById('btn-add-profile');
   if (addBtn) {
     addBtn.addEventListener('click', function() {
