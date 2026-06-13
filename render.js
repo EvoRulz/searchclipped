@@ -2012,7 +2012,8 @@ function _updateCopyBtnPositions() {
     var itemRect = itemEl.getBoundingClientRect();
     if (itemRect.bottom < listTop || itemRect.top > listBottom) return;
     var itemRightRect = itemRight.getBoundingClientRect();
-    hitArea.style.height = (itemRect.bottom - itemRightRect.top) + 'px';
+    hitArea.style.top    = (itemRect.top - itemRightRect.top) + 'px';
+    hitArea.style.height = itemRect.height + 'px';
     var hitAreaRect = hitArea.getBoundingClientRect();
     var btnH = btn.offsetHeight;
     var groupH = group.offsetHeight;
