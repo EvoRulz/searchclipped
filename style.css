@@ -2170,7 +2170,6 @@ mark.sc-highlight {
   font-weight: 600;
   color: var(--text-muted);
   padding: 8px 0 5px;
-  border-top: 1px solid var(--border-lo);
   margin-top: 4px;
   letter-spacing: 0.04em;
 }
