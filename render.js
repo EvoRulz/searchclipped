@@ -1373,6 +1373,7 @@ var rowWrap = document.createElement('div');
 rowWrap.className = 'item-row';
 var outerCbWrap = document.createElement('label');
 outerCbWrap.className = 'item-cb-outer cb-wrap';
+outerCbWrap.dataset.altItem = '⬅';
 var outerCb = document.createElement('input');
 outerCb.type    = 'checkbox';
 outerCb.checked = selectedIds.has(item.id);

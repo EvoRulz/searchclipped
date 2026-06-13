@@ -1,6 +1,6 @@
 'use strict';
-// @version 432
-var SC_VERSION = '@version 432';
+// @version 433
+var SC_VERSION = '@version 433';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -1185,6 +1185,14 @@ document.addEventListener('sc:filter-tag', function (e) {
         if (prevEl) prevEl.classList.remove('keyboard-focused');
         _focusedItemId = null;
       }
+      return;
+    }
+    if (e.altKey && e.key === 'ArrowLeft' && _altLevel === 2 && _altFocusedItemId) {
+      e.preventDefault();
+      document.dispatchEvent(new CustomEvent('sc:toggle-select', { detail: { id: _altFocusedItemId } }));
+      var _altLeftRow = document.querySelector('.item-row.alt-row-focused');
+      var _altLeftBadge = _altLeftRow && _altLeftRow.querySelector('[data-alt-item="⬅"]');
+      if (_altLeftBadge) { _altLeftBadge.classList.add('badge-flash'); setTimeout(function () { _altLeftBadge.classList.remove('badge-flash'); }, 500); }
       return;
     }
     if (e.key === 'Escape') {
