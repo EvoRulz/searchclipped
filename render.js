@@ -2069,7 +2069,7 @@ function _updateProfileIconStacks() {
     stack.style.display = 'none';
     var naturalH = itemEl.clientHeight;
     stack.style.display = prevDisplay || '';
-    var available = naturalH - CONTROLS_H;
+    var available = Math.floor(naturalH / 2 - CONTROLS_H / 2);
     var maxIcons  = Math.max(1, Math.floor((available - PAD + 2) / STEP));
     icons.forEach(function (ic) {
       ic.classList.remove('item-profile-icon-overflow', 'item-profile-icon-hidden');
