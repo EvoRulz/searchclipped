@@ -34,9 +34,10 @@ var _selectedProfileIds   = new Set();
 var _bulkDeleteConfirmOpen = false;
 var _selectedCloudIds      = new Set();
 var _cloudBulkDeleteConfirmOpen = false;
-var _syncEnabled = {};      // profileId → boolean
-var _syncTimers  = {};      // profileId → debounce timer id
-var _syncStatus  = {};      // profileId → 'synced' | 'unsynced' | 'never'
+var _syncEnabled   = {};      // profileId → boolean
+var _syncTimers    = {};      // profileId → debounce timer id
+var _syncStatus    = {};      // profileId → 'synced' | 'unsynced' | 'never'
+var _syncListeners = {};      // profileId → unsubscribe function
 // ===== DEVICE DETECTION =====
 function _getDeviceType() {
   return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 'mobile' : 'computer';
@@ -165,7 +166,13 @@ function _initFirebase() {
     _firestoreDb  = firebase.firestore();
     _authInstance.onAuthStateChanged(function(user) {
       _currentUser = user;
-      if (!user) { _cloudProfiles = null; _cloudProfilesLoading = false; }
+      if (!user) {
+        _cloudProfiles = null;
+        _cloudProfilesLoading = false;
+        Object.keys(_syncListeners).forEach(function(pid) { _stopSyncListener(pid); });
+      } else {
+        _profiles.forEach(function(p) { if (_syncEnabled[p.id]) _startSyncListener(p.id); });
+      }
       _updateAuthUI();
       _renderDeviceIcons();
       _renderCloudProfileSection();
@@ -228,6 +235,70 @@ function _triggerAutoSync(profileId) {
     _savePrefs();
     if (_panelOpen) _renderProfilePanel();
   }, 10 * 1000);
+}
+function _startSyncListener(profileId) {
+  if (_syncListeners[profileId]) return;
+  if (!_currentUser || !_firestoreDb) return;
+  var uid  = _currentUser.uid;
+  var base = _firestoreDb.collection('users').doc(uid).collection('profiles').doc(profileId);
+  var unsub = base.collection('items').onSnapshot(function(snapshot) {
+    _onSyncSnapshot(profileId, snapshot);
+  }, function(err) {
+    console.warn('Sync listener error for ' + profileId, err);
+  });
+  _syncListeners[profileId] = unsub;
+}
+function _stopSyncListener(profileId) {
+  if (_syncListeners[profileId]) {
+    _syncListeners[profileId]();
+    delete _syncListeners[profileId];
+  }
+}
+function _onSyncSnapshot(profileId, snapshot) {
+  if (!_currentUser) return;
+  var profile = _profiles.find(function(p) { return p.id === profileId; });
+  if (!profile) return;
+  var changed = false;
+  snapshot.docChanges().forEach(function(change) {
+    if (change.type === 'removed') return;
+    var remote = change.doc.data();
+    var local  = State.getItem(_appState, remote.id);
+    if (!local) {
+      if (!remote.versions)      remote.versions      = [];
+      if (!remote.itemUndoStack) remote.itemUndoStack = [];
+      if (!remote.itemRedoStack) remote.itemRedoStack = [];
+      if ((remote.profileIds || []).indexOf(profileId) === -1) {
+        remote.profileIds = (remote.profileIds || []).concat([profileId]);
+      }
+      _appState.items.push(remote);
+      changed = true;
+    } else if (remote.modifiedAt > (local.modifiedAt || '')) {
+      var localSnap = {
+        ts:         local.modifiedAt,
+        text:       local.text,
+        html:       local.html,
+        title:      local.title,
+        tags:       (local.tags || []).slice(),
+        name:       local.versionName || '',
+        deleted:    local.deleted || false,
+        profileIds: (local.profileIds || []).slice()
+      };
+      State.addItemVersion(local, localSnap);
+      (remote.versions || []).forEach(function(rv) {
+        State.addItemVersion(local, rv);
+      });
+      var preserved = { itemUndoStack: local.itemUndoStack || [], itemRedoStack: local.itemRedoStack || [] };
+      Object.assign(local, remote, preserved);
+      if ((local.profileIds || []).indexOf(profileId) === -1) {
+        local.profileIds = (local.profileIds || []).concat([profileId]);
+      }
+      changed = true;
+    }
+  });
+  if (changed) {
+    State.saveState(_appState);
+    if (_refreshFn) _refreshFn();
+  }
 }
 function notifyItemChanged() {
   _profiles.forEach(function(profile) {
@@ -919,6 +990,10 @@ function _renderProfilePanel() {
       if (v && v !== profile.name) updateProfile(profile.id, { name: v });
     });
     row.appendChild(nameEl);
+    var idDispEl = document.createElement('span');
+    idDispEl.className   = 'profile-id-display';
+    idDispEl.textContent = profile.id;
+    row.appendChild(idDispEl);
     if (_currentUser) {
       var pushBtn = document.createElement('button');
       pushBtn.className = 'profile-sync-btn';
@@ -952,8 +1027,10 @@ function _renderProfilePanel() {
           _syncEnabled[pid] = !wasOn;
           if (!_syncEnabled[pid]) {
             clearTimeout(_syncTimers[pid]);
+            _stopSyncListener(pid);
           } else {
             _checkSyncStatus(pid);
+            _startSyncListener(pid);
           }
           _savePrefs();
           _renderProfilePanel();
