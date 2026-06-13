@@ -1527,7 +1527,7 @@ function _wirePanel() {
 // ===== ITEM PROFILE ICONS (called from render.js) =====
 function getItemProfileIconsHTML(item) {
   if (!item || !item.profileIds || !item.profileIds.length) return '';
-  if (_visibleIds.size <= 1) return ''; // Only show icons when multiple profiles are visible
+  if (_profiles.filter(function(p) { return p.id !== 'p_orphaned'; }).length <= 1) return '';
   var out = '';
   item.profileIds.forEach(function(pid) {
     var p = _profiles.find(function(pr) { return pr.id === pid; });
