@@ -696,8 +696,6 @@ mark.sc-highlight {
   padding-left: 3px;
   flex-shrink: 0;
   min-width: 24px;
-  height: 100%;
-  align-self: stretch;
 }
 .item-title-row {
   display: flex;
@@ -729,9 +727,10 @@ mark.sc-highlight {
   gap: 2px;
 }
 .copy-hit-area {
-  flex: 1;
-  position: relative;
-  min-height: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   cursor: pointer;
   border-radius: 12px;
   border: 1px solid var(--border-lo);
