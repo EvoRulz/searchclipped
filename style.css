@@ -1628,6 +1628,12 @@ mark.sc-highlight {
   line-height: 1;
 }
 .alt-mode:not(.alt-level-2) [data-alt]::after { display: flex; }
+#btn-show-deleted[data-alt]::after {
+  top: 50%;
+  right: auto;
+  left: 4px;
+  transform: translateY(-50%);
+}
 [data-alt-filter] { position: relative; }
 [data-alt-filter]::after {
   content: attr(data-alt-filter);
