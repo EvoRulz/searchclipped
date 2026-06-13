@@ -518,6 +518,17 @@ button { font-family: var(--font); }
 .item.new-placeholder .item-content { padding-top: 6px; }
 .new-placeholder .item-content { padding-top: 5px; margin-top: 3px; }
 .new-placeholder .placeholder-top-row { padding-left: 33px; }
+.ph-active-profile-icons {
+  position: absolute;
+  left: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  pointer-events: none;
+}
 .item-content[data-placeholder]:empty::before {
   content: attr(data-placeholder);
   color: var(--text-ph);
