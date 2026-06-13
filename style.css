@@ -1046,6 +1046,7 @@ mark.sc-highlight {
   flex-shrink: 0;
   border-radius: 50%;
   overflow: hidden;
+  padding: 1px;
 }
 .version-empty {
   font-size: 10px;
@@ -2011,6 +2012,7 @@ mark.sc-highlight {
   opacity: 1;
   width: 24px;
   height: 24px;
+  overflow: hidden;
 }
 .profile-header-icon-btn:hover { background: var(--surface); }
 .profile-header-state-hidden  { border-color: var(--border); opacity: 0.45; filter: grayscale(1); }
@@ -2645,6 +2647,7 @@ select.pull-conflict-field { cursor: pointer; }
   flex-shrink: 0;
   border-radius: 50%;
   overflow: hidden;
+  padding: 1px;
 }
 .item-profile-icon-dim { opacity: 0.3; }
 .item-profile-icon-overflow { opacity: 0.35; }
