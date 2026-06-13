@@ -296,6 +296,19 @@ function _onSyncSnapshot(profileId, snapshot) {
         local.profileIds = (local.profileIds || []).concat([profileId]);
       }
       changed = true;
+    } else if (remote.modifiedAt === (local.modifiedAt || '') &&
+               (remote.text !== local.text || remote.html !== local.html || remote.title !== local.title)) {
+      State.addItemVersion(local, {
+        ts:         remote.modifiedAt,
+        text:       remote.text,
+        html:       remote.html,
+        title:      remote.title,
+        tags:       (remote.tags || []).slice(),
+        name:       remote.versionName || '',
+        deleted:    remote.deleted || false,
+        profileIds: (remote.profileIds || []).slice()
+      });
+      changed = true;
     }
   });
   if (changed) {
@@ -794,7 +807,19 @@ async function _executePull(cloudProfileId, cloudProfileName, cloudProfileData, 
       if ((local.profileIds || []).indexOf(targetProfile.id) === -1) {
         local.profileIds = (local.profileIds || []).concat([targetProfile.id]);
       }
-      if (remote.modifiedAt > (local.modifiedAt || '')) {
+      if (remote.modifiedAt === (local.modifiedAt || '') &&
+          (remote.text !== local.text || remote.html !== local.html || remote.title !== local.title)) {
+        State.addItemVersion(local, {
+          ts:         remote.modifiedAt,
+          text:       remote.text,
+          html:       remote.html,
+          title:      remote.title,
+          tags:       (remote.tags || []).slice(),
+          name:       remote.versionName || '',
+          deleted:    remote.deleted || false,
+          profileIds: (remote.profileIds || []).slice()
+        });
+      } else if (remote.modifiedAt > (local.modifiedAt || '')) {
         var localSnap = {
           ts: local.modifiedAt, text: local.text, html: local.html,
           title: local.title, tags: (local.tags || []).slice(),
