@@ -220,6 +220,7 @@ async function _checkSyncStatus(profileId) {
       }
     }
     _syncStatus[profileId] = inSync ? 'synced' : 'unsynced';
+    if (!inSync && _syncEnabled[profileId]) _triggerAutoSync(profileId);
   } catch(e) {
     console.warn('_checkSyncStatus failed', e);
   }
@@ -237,6 +238,8 @@ function _triggerAutoSync(profileId) {
     _syncStatus[profileId] = 'synced';
     _savePrefs();
     if (_panelOpen) _renderProfilePanel();
+    var _autoProf = _profiles.find(function(p) { return p.id === profileId; });
+    _showProfileStatus('Auto-sync complete for "' + (_autoProf ? _autoProf.name : profileId) + '".');
   }, 10 * 1000);
 }
 function _startSyncListener(profileId) {
