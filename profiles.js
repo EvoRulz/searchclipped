@@ -491,6 +491,9 @@ function _renderCloudProfileSection() {
     var nameEl = document.createElement('span');
     nameEl.className   = 'cloud-profile-name';
     nameEl.textContent = cpName;
+    var idEl = document.createElement('span');
+    idEl.className   = 'profile-id-display';
+    idEl.textContent = cp.id;
     var pullBtn = document.createElement('button');
     pullBtn.className   = 'cloud-profile-pull-btn';
     pullBtn.innerHTML   = _cloudDownSyncSVG();
@@ -529,6 +532,7 @@ function _renderCloudProfileSection() {
       confirmWrap.appendChild(confirmBtn);
       confirmWrap.appendChild(cancelConfirmBtn);
       row.appendChild(nameEl);
+      row.appendChild(idEl);
       row.appendChild(pullBtn);
       row.appendChild(confirmWrap);
       itemsEl.appendChild(row);
@@ -539,6 +543,7 @@ function _renderCloudProfileSection() {
       delCloudBtn.textContent = '×';
       delCloudBtn.addEventListener('click', function() { _cloudDeleteConfirmId = cp.id; _renderCloudProfileSection(); });
       row.appendChild(nameEl);
+      row.appendChild(idEl);
       row.appendChild(pullBtn);
       row.appendChild(delCloudBtn);
       itemsEl.appendChild(row);
