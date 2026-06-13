@@ -568,8 +568,8 @@ mark.sc-highlight {
   align-items: flex-end;
   gap: 3px;
   flex-shrink: 0;
-  min-width: 70px;
-  max-width: 120px;
+  min-width: 80px;
+  max-width: 80px;
   align-self: center;
   position: relative;
 }
