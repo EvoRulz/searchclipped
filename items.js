@@ -50,6 +50,7 @@ function _onCreate(e) {
   item.bumpOrder = 0;
   _state.items.unshift(item);
   State.saveState(_state);
+  if (window.Profiles) Profiles.notifyItemChanged();
   _refresh();
 }
 /* ====== EDIT ====== */
@@ -69,6 +70,7 @@ function _onEdit(e) {
   State.pushItemUndo(item, oldSnap);
   State.addItemVersion(item, oldSnap);
   State.saveState(_state);
+  if (window.Profiles) Profiles.notifyItemChanged();
   _refresh();
 }
 /* ====== EDIT TITLE ====== */
@@ -212,6 +214,7 @@ async function _doDelete(ids) {
   });
   _selectedIds.clear();
   State.saveState(_state);
+  if (window.Profiles) Profiles.notifyItemChanged();
   _refresh();
 }
 /* ====== RESTORE ====== */

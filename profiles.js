@@ -34,6 +34,9 @@ var _selectedProfileIds   = new Set();
 var _bulkDeleteConfirmOpen = false;
 var _selectedCloudIds      = new Set();
 var _cloudBulkDeleteConfirmOpen = false;
+var _syncEnabled = {};      // profileId → boolean
+var _syncTimers  = {};      // profileId → debounce timer id
+var _syncStatus  = {};      // profileId → 'synced' | 'unsynced' | 'never'
 // ===== DEVICE DETECTION =====
 function _getDeviceType() {
   return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 'mobile' : 'computer';
@@ -116,17 +119,35 @@ function _loadPrefs() {
     var validIds = new Set(_profiles.map(function(pr) { return pr.id; }));
     var active   = (p.activeIds  || []).filter(function(id) { return validIds.has(id); });
     var visible  = (p.visibleIds || []).filter(function(id) { return validIds.has(id); });
-    _activeIds  = new Set(active.length  ? active  : [_profiles[0].id]);
-    _visibleIds = new Set(visible.length ? visible : [_profiles[0].id]);
-    _panelOpen  = !!p.panelOpen;
+    _activeIds   = new Set(active.length  ? active  : [_profiles[0].id]);
+    _visibleIds  = new Set(visible.length ? visible : [_profiles[0].id]);
+    _panelOpen   = !!p.panelOpen;
+    _syncEnabled = p.syncEnabled || {};
+    _syncStatus  = p.syncStatus  || {};
   } catch(e) { _resetToDefaults(); }
+}
+function _syncSVG(color) {
+  return `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M2 7A5 5 0 0 1 12 7" stroke="${color}" stroke-width="1.3" stroke-linecap="round"/>
+    <path d="M12 7A5 5 0 0 1 2 7" stroke="${color}" stroke-width="1.3" stroke-linecap="round"/>
+    <path d="M10.5 4.5L12 7l2-1.5" stroke="${color}" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M3.5 9.5L2 7 0 8.5" stroke="${color}" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+}
+function _cloudDownSyncSVG() {
+  return `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4.5 11.5a2.5 2.5 0 01-.5-4.95A3.5 3.5 0 0111 5.05 2.75 2.75 0 0112.5 11.5h-8z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+    <path d="M8 7v4.5M6 9.5l2 2 2-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
 }
 function _savePrefs() {
   try {
     localStorage.setItem('sc_profile_prefs', JSON.stringify({
       activeIds:  Array.from(_activeIds),
       visibleIds: Array.from(_visibleIds),
-      panelOpen:  _panelOpen
+      panelOpen:  _panelOpen,
+      syncEnabled: _syncEnabled,
+      syncStatus:  _syncStatus
     }));
   } catch(e) {}
 }
@@ -164,6 +185,55 @@ async function signOut() {
   try { await _authInstance.signOut(); } catch(e) { console.warn('Sign-out failed', e); }
 }
 // ===== FIRESTORE SYNC =====
+async function _checkSyncStatus(profileId) {
+  if (!_currentUser || !_firestoreDb) return;
+  var profile = _profiles.find(function(p) { return p.id === profileId; });
+  if (!profile) return;
+  var uid  = _currentUser.uid;
+  var base = _firestoreDb.collection('users').doc(uid).collection('profiles').doc(profileId);
+  try {
+    var snap = await base.collection('items').get();
+    var cloudItems = {};
+    snap.forEach(function(doc) { cloudItems[doc.id] = doc.data(); });
+    var localItems = _appState.items.filter(function(i) { return (i.profileIds || []).indexOf(profileId) !== -1; });
+    var inSync = true;
+    if (localItems.length !== Object.keys(cloudItems).length) {
+      inSync = false;
+    } else {
+      for (var i = 0; i < localItems.length; i++) {
+        var li = localItems[i];
+        var ci = cloudItems[li.id];
+        if (!ci || ci.modifiedAt !== li.modifiedAt || ci.text !== li.text || ci.title !== li.title) {
+          inSync = false;
+          break;
+        }
+      }
+    }
+    _syncStatus[profileId] = inSync ? 'synced' : 'unsynced';
+  } catch(e) {
+    console.warn('_checkSyncStatus failed', e);
+  }
+  _savePrefs();
+  if (_panelOpen) _renderProfilePanel();
+}
+function _triggerAutoSync(profileId) {
+  if (!_syncEnabled[profileId]) return;
+  if (!_currentUser || !_firestoreDb) return;
+  clearTimeout(_syncTimers[profileId]);
+  _syncStatus[profileId] = 'unsynced';
+  if (_panelOpen) _renderProfilePanel();
+  _syncTimers[profileId] = setTimeout(async function() {
+    await syncProfile(profileId);
+    _syncStatus[profileId] = 'synced';
+    _savePrefs();
+    if (_panelOpen) _renderProfilePanel();
+  }, 5 * 60 * 1000);
+}
+function notifyItemChanged() {
+  _profiles.forEach(function(profile) {
+    if (_syncEnabled[profile.id]) _triggerAutoSync(profile.id);
+  });
+}
 async function syncProfile(profileId) {
   if (!_currentUser || !_firestoreDb) { _showProfileStatus('Sign in to sync.'); return; }
   var profile = _profiles.find(function(p) { return p.id === profileId; });
@@ -183,6 +253,9 @@ async function syncProfile(profileId) {
     batch.set(base.collection('items').doc(item.id), copy, { merge: true });
   });
   await batch.commit();
+  _syncStatus[profileId] = 'synced';
+  _savePrefs();
+  if (_panelOpen) _renderProfilePanel();
   _showProfileStatus('Pushed ' + items.length + ' items to cloud for profile "' + profile.name + '".');
 }
 async function pullProfile() {
@@ -349,7 +422,8 @@ function _renderCloudProfileSection() {
     nameEl.textContent = cpName;
     var pullBtn = document.createElement('button');
     pullBtn.className   = 'cloud-profile-pull-btn';
-    pullBtn.textContent = 'pull';
+    pullBtn.innerHTML   = _cloudDownSyncSVG();
+    pullBtn.title       = 'Pull from cloud';
     pullBtn.addEventListener('click', function() { _doPullProfile(cp.id, cpName, cp.data); });
     if (_cloudDeleteConfirmId === cp.id) {
       var confirmWrap = document.createElement('div');
@@ -438,6 +512,8 @@ async function _doPullProfile(cloudProfileId, cloudProfileName, cloudProfileData
   State.saveState(_appState);
   _renderProfilePanel();
   if (_refreshFn) _refreshFn();
+  _syncStatus[newProfile.id] = 'synced';
+  _savePrefs();
   _showProfileStatus('Pulled ' + pulled + ' new item(s) into new profile "' + newProfile.name + '".');
 }
 async function _doDeleteCloudProfile(cloudProfileId, cloudProfileName) {
@@ -645,7 +721,12 @@ function openPanel() {
   panel.classList.remove('hidden');
   _hideProfileStatus();
   _renderProfilePanel();
-  if (_currentUser) _fetchAndRenderCloudProfiles();
+  if (_currentUser) {
+    _fetchAndRenderCloudProfiles();
+    _profiles.forEach(function(p) {
+      if (_syncEnabled[p.id]) _checkSyncStatus(p.id);
+    });
+  }
 }
 function closePanel() {
   var panel = document.getElementById('profile-panel');
@@ -858,6 +939,28 @@ function _renderProfilePanel() {
     writeBtn.innerHTML = _pencilSVG();
     writeBtn.addEventListener('click', function() { setActive(profile.id, !isActive); _renderProfilePanel(); });
     row.appendChild(writeBtn);
+    if (_currentUser) {
+      var isSyncOn  = !!_syncEnabled[profile.id];
+      var syncState = _syncStatus[profile.id] || 'never';
+      var syncColor = syncState === 'synced' ? 'var(--green)' : syncState === 'unsynced' ? 'var(--red)' : 'var(--text-ph)';
+      var syncBtn   = document.createElement('button');
+      syncBtn.className = 'profile-toggle-btn profile-sync-toggle-btn' + (isSyncOn ? ' active-write' : '');
+      syncBtn.title     = isSyncOn ? 'Auto-sync ON — click to disable' : 'Auto-sync OFF — click to enable';
+      syncBtn.innerHTML = _syncSVG(isSyncOn ? syncColor : 'var(--text-ph)');
+      (function(pid, wasOn) {
+        syncBtn.addEventListener('click', async function() {
+          _syncEnabled[pid] = !wasOn;
+          if (!_syncEnabled[pid]) {
+            clearTimeout(_syncTimers[pid]);
+          } else {
+            _checkSyncStatus(pid);
+          }
+          _savePrefs();
+          _renderProfilePanel();
+        });
+      })(profile.id, isSyncOn);
+      row.appendChild(syncBtn);
+    }
     if (_deleteConfirmId === profile.id) {
       var confirmWrap = document.createElement('div');
       confirmWrap.className = 'profile-delete-confirm';
@@ -1078,6 +1181,7 @@ function _cloudDownSVG() {
 }
 window.Profiles = {
   init,
+  notifyItemChanged,
   getProfiles,
   getActiveIds,
   getVisibleIds,

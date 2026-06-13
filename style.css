@@ -2120,6 +2120,14 @@ mark.sc-highlight {
   transition: border-color var(--transition);
 }
 .profile-name-input:focus { border-bottom-color: var(--blue-dim); }
+.profile-sync-toggle-btn {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .profile-sync-btn {
   background: none;
   border: 1px solid var(--border);
