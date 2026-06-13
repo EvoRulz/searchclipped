@@ -1114,10 +1114,13 @@ mark.sc-highlight {
   position: relative;
   display: inline-flex;
   align-items: center;
-}
-.tag-new-input {
   background: var(--surface);
   border: 1px dashed var(--purple);
+  border-radius: 10px;
+}
+.tag-new-input {
+  background: transparent;
+  border: none;
   border-radius: 10px;
   color: var(--text);
   font-family: var(--font);
