@@ -86,7 +86,7 @@ function _drawSelCanvas(canvas, total, selSet, emptySelected) {
 }
 function _attachFixedOverlay(above, below, anchorEl) {
   var rect = anchorEl.getBoundingClientRect();
-  var w = Math.max(rect.width, 180);
+  var w = Math.max(rect.width, 80);
   var left = Math.max(0, Math.min(rect.right - w, window.innerWidth - w - 4));
   [above, below].forEach(function(el) {
     el.classList.add('sc-tag-overlay');
