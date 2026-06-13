@@ -915,6 +915,10 @@ function _renderProfilePanel() {
   pCtrlBar.appendChild(pBulkWriteOnBtn);
   pCtrlBar.appendChild(pBulkWriteOffBtn);
   pCtrlBar.appendChild(pBulkDelBtn);
+  var onThisDeviceHeader = document.createElement('div');
+  onThisDeviceHeader.className = 'cloud-profile-section-header';
+  onThisDeviceHeader.textContent = 'On This Device';
+  listEl.appendChild(onThisDeviceHeader);
   listEl.appendChild(pCtrlBar);
   _updateProfileCtrl();
   if (_bulkDeleteConfirmOpen && _selectedProfileIds.size > 0) {
