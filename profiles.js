@@ -113,9 +113,10 @@ async function init(appState, refreshFn) {
     }
   });
   if (_iconMigrated) await DB.saveProfiles(_profiles);
-  var _wasPanelOpen = _panelOpen;
   _panelOpen = false;
   _loadPrefs();
+  var _wasPanelOpen = _panelOpen;
+  _panelOpen = false;
   _initFirebase();
   _wirePanel();
   _updateAuthUI();

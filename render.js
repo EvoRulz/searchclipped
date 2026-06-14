@@ -2124,8 +2124,9 @@ function ensureVersionPanelsOpen(ids) {
 }
 function getTagEditItemId() { return _tagEditItemId; }
 function setTagEditItemId(id) { _tagEditItemId = id; _tagRenameIdx = null; }
+function getOpenVersionPanelIds() { return Array.from(_openVersionPanels); }
 window.Render = {
   init, render, drawSelCanvas: _drawSelCanvas, setPeekThreshold, ensureVersionPanelsOpen,
-  getTagEditItemId, setTagEditItemId
+  getTagEditItemId, setTagEditItemId, getOpenVersionPanelIds
 };
 

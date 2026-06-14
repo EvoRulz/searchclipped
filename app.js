@@ -1,6 +1,6 @@
 'use strict';
-// @version 451
-var SC_VERSION = '@version 451';
+// @version 452
+var SC_VERSION = '@version 452';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -143,7 +143,9 @@ var SC_VERSION = '@version 451';
       savedSearchTitles: _savedSearchTitles, savedSearchTags: _savedSearchTags,
       savedQuery: _savedQuery, starFilter: state.starFilter,
       sortMode: state.sortMode, selectAllActive: _selectAllActive,
-      selectedIds: Array.from(Items.getSelectedIds()).sort()
+      selectedIds: Array.from(Items.getSelectedIds()).sort(),
+      openVersionPanelIds: Render.getOpenVersionPanelIds(),
+      tagEditItemId: Render.getTagEditItemId() || null
     };
   }
   function _applyUiSnapshot(p) {
@@ -279,6 +281,8 @@ var SC_VERSION = '@version 451';
     if (p.sortMode !== undefined)          { state.sortMode = p.sortMode; sortSelect.value = p.sortMode; }
     if (p.selectAllActive !== undefined)   { _selectAllActive = p.selectAllActive; }
     if (p.selectedIds !== undefined)       { Items.setSelectionSilent(new Set(p.selectedIds)); }
+    if (p.openVersionPanelIds && p.openVersionPanelIds.length) Render.ensureVersionPanelsOpen(p.openVersionPanelIds);
+    if (p.tagEditItemId !== undefined)     { Render.setTagEditItemId(p.tagEditItemId || null); }
   }
   window.AppUi = { snapshotUi: _snapshotUi };
   /* ===== REFRESH ===== */
@@ -1791,6 +1795,8 @@ document.addEventListener('sc:filter-tag', function (e) {
     attachHandle(left);
     attachHandle(right);
   })();
+  window.addEventListener('beforeunload', _saveUiState);
+  window.addEventListener('pagehide', _saveUiState);
   /* ===== SERVICE WORKER ===== */
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(function (e) {
@@ -1868,7 +1874,9 @@ document.addEventListener('sc:filter-tag', function (e) {
         hideImgEntry: hideImgEntry, hideProfileIds: hideProfileIds, hideFilterRow: hideFilterRow, showNewlines: showNewlines,
         searchItems: searchItems, searchTitles: searchTitles, searchTags: searchTags,
         tagFilterActive: _tagFilterActive, savedSearchItems: _savedSearchItems, savedSearchTitles: _savedSearchTitles, savedSearchTags: _savedSearchTags, savedQuery: _savedQuery,
-        tagCountMode: tagCountMode, tagXMode: tagXMode
+        tagCountMode: tagCountMode, tagXMode: tagXMode,
+        openVersionPanelIds: Render.getOpenVersionPanelIds(),
+        tagEditItemId: Render.getTagEditItemId() || null
       }));
     } catch(e) {}
   }
@@ -1947,6 +1955,8 @@ document.addEventListener('sc:filter-tag', function (e) {
       if (p.savedQuery !== undefined)        { _savedQuery = p.savedQuery; }
       if (p.tagCountMode !== undefined)      { tagCountMode = p.tagCountMode; _applyTagCountMode(); }
       if (p.tagXMode !== undefined)          { tagXMode = p.tagXMode; _applyTagXMode(); }
+      if (p.openVersionPanelIds && p.openVersionPanelIds.length) Render.ensureVersionPanelsOpen(p.openVersionPanelIds);
+      if (p.tagEditItemId)                   { Render.setTagEditItemId(p.tagEditItemId); }
     } catch(e) {}
   }
   (function () {
