@@ -519,7 +519,10 @@ function _renderCloudProfileSection() {
     cpIconEl.className = 'profile-icon-wrap';
     cpIconEl.style.cursor = 'pointer';
     cpIconEl.title    = 'Click to restyle';
-    cpIconEl.innerHTML = _profileIconHTML({ name: cpName, icon: (cp.data && cp.data.icon) || null, color: (cp.data && cp.data.color) || '#5c9edb' }, 28);
+    cpIconEl.innerHTML = _profileIconHTML(
+        { name: cpName, icon: (cp.data && cp.data.icon) || null, color: (cp.data && cp.data.color) || '#5c9edb' },
+        window._dbgSzPanel !== undefined ? window._dbgSzPanel : 28
+    );
     (function(cpId) {
       cpIconEl.addEventListener('click', function() {
         _cloudStyleEditId     = (_cloudStyleEditId === cpId) ? null : cpId;
@@ -1182,7 +1185,7 @@ function _renderDeviceIcons() {
     var btn = document.createElement('button');
     btn.className = 'profile-header-icon-btn profile-header-state-' + state;
     btn.title = profile.name + ' (' + state + ')';
-    btn.innerHTML = _profileIconHTML(profile, 16);
+    btn.innerHTML = _profileIconHTML(profile, window._dbgSzHeader !== undefined ? window._dbgSzHeader : 16);
     (function(p) {
       btn.addEventListener('click', function() { _cycleProfileHeaderState(p); });
     })(profile);
@@ -1366,7 +1369,7 @@ function _renderProfilePanel() {
     row.className = 'profile-row';
     var iconEl = document.createElement('div');
     iconEl.className   = 'profile-icon-wrap';
-    iconEl.innerHTML   = _profileIconHTML(profile, 28);
+    iconEl.innerHTML   = _profileIconHTML(profile, window._dbgSzPanel !== undefined ? window._dbgSzPanel : 28);
     iconEl.style.cursor = 'pointer';
     iconEl.title = 'Click to restyle';
     iconEl.addEventListener('click', function() {
@@ -1633,7 +1636,7 @@ function getItemProfileIconsHTML(item) {
     if (!p) return;
     var dimmed = !_visibleIds.has(pid);
     out += '<span class="item-profile-icon' + (dimmed ? ' item-profile-icon-dim' : '') + '" title="' + p.name + '">'
-        + _profileIconHTML(p, 12) + '</span>';
+        + _profileIconHTML(p, window._dbgSzBadge !== undefined ? window._dbgSzBadge : 12) + '</span>';
   });
   return out;
 }

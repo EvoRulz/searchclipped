@@ -1,6 +1,6 @@
 'use strict';
-// @version 447
-var SC_VERSION = '@version 447';
+// @version 448
+var SC_VERSION = '@version 448';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -461,6 +461,96 @@ var SC_VERSION = '@version 447';
   /* Initial render */
   refresh();
   searchInput.focus();
+  /* ===== DEBUG PROFILE ICON SIZE PANEL ===== */
+  (function () {
+    window._dbgSzHeader = 16;
+    window._dbgSzPanel  = 28;
+    window._dbgSzBadge  = 12;
+    window._dbgSzVer    = 10;
+    var dbgPanel = document.createElement('div');
+    dbgPanel.id = 'dbg-prof-sizes';
+    dbgPanel.style.cssText = [
+      'position:fixed', 'bottom:20px', 'right:10px', 'z-index:9999',
+      'background:#1a2030', 'border:1px solid #435160', 'border-radius:8px',
+      'padding:8px 12px', 'font-family:JetBrains Mono,monospace', 'font-size:10px',
+      'color:#d8dee9', 'display:flex', 'flex-direction:column', 'gap:5px',
+      'min-width:200px', 'box-shadow:0 4px 18px rgba(0,0,0,0.65)'
+    ].join(';');
+    var titleRow = document.createElement('div');
+    titleRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;';
+    var titleEl = document.createElement('span');
+    titleEl.textContent = 'Profile icon sizes';
+    titleEl.style.cssText = 'font-weight:600;color:#6dcbf7;font-size:11px;';
+    var collapseBtn = document.createElement('button');
+    collapseBtn.textContent = '\u2212';
+    collapseBtn.style.cssText = 'background:none;border:none;color:#a6acb9;cursor:pointer;font-size:14px;padding:0 2px;line-height:1;font-family:inherit;';
+    titleRow.appendChild(titleEl);
+    titleRow.appendChild(collapseBtn);
+    dbgPanel.appendChild(titleRow);
+    var body = document.createElement('div');
+    body.style.cssText = 'display:flex;flex-direction:column;gap:5px;';
+    function _makeSliderRow(label, key, defaultVal) {
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:6px;';
+      var lbl = document.createElement('span');
+      lbl.textContent = label;
+      lbl.style.cssText = 'width:68px;flex-shrink:0;color:#a6acb9;';
+      var slider = document.createElement('input');
+      slider.type = 'range';
+      slider.min = 6;
+      slider.max = 60;
+      slider.value = defaultVal;
+      slider.style.cssText = 'flex:1;cursor:pointer;accent-color:#5c9edb;';
+      var valEl = document.createElement('span');
+      valEl.textContent = defaultVal + 'px';
+      valEl.style.cssText = 'width:30px;text-align:right;color:#fac863;flex-shrink:0;';
+      slider.addEventListener('input', function () {
+        window[key] = parseInt(slider.value, 10);
+        valEl.textContent = slider.value + 'px';
+        refresh();
+      });
+      row.appendChild(lbl);
+      row.appendChild(slider);
+      row.appendChild(valEl);
+      return row;
+    }
+    body.appendChild(_makeSliderRow('header',    '_dbgSzHeader', 16));
+    body.appendChild(_makeSliderRow('panel',     '_dbgSzPanel',  28));
+    body.appendChild(_makeSliderRow('badge',     '_dbgSzBadge',  12));
+    body.appendChild(_makeSliderRow('ver badge', '_dbgSzVer',    10));
+    var divider = document.createElement('div');
+    divider.style.cssText = 'border-top:1px solid #303d4d;margin:2px 0;';
+    body.appendChild(divider);
+    var clipLabel = document.createElement('label');
+    clipLabel.style.cssText = 'display:flex;align-items:center;gap:6px;cursor:pointer;color:#a6acb9;user-select:none;';
+    var clipCb = document.createElement('input');
+    clipCb.type = 'checkbox';
+    clipCb.checked = true;
+    clipCb.style.cssText = 'cursor:pointer;accent-color:#5c9edb;';
+    var clipTxt = document.createElement('span');
+    clipTxt.textContent = 'clip to circle';
+    clipLabel.appendChild(clipCb);
+    clipLabel.appendChild(clipTxt);
+    body.appendChild(clipLabel);
+    clipCb.addEventListener('change', function () {
+      var s = document.getElementById('dbg-clip-override');
+      if (!s) { s = document.createElement('style'); s.id = 'dbg-clip-override'; document.head.appendChild(s); }
+      s.textContent = clipCb.checked ? '' : [
+        '.profile-icon-svg{border-radius:0!important;overflow:visible!important;}',
+        '.profile-header-icon-btn{border-radius:4px!important;overflow:visible!important;}',
+        '.item-profile-icon{border-radius:0!important;overflow:visible!important;}',
+        '.version-profile-badge{border-radius:0!important;overflow:visible!important;}'
+      ].join('');
+    });
+    dbgPanel.appendChild(body);
+    var _collapsed = false;
+    collapseBtn.addEventListener('click', function () {
+      _collapsed = !_collapsed;
+      body.style.display = _collapsed ? 'none' : 'flex';
+      collapseBtn.textContent = _collapsed ? '+' : '\u2212';
+    });
+    document.body.appendChild(dbgPanel);
+  })();
   /* Load undo/redo stacks from IndexedDB */
   State.initUndoFromDB(state).then(function () { _updateUndoRedo(); }).catch(function (e) {
     console.error('Failed to init undo stacks', e);

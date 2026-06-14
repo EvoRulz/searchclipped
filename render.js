@@ -577,7 +577,7 @@ if (window.Profiles) {
     var _iconSpan = document.createElement('span');
     _iconSpan.className = 'item-profile-icon';
     _iconSpan.title = _p.name;
-    _iconSpan.innerHTML = Profiles._profileIconHTML(_p, 12);
+    _iconSpan.innerHTML = Profiles._profileIconHTML(_p, window._dbgSzBadge !== undefined ? window._dbgSzBadge : 12);
     _phProfIcons.appendChild(_iconSpan);
   });
   if (_phProfIcons.children.length) el.appendChild(_phProfIcons);
@@ -592,7 +592,7 @@ if (window.Profiles) {
     var _iconSpan = document.createElement('span');
     _iconSpan.className = 'item-profile-icon';
     _iconSpan.title = _p.name;
-    _iconSpan.innerHTML = Profiles._profileIconHTML(_p, 12);
+    _iconSpan.innerHTML = Profiles._profileIconHTML(_p, window._dbgSzBadge !== undefined ? window._dbgSzBadge : 12);
     _phProfIcons.appendChild(_iconSpan);
   });
   if (_phProfIcons.children.length) el.appendChild(_phProfIcons);
@@ -1292,7 +1292,7 @@ _versions.slice().reverse().forEach(function (ver, rIdx) {
       var _badge = document.createElement('span');
       _badge.className = 'version-profile-badge';
       _badge.title = _p.name;
-      _badge.innerHTML = Profiles._profileIconHTML(_p, 10);
+      _badge.innerHTML = Profiles._profileIconHTML(_p, window._dbgSzVer !== undefined ? window._dbgSzVer : 10);
       vProfileIcons.appendChild(_badge);
     });
     vRowInner.appendChild(vCb);
