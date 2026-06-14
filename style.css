@@ -2019,6 +2019,10 @@ mark.sc-highlight {
 .profile-header-state-visible { border-color: var(--blue-dim); box-shadow: 0 0 0 1px var(--blue-dim); }
 .profile-header-state-writing { border-color: var(--yellow);   box-shadow: 0 0 0 1px var(--yellow); }
 .profile-header-state-synced  { border-color: var(--green);    box-shadow: 0 0 0 1px var(--green); }
+.profile-header-state-hidden:has(.profile-icon-svg)  { border-color: transparent; box-shadow: none; }
+.profile-header-state-visible:has(.profile-icon-svg) { border-color: transparent; box-shadow: none; color: var(--blue-dim); }
+.profile-header-state-writing:has(.profile-icon-svg) { border-color: transparent; box-shadow: none; color: var(--yellow); }
+.profile-header-state-synced:has(.profile-icon-svg)  { border-color: transparent; box-shadow: none; color: var(--green); }
 .auth-circle {
   width: 30px;
   height: 30px;
