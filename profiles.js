@@ -1723,9 +1723,23 @@ function _cloudDownSVG() {
     <path d="M8 7v4.5M6 9.5l2 2 2-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>`;
 }
+async function deleteItemsFromCloud(itemIds) {
+  if (!_currentUser || !_firestoreDb || !itemIds || !itemIds.length) return;
+  var uid = _currentUser.uid;
+  for (var pi = 0; pi < _profiles.length; pi++) {
+    var profile = _profiles[pi];
+    if (!_syncEnabled[profile.id]) continue;
+    var base = _firestoreDb.collection('users').doc(uid).collection('profiles').doc(profile.id);
+    var batch = _firestoreDb.batch();
+    itemIds.forEach(function(id) { batch.delete(base.collection('items').doc(id)); });
+    try { await batch.commit(); }
+    catch(e) { console.warn('deleteItemsFromCloud failed for profile', profile.id, e); }
+  }
+}
 window.Profiles = {
   init,
   notifyItemChanged,
+  deleteItemsFromCloud,
   getProfiles,
   getActiveIds,
   getVisibleIds,

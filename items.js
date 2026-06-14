@@ -248,6 +248,7 @@ async function _onHardDelete(e) {
   await State.purgeAllBurnedFromStacks(_state, new Set([item.id]));
   _selectedIds.delete(item.id);
   State.saveState(_state);
+  if (window.Profiles) Profiles.deleteItemsFromCloud([item.id]).catch(function(e) { console.warn('cloud burn delete failed', e); });
   _refresh();
 }
 /* ====== TAGS ====== */
@@ -446,6 +447,7 @@ async function bulkBurn(ids) {
   await State.purgeAllBurnedFromStacks(_state, new Set(burnedIds));
   ids.forEach(function (id) { _selectedIds.delete(id); });
   State.saveState(_state);
+  if (window.Profiles) Profiles.deleteItemsFromCloud(burnedIds).catch(function(e) { console.warn('cloud burn delete failed', e); });
   _refresh();
 }
 async function _onVersionHardDelete(e) {
