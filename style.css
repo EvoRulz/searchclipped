@@ -2195,8 +2195,9 @@ mark.sc-highlight {
 }
 .profile-name-id-wrap {
   display: flex;
-  align-items: baseline;
-  gap: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
   flex: 1;
   min-width: 0;
   overflow: hidden;
