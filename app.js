@@ -1,6 +1,6 @@
 'use strict';
-// @version 448
-var SC_VERSION = '@version 448';
+// @version 449
+var SC_VERSION = '@version 449';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -461,9 +461,6 @@ var SC_VERSION = '@version 448';
   /* Initial render */
   refresh();
   searchInput.focus();
-  /* ===== DEBUG PROFILE ICON SIZE PANEL ===== */
-  (function () {
-    window._dbgSzHeader = 16;
     window._dbgSzPanel  = 28;
     window._dbgSzBadge  = 12;
     window._dbgSzVer    = 10;
@@ -549,9 +546,7 @@ var SC_VERSION = '@version 448';
       body.style.display = _collapsed ? 'none' : 'flex';
       collapseBtn.textContent = _collapsed ? '+' : '\u2212';
     });
-    document.body.appendChild(dbgPanel);
-  })();
-  /* Load undo/redo stacks from IndexedDB */
+    /* Load undo/redo stacks from IndexedDB */
   State.initUndoFromDB(state).then(function () { _updateUndoRedo(); }).catch(function (e) {
     console.error('Failed to init undo stacks', e);
   });
