@@ -1,6 +1,6 @@
 'use strict';
-// @version 457
-var SC_VERSION = '@version 457';
+// @version 458
+var SC_VERSION = '@version 458';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -1797,6 +1797,14 @@ document.addEventListener('sc:filter-tag', function (e) {
     attachHandle(left);
     attachHandle(right);
   })();
+  document.addEventListener('sc:auth-changed', function () {
+    _lastFirebaseUsageCheck = 0;
+    _updateFirebaseUsageDisplay();
+  });
+  document.addEventListener('sc:sync-complete', function () {
+    _lastFirebaseUsageCheck = 0;
+    _updateFirebaseUsageDisplay();
+  });
   window.addEventListener('beforeunload', _saveUiState);
   window.addEventListener('pagehide', _saveUiState);
   /* ===== SERVICE WORKER ===== */

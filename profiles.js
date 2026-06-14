@@ -217,6 +217,7 @@ function _initFirebase() {
       _renderDeviceIcons();
       _renderCloudProfileSection();
       if (user && _panelOpen) _fetchAndRenderCloudProfiles();
+  document.dispatchEvent(new CustomEvent('sc:auth-changed', { detail: { user: user } }));
     });
   } catch(e) { console.warn('Firebase init failed', e); }
 }
@@ -386,6 +387,7 @@ async function syncProfile(profileId) {
   _savePrefs();
   if (_panelOpen) _renderProfilePanel();
   _showProfileStatus('Pushed ' + items.length + ' items to cloud for profile "' + profile.name + '".');
+  document.dispatchEvent(new CustomEvent('sc:sync-complete'));
 }
 async function pullProfile() {
   if (!_currentUser || !_firestoreDb) { _showProfileStatus('Sign in to sync.'); return; }
@@ -956,6 +958,7 @@ async function _executePull(cloudProfileId, cloudProfileName, cloudProfileData, 
   _renderProfilePanel();
   if (_refreshFn) _refreshFn();
   _showProfileStatus('Pulled ' + pulled + ' new item(s) into profile "' + targetProfile.name + '".');
+  document.dispatchEvent(new CustomEvent('sc:sync-complete'));
 }
 async function _doPullProfile(cloudProfileId, cloudProfileName, cloudProfileData) {
   if (!_currentUser || !_firestoreDb) return;
