@@ -537,6 +537,10 @@ function _renderCloudProfileSection() {
     var idEl = document.createElement('span');
     idEl.className   = 'profile-id-display';
     idEl.textContent = cp.id;
+    var cloudNameIdWrap = document.createElement('div');
+    cloudNameIdWrap.className = 'profile-name-id-wrap';
+    cloudNameIdWrap.appendChild(nameEl);
+    cloudNameIdWrap.appendChild(idEl);
     var pullBtn = document.createElement('button');
     pullBtn.className   = 'cloud-profile-pull-btn';
     pullBtn.innerHTML   = _cloudDownSyncSVG();
@@ -574,8 +578,7 @@ function _renderCloudProfileSection() {
       confirmWrap.appendChild(confirmInput);
       confirmWrap.appendChild(confirmBtn);
       confirmWrap.appendChild(cancelConfirmBtn);
-      row.appendChild(nameEl);
-      row.appendChild(idEl);
+      row.appendChild(cloudNameIdWrap);
       row.appendChild(pullBtn);
       row.appendChild(confirmWrap);
       itemsEl.appendChild(row);
@@ -585,8 +588,7 @@ function _renderCloudProfileSection() {
       delCloudBtn.className   = 'cloud-profile-del-btn';
       delCloudBtn.textContent = '×';
       delCloudBtn.addEventListener('click', function() { _cloudDeleteConfirmId = cp.id; _cloudStyleEditId = null; _renderCloudProfileSection(); });
-      row.appendChild(nameEl);
-      row.appendChild(idEl);
+      row.appendChild(cloudNameIdWrap);
       row.appendChild(pullBtn);
       row.appendChild(delCloudBtn);
       itemsEl.appendChild(row);
@@ -1402,11 +1404,14 @@ function _renderProfilePanel() {
       var v = (nameEl.value || '').trim();
       if (v && v !== profile.name) updateProfile(profile.id, { name: v });
     });
-    row.appendChild(nameEl);
+    var nameIdWrap = document.createElement('div');
+    nameIdWrap.className = 'profile-name-id-wrap';
+    nameIdWrap.appendChild(nameEl);
     var idDispEl = document.createElement('span');
     idDispEl.className   = 'profile-id-display';
     idDispEl.textContent = profile.id;
-    row.appendChild(idDispEl);
+    nameIdWrap.appendChild(idDispEl);
+    row.appendChild(nameIdWrap);
     var dtSel = document.createElement('select');
     dtSel.className = 'profile-device-select';
     dtSel.title = 'Device type';
