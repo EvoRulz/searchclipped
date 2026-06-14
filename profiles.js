@@ -175,29 +175,6 @@ function _getTodayKey() {
   var d = new Date();
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
-var _usagePending = { reads: 0, writes: 0, deletes: 0 };
-var _usageFlushTimer = null;
-function _trackUsage(reads, writes, deletes) {
-  if (!_firestoreDb || (!reads && !writes && !deletes)) return;
-  _usagePending.reads   += reads   || 0;
-  _usagePending.writes  += writes  || 0;
-  _usagePending.deletes += deletes || 0;
-  clearTimeout(_usageFlushTimer);
-  _usageFlushTimer = setTimeout(_flushUsage, 4000);
-}
-function _flushUsage() {
-  _usageFlushTimer = null;
-  if (!_firestoreDb) return;
-  var r = _usagePending.reads, w = _usagePending.writes, d = _usagePending.deletes;
-  if (!r && !w && !d) return;
-  _usagePending = { reads: 0, writes: 0, deletes: 0 };
-  var ref = _firestoreDb.collection('_usage').doc(_getTodayKey());
-  var inc = firebase.firestore.FieldValue.increment;
-  var upd = { writes: inc(w + 1) };
-  if (r) upd.reads   = inc(r);
-  if (d) upd.deletes = inc(d);
-  ref.set(upd, { merge: true }).catch(function(e) { console.warn('_flushUsage failed', e); });
-}
 async function fetchDailyUsage() {
   if (!_firestoreDb) return null;
   try {
@@ -256,7 +233,6 @@ async function _checkSyncStatus(profileId) {
     var snap = await base.collection('items').get();
     var cloudItems = {};
     snap.forEach(function(doc) { cloudItems[doc.id] = doc.data(); });
-    _trackUsage(Math.max(1, snap.size), 0, 0);
     var localItems = _appState.items.filter(function(i) { return (i.profileIds || []).indexOf(profileId) !== -1; });
     var inSync = true;
     if (localItems.length !== Object.keys(cloudItems).length) {
@@ -316,7 +292,6 @@ function _onSyncSnapshot(profileId, snapshot) {
   if (!_currentUser) return;
   var profile = _profiles.find(function(p) { return p.id === profileId; });
   if (!profile) return;
-  _trackUsage(Math.max(1, snapshot.docChanges().length), 0, 0);
   var changed = false;
   snapshot.docChanges().forEach(function(change) {
     if (change.type === 'removed') return;
@@ -396,7 +371,6 @@ async function syncProfile(profileId) {
     batch.set(base.collection('items').doc(item.id), copy, { merge: true });
   });
   await batch.commit();
-  _trackUsage(0, items.length + 1, 0);
   _syncStatus[profileId] = 'synced';
   _savePrefs();
   if (_panelOpen) _renderProfilePanel();
@@ -416,7 +390,6 @@ async function _fetchAndRenderCloudProfiles() {
     var snap = await _firestoreDb.collection('users').doc(uid).collection('profiles').get();
     _cloudProfiles = [];
     snap.forEach(function(doc) { _cloudProfiles.push({ id: doc.id, data: doc.data() }); });
-    _trackUsage(Math.max(1, _cloudProfiles.length), 0, 0);
   } catch(e) {
     _cloudProfiles = [];
   }
@@ -894,8 +867,7 @@ async function _executePull(cloudProfileId, cloudProfileName, cloudProfileData, 
   var uid  = _currentUser.uid;
   var base = _firestoreDb.collection('users').doc(uid).collection('profiles').doc(cloudProfileId);
   var snap = await base.collection('items').get();
-  if (snap.empty) { _showProfileStatus('No items found in cloud for "' + cloudProfileName + '".'); return; }
-  _trackUsage(Math.max(1, snap.size), 0, 0);
+  if (snap.empty) { _showProfileStatus('No items found in cloud for "' + cloudProfileName + '".'); return; 
   var targetProfile;
   if (existingLocal) {
     targetProfile = existingLocal;

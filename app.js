@@ -1,6 +1,6 @@
 'use strict';
-// @version 460
-var SC_VERSION = '@version 460';
+// @version 461
+var SC_VERSION = '@version 461';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -1803,6 +1803,7 @@ document.addEventListener('sc:filter-tag', function (e) {
   document.addEventListener('sc:sync-complete', function () {
     _updateFirebaseUsageDisplay();
   });
+  _updateFirebaseUsageDisplay();
   window.addEventListener('beforeunload', _saveUiState);
   window.addEventListener('pagehide', _saveUiState);
   /* ===== SERVICE WORKER ===== */
