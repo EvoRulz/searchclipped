@@ -1,6 +1,6 @@
 'use strict';
-// @version 463
-var SC_VERSION = '@version 463';
+// @version 464
+var SC_VERSION = '@version 464';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -1895,16 +1895,15 @@ document.addEventListener('sc:filter-tag', function (e) {
     var rVal  = document.getElementById('storage-fb-reads-val');
     var wVal  = document.getElementById('storage-fb-writes-val');
     var dVal  = document.getElementById('storage-fb-deletes-val');
-    if (!window.Profiles || !Profiles.getCurrentUser()) {
-      var msg = window.Profiles ? 'sign in' : '—';
-      if (rVal) rVal.textContent = msg;
-      if (wVal) wVal.textContent = msg;
-      if (dVal) dVal.textContent = msg;
-      if (rFill) rFill.style.width = '0%';
-      if (wFill) wFill.style.width = '0%';
-      if (dFill) dFill.style.width = '0%';
-      return;
-    }
+    if (!window.Profiles) {
+    if (rVal) rVal.textContent = '—';
+    if (wVal) wVal.textContent = '—';
+    if (dVal) dVal.textContent = '—';
+    if (rFill) rFill.style.width = '0%';
+    if (wFill) wFill.style.width = '0%';
+    if (dFill) dFill.style.width = '0%';
+    return;
+  }
     try {
       var u = await Profiles.fetchDailyUsage();
       if (!u) return;
