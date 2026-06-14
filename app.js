@@ -1,6 +1,6 @@
 'use strict';
-// @version 459
-var SC_VERSION = '@version 459';
+// @version 460
+var SC_VERSION = '@version 460';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -1798,11 +1798,9 @@ document.addEventListener('sc:filter-tag', function (e) {
     attachHandle(right);
   })();
   document.addEventListener('sc:auth-changed', function () {
-    _lastFirebaseUsageCheck = 0;
     _updateFirebaseUsageDisplay();
   });
   document.addEventListener('sc:sync-complete', function () {
-    _lastFirebaseUsageCheck = 0;
     _updateFirebaseUsageDisplay();
   });
   window.addEventListener('beforeunload', _saveUiState);
@@ -1866,6 +1864,29 @@ document.addEventListener('sc:filter-tag', function (e) {
     }
     _updateStorageDisplay_firebase();
   }
+  (function () {
+    var _resetTimer = null;
+    function _startResetCountdown() {
+      if (_resetTimer) clearInterval(_resetTimer);
+      var resetEl = document.getElementById('storage-fb-reset-val');
+      if (!resetEl) return;
+      function _fmtCountdown() {
+        var now = new Date();
+        var midnight = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 0, 0, 0));
+        var diff = midnight - now;
+        if (diff < 0) diff = 0;
+        var h = Math.floor(diff / 3600000);
+        var m = Math.floor((diff % 3600000) / 60000);
+        var s = Math.floor((diff % 60000) / 1000);
+        var resetLocal = midnight.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+        return resetLocal + '\u00a0\u2014\u00a0' + h + 'h\u00a0' + m + 'm\u00a0' + s + 's';
+      }
+      resetEl.textContent = _fmtCountdown();
+      _resetTimer = setInterval(function () { resetEl.textContent = _fmtCountdown(); }, 1000);
+    }
+    _startResetCountdown();
+    window._startResetCountdown = _startResetCountdown;
+  })();
   async function _updateFirebaseUsageDisplay() {
     var rFill = document.getElementById('storage-fb-reads-fill');
     var wFill = document.getElementById('storage-fb-writes-fill');
@@ -1895,11 +1916,8 @@ document.addEventListener('sc:filter-tag', function (e) {
     } catch(e) {}
   }
   async function _updateStorageDisplay_firebase() {
-    var _fbNow = Date.now();
-    if (_fbNow - _lastFirebaseUsageCheck > 300000) {
-      _lastFirebaseUsageCheck = _fbNow;
-      await _updateFirebaseUsageDisplay();
-    }
+    // throttle removed — was: if (_fbNow - _lastFirebaseUsageCheck > 300000)
+    await _updateFirebaseUsageDisplay();
   }
   function _fmtBytes(b) {
     if (b < 1024)          return b + ' B';
