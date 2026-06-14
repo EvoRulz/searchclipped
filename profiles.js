@@ -867,7 +867,7 @@ async function _executePull(cloudProfileId, cloudProfileName, cloudProfileData, 
   var uid  = _currentUser.uid;
   var base = _firestoreDb.collection('users').doc(uid).collection('profiles').doc(cloudProfileId);
   var snap = await base.collection('items').get();
-  if (snap.empty) { _showProfileStatus('No items found in cloud for "' + cloudProfileName + '".'); return; 
+  if (snap.empty) { _showProfileStatus('No items found in cloud for "' + cloudProfileName + '".'); return; }
   var targetProfile;
   if (existingLocal) {
     targetProfile = existingLocal;
