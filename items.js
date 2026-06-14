@@ -433,21 +433,45 @@ function _onVersionUndelete(e) {
   _refresh();
 }
 async function bulkBurn(ids) {
-  if (!ids.size) return;
-  var ok = await Modals.confirm('Permanently destroy ' + ids.size + ' item(s)? This cannot be undone.', 'burn');
+  var versionSelections = window.Render ? Render.getVersionSelections() : {};
+  var hasVersions = Object.keys(versionSelections).some(function(id) { return versionSelections[id] && versionSelections[id].length; });
+  var itemCount = ids.size;
+  var versionCount = Object.keys(versionSelections).reduce(function(sum, id) { return sum + (versionSelections[id] ? versionSelections[id].length : 0); }, 0);
+  if (!itemCount && !versionCount) return;
+  var msg = '';
+  if (itemCount && versionCount) {
+    msg = 'Permanently destroy ' + itemCount + ' item(s) and ' + versionCount + ' selected version(s)? This cannot be undone.';
+  } else if (itemCount) {
+    msg = 'Permanently destroy ' + itemCount + ' item(s)? This cannot be undone.';
+  } else {
+    msg = 'Permanently destroy ' + versionCount + ' selected version(s)? This cannot be undone.';
+  }
+  var ok = await Modals.confirm(msg, 'burn');
   if (!ok) return;
-  var burnedIds = Array.from(ids);
-  burnedIds.forEach(function (id) {
-    var item = State.getItem(_state, id);
-    if (item && item.imageId) {
-      DB.deleteImage(item.imageId).catch(function (err) { console.warn('deleteImage failed', err); });
-    }
-  });
-  _state.items = _state.items.filter(function (i) { return !ids.has(i.id); });
-  await State.purgeAllBurnedFromStacks(_state, new Set(burnedIds));
-  ids.forEach(function (id) { _selectedIds.delete(id); });
-  State.saveState(_state);
-  if (window.Profiles) Profiles.deleteItemsFromCloud(burnedIds).catch(function(e) { console.warn('cloud burn delete failed', e); });
+  if (versionCount) {
+    Object.keys(versionSelections).forEach(function(itemId) {
+      var indices = versionSelections[itemId];
+      if (!indices || !indices.length) return;
+      if (ids.has(itemId)) return;
+      document.dispatchEvent(new CustomEvent('sc:version-hard-delete', {
+        detail: { id: itemId, indices: indices.slice(), closePanel: false }
+      }));
+    });
+  }
+  if (itemCount) {
+    var burnedIds = Array.from(ids);
+    burnedIds.forEach(function (id) {
+      var item = State.getItem(_state, id);
+      if (item && item.imageId) {
+        DB.deleteImage(item.imageId).catch(function (err) { console.warn('deleteImage failed', err); });
+      }
+    });
+    _state.items = _state.items.filter(function (i) { return !ids.has(i.id); });
+    await State.purgeAllBurnedFromStacks(_state, new Set(burnedIds));
+    ids.forEach(function (id) { _selectedIds.delete(id); });
+    State.saveState(_state);
+    if (window.Profiles) Profiles.deleteItemsFromCloud(burnedIds).catch(function(e) { console.warn('cloud burn delete failed', e); });
+  }
   _refresh();
 }
 async function _onVersionHardDelete(e) {

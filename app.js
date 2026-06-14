@@ -1,6 +1,6 @@
 'use strict';
-// @version 455
-var SC_VERSION = '@version 455';
+// @version 456
+var SC_VERSION = '@version 456';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -1685,7 +1685,9 @@ document.addEventListener('sc:filter-tag', function (e) {
   /* ===== BULK BURN ===== */
   btnBulkBurn.addEventListener('click', function () {
     var ids = Items.getSelectedIds();
-    if (!ids.size) { alert('No items selected.'); return; }
+    var versionSelections = window.Render ? Render.getVersionSelections() : {};
+    var hasVersions = Object.keys(versionSelections).some(function(id) { return versionSelections[id] && versionSelections[id].length; });
+    if (!ids.size && !hasVersions) { alert('No items or versions selected.'); return; }
     Items.bulkBurn(ids);
   });
   /* ===== BULK DELETE ===== */
