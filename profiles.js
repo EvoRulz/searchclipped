@@ -175,15 +175,28 @@ function _getTodayKey() {
   var d = new Date();
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
+var _usagePending = { reads: 0, writes: 0, deletes: 0 };
+var _usageFlushTimer = null;
 function _trackUsage(reads, writes, deletes) {
   if (!_firestoreDb || (!reads && !writes && !deletes)) return;
+  _usagePending.reads   += reads   || 0;
+  _usagePending.writes  += writes  || 0;
+  _usagePending.deletes += deletes || 0;
+  clearTimeout(_usageFlushTimer);
+  _usageFlushTimer = setTimeout(_flushUsage, 4000);
+}
+function _flushUsage() {
+  _usageFlushTimer = null;
+  if (!_firestoreDb) return;
+  var r = _usagePending.reads, w = _usagePending.writes, d = _usagePending.deletes;
+  if (!r && !w && !d) return;
+  _usagePending = { reads: 0, writes: 0, deletes: 0 };
   var ref = _firestoreDb.collection('_usage').doc(_getTodayKey());
   var inc = firebase.firestore.FieldValue.increment;
-  var upd = {};
-  if (reads)   upd.reads   = inc(reads);
-  if (writes)  upd.writes  = inc(writes);
-  if (deletes) upd.deletes = inc(deletes);
-  ref.set(upd, { merge: true }).catch(function(e) { console.warn('_trackUsage failed', e); });
+  var upd = { writes: inc(w + 1) };
+  if (r) upd.reads   = inc(r);
+  if (d) upd.deletes = inc(d);
+  ref.set(upd, { merge: true }).catch(function(e) { console.warn('_flushUsage failed', e); });
 }
 async function fetchDailyUsage() {
   if (!_firestoreDb) return null;
@@ -303,6 +316,7 @@ function _onSyncSnapshot(profileId, snapshot) {
   if (!_currentUser) return;
   var profile = _profiles.find(function(p) { return p.id === profileId; });
   if (!profile) return;
+  _trackUsage(Math.max(1, snapshot.docChanges().length), 0, 0);
   var changed = false;
   snapshot.docChanges().forEach(function(change) {
     if (change.type === 'removed') return;
