@@ -1,6 +1,6 @@
 'use strict';
-// @version 456
-var SC_VERSION = '@version 456';
+// @version 457
+var SC_VERSION = '@version 457';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -1833,6 +1833,7 @@ document.addEventListener('sc:filter-tag', function (e) {
     return Promise.resolve(new Blob([arr], { type: type }));
   }
   var _lastStorageCheck = 0;
+  var _lastFirebaseUsageCheck = 0;
   async function _updateStorageDisplay() {
     try {
       var lsRaw   = localStorage.getItem('searchclipped_state') || '';
@@ -1854,6 +1855,42 @@ document.addEventListener('sc:filter-tag', function (e) {
         if (oFill) oFill.style.width = pct + '%';
         if (oVal)  oVal.textContent  = _fmtBytes(usage) + (quota ? ' / ' + _fmtBytes(quota) : '');
       } catch (e) {}
+    }
+    _updateStorageDisplay_firebase();
+  }
+  async function _updateFirebaseUsageDisplay() {
+    var rFill = document.getElementById('storage-fb-reads-fill');
+    var wFill = document.getElementById('storage-fb-writes-fill');
+    var dFill = document.getElementById('storage-fb-deletes-fill');
+    var rVal  = document.getElementById('storage-fb-reads-val');
+    var wVal  = document.getElementById('storage-fb-writes-val');
+    var dVal  = document.getElementById('storage-fb-deletes-val');
+    if (!window.Profiles || !Profiles.getCurrentUser()) {
+      var msg = window.Profiles ? 'sign in' : '—';
+      if (rVal) rVal.textContent = msg;
+      if (wVal) wVal.textContent = msg;
+      if (dVal) dVal.textContent = msg;
+      if (rFill) rFill.style.width = '0%';
+      if (wFill) wFill.style.width = '0%';
+      if (dFill) dFill.style.width = '0%';
+      return;
+    }
+    try {
+      var u = await Profiles.fetchDailyUsage();
+      if (!u) return;
+      if (rFill) rFill.style.width = Math.min(u.reads   / 50000 * 100, 100) + '%';
+      if (wFill) wFill.style.width = Math.min(u.writes  / 20000 * 100, 100) + '%';
+      if (dFill) dFill.style.width = Math.min(u.deletes / 20000 * 100, 100) + '%';
+      if (rVal)  rVal.textContent  = u.reads   + '\u00a0/ 50k';
+      if (wVal)  wVal.textContent  = u.writes  + '\u00a0/ 20k';
+      if (dVal)  dVal.textContent  = u.deletes + '\u00a0/ 20k';
+    } catch(e) {}
+  }
+  async function _updateStorageDisplay_firebase() {
+    var _fbNow = Date.now();
+    if (_fbNow - _lastFirebaseUsageCheck > 300000) {
+      _lastFirebaseUsageCheck = _fbNow;
+      await _updateFirebaseUsageDisplay();
     }
   }
   function _fmtBytes(b) {

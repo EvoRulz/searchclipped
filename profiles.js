@@ -170,6 +170,33 @@ function _resetToDefaults() {
   _activeIds  = id ? new Set([id]) : new Set();
   _visibleIds = id ? new Set([id]) : new Set();
 }
+// ===== FIREBASE USAGE TRACKING =====
+function _getTodayKey() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function _trackUsage(reads, writes, deletes) {
+  if (!_firestoreDb || (!reads && !writes && !deletes)) return;
+  var ref = _firestoreDb.collection('_usage').doc(_getTodayKey());
+  var inc = firebase.firestore.FieldValue.increment;
+  var upd = {};
+  if (reads)   upd.reads   = inc(reads);
+  if (writes)  upd.writes  = inc(writes);
+  if (deletes) upd.deletes = inc(deletes);
+  ref.set(upd, { merge: true }).catch(function(e) { console.warn('_trackUsage failed', e); });
+}
+async function fetchDailyUsage() {
+  if (!_firestoreDb) return null;
+  try {
+    var snap = await _firestoreDb.collection('_usage').doc(_getTodayKey()).get();
+    if (!snap.exists) return { reads: 0, writes: 0, deletes: 0 };
+    var d = snap.data();
+    return { reads: d.reads || 0, writes: d.writes || 0, deletes: d.deletes || 0 };
+  } catch(e) {
+    console.warn('fetchDailyUsage failed', e);
+    return null;
+  }
+}
 // ===== FIREBASE =====
 function _initFirebase() {
   if (typeof firebase === 'undefined') return;
@@ -215,6 +242,7 @@ async function _checkSyncStatus(profileId) {
     var snap = await base.collection('items').get();
     var cloudItems = {};
     snap.forEach(function(doc) { cloudItems[doc.id] = doc.data(); });
+    _trackUsage(Math.max(1, snap.size), 0, 0);
     var localItems = _appState.items.filter(function(i) { return (i.profileIds || []).indexOf(profileId) !== -1; });
     var inSync = true;
     if (localItems.length !== Object.keys(cloudItems).length) {
@@ -353,6 +381,7 @@ async function syncProfile(profileId) {
     batch.set(base.collection('items').doc(item.id), copy, { merge: true });
   });
   await batch.commit();
+  _trackUsage(0, items.length + 1, 0);
   _syncStatus[profileId] = 'synced';
   _savePrefs();
   if (_panelOpen) _renderProfilePanel();
@@ -371,6 +400,7 @@ async function _fetchAndRenderCloudProfiles() {
     var snap = await _firestoreDb.collection('users').doc(uid).collection('profiles').get();
     _cloudProfiles = [];
     snap.forEach(function(doc) { _cloudProfiles.push({ id: doc.id, data: doc.data() }); });
+    _trackUsage(Math.max(1, _cloudProfiles.length), 0, 0);
   } catch(e) {
     _cloudProfiles = [];
   }
@@ -849,6 +879,7 @@ async function _executePull(cloudProfileId, cloudProfileName, cloudProfileData, 
   var base = _firestoreDb.collection('users').doc(uid).collection('profiles').doc(cloudProfileId);
   var snap = await base.collection('items').get();
   if (snap.empty) { _showProfileStatus('No items found in cloud for "' + cloudProfileName + '".'); return; }
+  _trackUsage(Math.max(1, snap.size), 0, 0);
   var targetProfile;
   if (existingLocal) {
     targetProfile = existingLocal;
@@ -941,6 +972,7 @@ async function _doDeleteCloudProfile(cloudProfileId, cloudProfileName) {
     itemsSnap.forEach(function(doc) { batch.delete(doc.ref); });
     await batch.commit();
     await base.delete();
+    _trackUsage(Math.max(1, itemsSnap.size), 0, itemsSnap.size + 1);
     _cloudProfiles = _cloudProfiles.filter(function(cp) { return cp.id !== cloudProfileId; });
     _showProfileStatus('Cloud profile "' + cloudProfileName + '" deleted.');
     _renderCloudProfileSection();
@@ -1754,6 +1786,7 @@ window.Profiles = {
   pullProfile,
   signInWithGoogle,
   signOut,
+  fetchDailyUsage,
   openPanel,
   closePanel,
   getItemProfileIconsHTML,
