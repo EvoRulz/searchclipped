@@ -387,7 +387,7 @@ async function syncProfile(profileId) {
   _syncStatus[profileId] = 'synced';
   _savePrefs();
   if (_panelOpen) _renderProfilePanel();
-  _trackUsage(0, items.length + 1, 0);
+  await _trackUsage(0, items.length + 1, 0);
   _showProfileStatus('Pushed ' + items.length + ' items to cloud for profile "' + profile.name + '".');
   document.dispatchEvent(new CustomEvent('sc:sync-complete'));
 }
@@ -882,7 +882,7 @@ async function _executePull(cloudProfileId, cloudProfileName, cloudProfileData, 
   var uid  = _currentUser.uid;
   var base = _firestoreDb.collection('users').doc(uid).collection('profiles').doc(cloudProfileId);
   var snap = await base.collection('items').get();
-  _trackUsage(Math.max(1, snap.size), 0, 0);
+  await _trackUsage(Math.max(1, snap.size), 0, 0);
   if (snap.empty) { _showProfileStatus('No items found in cloud for "' + cloudProfileName + '".'); return; }
   var targetProfile;
   if (existingLocal) {
