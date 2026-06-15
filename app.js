@@ -1,6 +1,6 @@
 'use strict';
-// @version 466
-var SC_VERSION = '@version 466';
+// @version 467
+var SC_VERSION = '@version 467';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -1916,7 +1916,9 @@ document.addEventListener('sc:filter-tag', function (e) {
     } catch(e) {}
   }
   async function _updateStorageDisplay_firebase() {
-    // throttle removed — was: if (_fbNow - _lastFirebaseUsageCheck > 300000)
+    var _fbNow = Date.now();
+    if (_fbNow - _lastFirebaseUsageCheck < 300000) return;
+    _lastFirebaseUsageCheck = _fbNow;
     await _updateFirebaseUsageDisplay();
   }
   function _fmtBytes(b) {
