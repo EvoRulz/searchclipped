@@ -172,7 +172,7 @@ function _resetToDefaults() {
 }
 // ===== FIREBASE USAGE TRACKING =====
 function _getTodayKey() {
-  var d = new Date();
+  var d = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
 async function _trackUsage(reads, writes, deletes) {

@@ -1,6 +1,6 @@
 'use strict';
-// @version 467
-var SC_VERSION = '@version 467';
+// @version 468
+var SC_VERSION = '@version 468';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -1873,13 +1873,14 @@ document.addEventListener('sc:filter-tag', function (e) {
       if (!resetEl) return;
       function _fmtCountdown() {
         var now = new Date();
-        var midnight = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 0, 0, 0));
-        var diff = midnight - now;
+        var pacificNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+        var pacificMidnight = new Date(pacificNow.getFullYear(), pacificNow.getMonth(), pacificNow.getDate() + 1, 0, 0, 0);
+        var diff = pacificMidnight - pacificNow;
         if (diff < 0) diff = 0;
         var h = Math.floor(diff / 3600000);
         var m = Math.floor((diff % 3600000) / 60000);
         var s = Math.floor((diff % 60000) / 1000);
-        var resetLocal = midnight.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+        var resetLocal = new Date(now.getTime() + diff).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
         return resetLocal + '\u00a0\u2014\u00a0' + h + 'h\u00a0' + m + 'm\u00a0' + s + 's';
       }
       resetEl.textContent = _fmtCountdown();
