@@ -1,6 +1,6 @@
 'use strict';
-// @version 468
-var SC_VERSION = '@version 468';
+// @version 469
+var SC_VERSION = '@version 469';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -1797,13 +1797,6 @@ document.addEventListener('sc:filter-tag', function (e) {
     attachHandle(left);
     attachHandle(right);
   })();
-  document.addEventListener('sc:auth-changed', function () {
-    _updateFirebaseUsageDisplay();
-  });
-  document.addEventListener('sc:sync-complete', function () {
-    _updateFirebaseUsageDisplay();
-  });
-  _updateFirebaseUsageDisplay();
   window.addEventListener('beforeunload', _saveUiState);
   window.addEventListener('pagehide', _saveUiState);
   /* ===== SERVICE WORKER ===== */
@@ -1840,7 +1833,6 @@ document.addEventListener('sc:filter-tag', function (e) {
     return Promise.resolve(new Blob([arr], { type: type }));
   }
   var _lastStorageCheck = 0;
-  var _lastFirebaseUsageCheck = 0;
   async function _updateStorageDisplay() {
     try {
       var lsRaw   = localStorage.getItem('searchclipped_state') || '';
@@ -1863,64 +1855,6 @@ document.addEventListener('sc:filter-tag', function (e) {
         if (oVal)  oVal.textContent  = _fmtBytes(usage) + (quota ? ' / ' + _fmtBytes(quota) : '');
       } catch (e) {}
     }
-    _updateStorageDisplay_firebase();
-  }
-  (function () {
-    var _resetTimer = null;
-    function _startResetCountdown() {
-      if (_resetTimer) clearInterval(_resetTimer);
-      var resetEl = document.getElementById('storage-fb-reset-val');
-      if (!resetEl) return;
-      function _fmtCountdown() {
-        var now = new Date();
-        var pacificNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
-        var pacificMidnight = new Date(pacificNow.getFullYear(), pacificNow.getMonth(), pacificNow.getDate() + 1, 0, 0, 0);
-        var diff = pacificMidnight - pacificNow;
-        if (diff < 0) diff = 0;
-        var h = Math.floor(diff / 3600000);
-        var m = Math.floor((diff % 3600000) / 60000);
-        var s = Math.floor((diff % 60000) / 1000);
-        var resetLocal = new Date(now.getTime() + diff).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
-        return resetLocal + '\u00a0\u2014\u00a0' + h + 'h\u00a0' + m + 'm\u00a0' + s + 's';
-      }
-      resetEl.textContent = _fmtCountdown();
-      _resetTimer = setInterval(function () { resetEl.textContent = _fmtCountdown(); }, 1000);
-    }
-    _startResetCountdown();
-    window._startResetCountdown = _startResetCountdown;
-  })();
-  async function _updateFirebaseUsageDisplay() {
-    var rFill = document.getElementById('storage-fb-reads-fill');
-    var wFill = document.getElementById('storage-fb-writes-fill');
-    var dFill = document.getElementById('storage-fb-deletes-fill');
-    var rVal  = document.getElementById('storage-fb-reads-val');
-    var wVal  = document.getElementById('storage-fb-writes-val');
-    var dVal  = document.getElementById('storage-fb-deletes-val');
-    if (!window.Profiles) {
-    if (rVal) rVal.textContent = '—';
-    if (wVal) wVal.textContent = '—';
-    if (dVal) dVal.textContent = '—';
-    if (rFill) rFill.style.width = '0%';
-    if (wFill) wFill.style.width = '0%';
-    if (dFill) dFill.style.width = '0%';
-    return;
-  }
-    try {
-      var u = await Profiles.fetchDailyUsage();
-      if (!u) return;
-      if (rFill) rFill.style.width = Math.min(u.reads   / 50000 * 100, 100) + '%';
-      if (wFill) wFill.style.width = Math.min(u.writes  / 20000 * 100, 100) + '%';
-      if (dFill) dFill.style.width = Math.min(u.deletes / 20000 * 100, 100) + '%';
-      if (rVal)  rVal.textContent  = u.reads   + '\u00a0/ 50k';
-      if (wVal)  wVal.textContent  = u.writes  + '\u00a0/ 20k';
-      if (dVal)  dVal.textContent  = u.deletes + '\u00a0/ 20k';
-    } catch(e) {}
-  }
-  async function _updateStorageDisplay_firebase() {
-    var _fbNow = Date.now();
-    if (_fbNow - _lastFirebaseUsageCheck < 300000) return;
-    _lastFirebaseUsageCheck = _fbNow;
-    await _updateFirebaseUsageDisplay();
   }
   function _fmtBytes(b) {
     if (b < 1024)          return b + ' B';

@@ -78,9 +78,6 @@
   transition: width 0.4s ease;
 }
 .storage-bar-origin   { background: var(--green); }
-.storage-bar-fb-reads   { background: var(--blue); }
-.storage-bar-fb-writes  { background: var(--yellow); }
-.storage-bar-fb-deletes { background: var(--red); }
 .storage-val {
   font-size: 9px;
   color: var(--text-ph);
