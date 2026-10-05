@@ -134,7 +134,7 @@ button { font-family: var(--font); }
   margin-bottom: 5px;
 }
 #sc-title {
-  font-size: 21px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--blue);
   letter-spacing: 0.04em;
