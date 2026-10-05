@@ -749,7 +749,7 @@ function _makeItem(item, isFiltered, selectedIds) {
       content.style.cursor = 'default';
       content.innerHTML = _visualizeNewlines(item.text || '');
     } else {
-      content.innerHTML = _currentQuery ? _highlightText(item.text || '', _currentQuery) : (item.html || item.text || '');
+      content.innerHTML = _currentQuery ? _highlightText(item.text || '', _currentQuery) : (item.html || item.text || '').replace(/\n/g, '<br>');
     }
   }
   content.setAttribute('data-id', item.id);
