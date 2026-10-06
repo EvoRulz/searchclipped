@@ -23,6 +23,7 @@ var _currentQuery       = '';
 var _tagFilterActive    = false;
 var _tagEditItemId      = null;
 var _tagRenameIdx       = null;
+var _minimizedIds       = new Set();
 var _refreshFn          = null;
 function _drawSelCanvas(canvas, total, selSet, emptySelected) {
   var ctx = canvas.getContext('2d');
@@ -109,6 +110,7 @@ function init(state, refreshFn) {
   _list  = document.getElementById('item-list');
   var _stored = parseInt(localStorage.getItem('sc_peek_threshold'), 10);
   if (!isNaN(_stored)) _peekThreshold = _stored;
+  _loadMinimized();
   document.addEventListener('sc:close-version-panel', function (e) {
     _openVersionPanels.delete(e.detail.id);
   });
@@ -161,6 +163,43 @@ function render(filtered, rest, selectedIds, query, tagFilterActive) {
   if (_storageRow) _list.appendChild(_storageRow);
   requestAnimationFrame(_updateCopyBtnPositions);
   requestAnimationFrame(_updateProfileIconStacks);
+}
+/* ====== MINIMIZE ====== */
+function _loadMinimized() {
+  try {
+    var raw = localStorage.getItem('sc_minimized_ids');
+    _minimizedIds = new Set(raw ? JSON.parse(raw) : []);
+  } catch (e) {
+    _minimizedIds = new Set();
+  }
+}
+function _saveMinimized() {
+  try {
+    localStorage.setItem('sc_minimized_ids', JSON.stringify(Array.from(_minimizedIds)));
+  } catch (e) {}
+}
+function _isMinimized(id) {
+  return _minimizedIds.has(id);
+}
+function _setMinimized(ids, minimized) {
+  ids.forEach(function (id) {
+    if (minimized) _minimizedIds.add(id);
+    else           _minimizedIds.delete(id);
+  });
+  _saveMinimized();
+}
+function _toggleMinimized(id) {
+  _setMinimized([id], !_minimizedIds.has(id));
+}
+function _minimizeIconHTML(minimized) {
+  if (minimized) {
+    return `<svg width="8" height="8" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M2 5h6M5 2v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+</svg>`;
+  }
+  return `<svg width="8" height="8" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+</svg>`;
 }
 /* ====== PLACEHOLDER ====== */
 function _makePlaceholder() {
@@ -605,7 +644,8 @@ function _makeItem(item, isFiltered, selectedIds) {
   el.className  = 'item' + (isFiltered ? ' filtered' : '') +
   (item.starred ? ' starred' : '') +
   (item.deleted ? ' deleted' : '') +
-  (item.imageId ? ' has-image' : '');
+  (item.imageId ? ' has-image' : '') +
+  (_minimizedIds.has(item.id) ? ' minimized' : '');
   el.dataset.id = item.id;
   // --- Left column (ID + up + checkbox + down) ---
   var left = document.createElement('div');
@@ -653,6 +693,18 @@ function _makeItem(item, isFiltered, selectedIds) {
     if (_pIconsEl.innerHTML) left.appendChild(_pIconsEl);
   }
   left.appendChild(controls);
+  var _minBtn = document.createElement('button');
+  var _minState = _minimizedIds.has(item.id);
+  _minBtn.className = 'min-circle-btn item-min-btn' + (_minState ? ' is-minimized' : '');
+  _minBtn.title = _minState ? 'Unminimize' : 'Minimize';
+  _minBtn.tabIndex = -1;
+  _minBtn.innerHTML = _minimizeIconHTML(_minState);
+  _minBtn.addEventListener('click', function (ev) {
+    ev.stopPropagation();
+    _toggleMinimized(item.id);
+    if (_refreshFn) _refreshFn();
+  });
+  left.insertBefore(_minBtn, left.firstChild);
   el.appendChild(left);
   // --- Content ---
   var iUndoBtn = document.createElement('button');
@@ -2128,6 +2180,7 @@ function getOpenVersionPanelIds() { return Array.from(_openVersionPanels); }
 function getVersionSelections() { return _versionSelections; }
 window.Render = {
   init, render, drawSelCanvas: _drawSelCanvas, setPeekThreshold, ensureVersionPanelsOpen,
-  getTagEditItemId, setTagEditItemId, getOpenVersionPanelIds, getVersionSelections
+  getTagEditItemId, setTagEditItemId, getOpenVersionPanelIds, getVersionSelections,
+  isMinimized: _isMinimized, setMinimized: _setMinimized, minimizeIconHTML: _minimizeIconHTML
 };
 

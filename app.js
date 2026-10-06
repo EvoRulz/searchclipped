@@ -1,6 +1,6 @@
 'use strict';
-// @version 476
-var SC_VERSION = '@version 476';
+// @version 477
+var SC_VERSION = '@version 477';
 /*
  * app.js
  * Bootstrap, header wiring, export/import, undo/redo.
@@ -121,6 +121,7 @@ var SC_VERSION = '@version 476';
   var btnBulkBurn    = document.getElementById('btn-bulk-burn');
   var btnExport      = document.getElementById('btn-export');
   var btnJump        = document.getElementById('btn-jump');
+  var btnMinimizeAll = document.getElementById('btn-minimize-all');
   var _verEl = document.getElementById('sc-version');
   if (_verEl) _verEl.textContent = SC_VERSION;
   var importInput    = document.getElementById('import-input');
@@ -326,6 +327,8 @@ var SC_VERSION = '@version 476';
     _updateStarBtn();
     _updateSortBtns();
     _lastFiltered = result.filtered;
+    _lastVisibleItems = result.filtered.concat(result.rest);
+    _updateMinimizeAllBtn();
     (function () {
       var _rc = document.getElementById('search-results-count');
       if (!_rc) return;
@@ -362,6 +365,7 @@ var SC_VERSION = '@version 476';
     _updateJumpBtn();
   }
   var _lastFiltered = [];
+  var _lastVisibleItems = [];
   var _refocusEntry = false;
   var _altShortcuts = {};
   var _focusedItemId = null;
@@ -1673,6 +1677,26 @@ document.addEventListener('sc:filter-tag', function (e) {
       }
     });
   })();
+  /* ===== MINIMIZE ALL ===== */
+  function _allVisibleMinimized() {
+    return _lastVisibleItems.length > 0 && _lastVisibleItems.every(function (i) { return Render.isMinimized(i.id); });
+  }
+  function _updateMinimizeAllBtn() {
+    if (!btnMinimizeAll) return;
+    var _allMin = _allVisibleMinimized();
+    btnMinimizeAll.classList.toggle('is-minimized', _allMin);
+    btnMinimizeAll.title = _allMin ? 'Unminimize all' : 'Minimize all';
+    btnMinimizeAll.innerHTML = Render.minimizeIconHTML(_allMin);
+  }
+  if (btnMinimizeAll) {
+    btnMinimizeAll.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (!_lastVisibleItems.length) return;
+      var _makeMin = !_allVisibleMinimized();
+      Render.setMinimized(_lastVisibleItems.map(function (i) { return i.id; }), _makeMin);
+      refresh();
+    });
+  }
   /* ===== BULK COPY ===== */
   btnBulkCopy.addEventListener('click', function () {
     var ids   = Items.getSelectedIds();
