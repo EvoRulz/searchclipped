@@ -1,6 +1,6 @@
 /* sw.js — SearchClipped Service Worker */
 'use strict';
-var CACHE_NAME = 'searchclipped-v477';
+var CACHE_NAME = 'searchclipped-v478';
 var PRECACHE = [
   './',
   './index.html',
@@ -22,7 +22,9 @@ var PRECACHE = [
 self.addEventListener('install', function (e) {
   e.waitUntil(
     caches.open(CACHE_NAME).then(function (cache) {
-      return cache.addAll(PRECACHE);
+      return Promise.all(PRECACHE.map(function (u) {
+        return cache.add(new Request(u, { cache: 'reload' }));
+      }));
     }).then(function () {
       return self.skipWaiting();
     })

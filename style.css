@@ -35,6 +35,7 @@
   --global-undo-top: 0px;
   --global-undo-left: 6px;
   --search-right: -9px;
+  color-scheme: dark;
 }
 /* ===== STORAGE DISPLAY ===== */
 #storage-row {
